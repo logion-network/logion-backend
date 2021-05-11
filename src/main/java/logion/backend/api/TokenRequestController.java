@@ -23,6 +23,8 @@ public class TokenRequestController {
     public TokenRequestView createTokenRequest(@RequestBody CreateTokenRequestView createTokenRequestView) {
         UUID id = UUID.randomUUID();
         logger.info("Successfully created {} with id={}", createTokenRequestView, id);
-        return new TokenRequestView(id);
+        return TokenRequestView.builder()
+                .id(id)
+                .build();
     }
 }

@@ -1,16 +1,14 @@
 package logion.backend.api.view;
 
+import lombok.Builder;
+import lombok.Value;
+
 import java.util.UUID;
 
+@Value
+@Builder
 public class TokenRequestView {
 
-    private final UUID id;
+    UUID id;
 
-    public TokenRequestView(UUID id) {
-        this.id = id;
-    }
-
-    public UUID getId() {
-        return id;
-    }
 }

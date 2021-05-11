@@ -37,7 +37,9 @@ public class TokenRequestWebTest {
     @MethodSource
     public void createTokenRequest(String request, ResultMatcher resultMatcher, int numberOfInvocation) throws Exception {
         when(tokenRequestController.createTokenRequest(any(CreateTokenRequestView.class)))
-                .thenReturn(new TokenRequestView(UUID.randomUUID()));
+                .thenReturn(TokenRequestView.builder()
+                        .id(UUID.randomUUID())
+                        .build());
 
         mvc.perform(post("/token-request")
                 .accept(APPLICATION_JSON)

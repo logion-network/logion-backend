@@ -13,7 +13,11 @@ public class TokenRequestControllerTest {
     @Test
     public void createTokenRequest() {
         // Given
-        CreateTokenRequestView createTokenRequestView = new CreateTokenRequestView("MyFavoriteToken", "MyAccount", 40);
+        CreateTokenRequestView createTokenRequestView = CreateTokenRequestView.builder()
+                .tokenName("MyFavoriteToken")
+                .userAccount("MyAccount")
+                .numberOfGoldBars(40)
+                .build();
         // When
         TokenRequestView tokenRequest = tokenRequestController.createTokenRequest(createTokenRequestView);
         // Then
