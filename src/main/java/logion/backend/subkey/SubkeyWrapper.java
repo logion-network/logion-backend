@@ -1,7 +1,7 @@
 package logion.backend.subkey;
 
 import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +59,7 @@ public class SubkeyWrapper {
     private Process callSubkeyWithInput(String input, List<String> command) {
         try {
             var process = new ProcessBuilder(command.toArray(new String[command.size()])).start();
-            var writer = new OutputStreamWriter(process.getOutputStream(), Charset.forName("UTF-8"));
+            var writer = new OutputStreamWriter(process.getOutputStream(), StandardCharsets.UTF_8);
             writer.write(input);
             writer.close();
             process.waitFor();
