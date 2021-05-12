@@ -1,10 +1,12 @@
 package logion.backend.subkey;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@Tag("IntegrationTest")
 public class SubkeyWrapperTest {
 
     @Test
