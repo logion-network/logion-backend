@@ -21,7 +21,7 @@ public class TokenRequestController {
 
     @PostMapping
     public TokenRequestView createTokenRequest(@RequestBody CreateTokenRequestView createTokenRequestView) {
-        UUID id = UUID.randomUUID();
+        var id = UUID.randomUUID();
         logger.info("Successfully created {} with id={}", createTokenRequestView, id);
         return TokenRequestView.builder()
                 .id(id)

@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(TokenRequestController.class)
-public class TokenRequestWebTest {
+class TokenRequestWebTest {
 
     @Autowired
     private MockMvc mvc;
@@ -35,7 +35,7 @@ public class TokenRequestWebTest {
 
     @ParameterizedTest
     @MethodSource
-    public void createTokenRequest(String request, ResultMatcher resultMatcher, int numberOfInvocation) throws Exception {
+    void createTokenRequest(String request, ResultMatcher resultMatcher, int numberOfInvocation) throws Exception {
         when(tokenRequestController.createTokenRequest(any(CreateTokenRequestView.class)))
                 .thenReturn(TokenRequestView.builder()
                         .id(UUID.randomUUID())
