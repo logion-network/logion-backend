@@ -38,6 +38,28 @@ public class SubkeyWrapper {
                 return callSubkeyWithInput(message, command).exitValue() == 0;
             }
 
+            private List<String> buildSubkeyCommand() {
+                var command = new ArrayList<String>();
+                command.add(subkey);
+                return command;
+            }
+
+            private Process callSubkeyWithInput(String input, List<String> command) {
+                try {
+                    var process = new ProcessBuilder(command.toArray(new String[command.size()])).start();
+                    var writer = new OutputStreamWriter(process.getOutputStream(), StandardCharsets.UTF_8);
+                    writer.write(input);
+                    writer.close();
+                    process.waitFor();
+                    return process;
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new SubkeyException("Failed to execute subkey", e);
+                } catch (Exception e) {
+                    throw new SubkeyException("Failed to execute subkey", e);
+                }
+            }
+
             private ExpectingMessage() {
 
             }
@@ -48,26 +70,7 @@ public class SubkeyWrapper {
         }
     }
 
-    private List<String> buildSubkeyCommand() {
-        var command = new ArrayList<String>();
-        command.add(subkey);
-        return command;
-    }
-
     private String subkey;
-
-    private Process callSubkeyWithInput(String input, List<String> command) {
-        try {
-            var process = new ProcessBuilder(command.toArray(new String[command.size()])).start();
-            var writer = new OutputStreamWriter(process.getOutputStream(), StandardCharsets.UTF_8);
-            writer.write(input);
-            writer.close();
-            process.waitFor();
-            return process;
-        } catch (Exception e) {
-            throw new SubkeyException("Failed to execute subkey", e);
-        }
-    }
 
     public static SubkeyWrapper defaultInstance() {
         return new SubkeyWrapper.Builder().build();
