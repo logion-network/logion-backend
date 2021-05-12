@@ -6,12 +6,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class TokenRequestControllerTest {
+class TokenRequestControllerTest {
 
     private final TokenRequestController tokenRequestController = new TokenRequestController();
 
     @Test
-    public void createTokenRequest() {
+    void createTokenRequest() {
         // Given
         CreateTokenRequestView createTokenRequestView = CreateTokenRequestView.builder()
                 .tokenName("MyFavoriteToken")
