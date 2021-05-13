@@ -4,6 +4,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import logion.backend.model.Ss58Address;
 
 import static java.util.Objects.requireNonNull;
 
@@ -20,7 +21,7 @@ public class SubkeyWrapper {
 
         private String signature;
 
-        public ExpectingMessage withSs58Address(String address) {
+        public ExpectingMessage withSs58Address(Ss58Address address) {
             var expectsMessage = new ExpectingMessage();
             expectsMessage.address = address;
             return expectsMessage;
@@ -28,13 +29,13 @@ public class SubkeyWrapper {
 
         public class ExpectingMessage {
 
-            private String address;
+            private Ss58Address address;
 
             public boolean withMessage(String message) {
                 var command = buildSubkeyCommand();
                 command.add("verify");
                 command.add(signature);
-                command.add(address);
+                command.add(address.getRawValue());
                 return callSubkeyWithInput(message, command).exitValue() == 0;
             }
 
