@@ -50,7 +50,7 @@ class TokenRequestWebTest {
     @MethodSource
     void createTokenRequest(String request, ResultMatcher resultMatcher, int numberOfInvocation, TokenizationRequestDescription expectedTokenDescription) throws Exception {
         var tokenizationRequest = mock(TokenizationRequestAggregateRoot.class);
-        when(tokenizationRequest.getTokenDescription()).thenReturn(expectedTokenDescription);
+        when(tokenizationRequest.getDescription()).thenReturn(expectedTokenDescription);
 
         when(tokenRequestFactory.newPendingTokenizationRequest(any(), eq(expectedTokenDescription)))
             .thenReturn(tokenizationRequest);

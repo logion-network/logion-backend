@@ -79,4 +79,10 @@ class TokenizationRequestCommandsTest {
     private void thenRequestRejected() {
         verify(request).reject();
     }
+
+    @Test
+    void rejectTokenizationRequestFailsIfNotExists() {
+        givenTokenizationRequest();
+        assertThrows(IllegalArgumentException.class, this::whenRejectTokenizationRequest);
+    }
 }

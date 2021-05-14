@@ -23,7 +23,7 @@ public class TokenizationRequestAggregateRoot {
         status = TokenizationRequestStatus.REJECTED;
     }
 
-    public TokenizationRequestDescription getTokenDescription() {
+    public TokenizationRequestDescription getDescription() {
         return TokenizationRequestDescription.builder()
                 .legalOfficerAddress(legalOfficerAddress)
                 .requesterAddress(requesterAddress)

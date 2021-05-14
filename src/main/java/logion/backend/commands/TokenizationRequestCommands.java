@@ -24,11 +24,9 @@ public class TokenizationRequestCommands {
     private TokenizationRequestRepository tokenizationRequestRepository;
 
     public void rejectTokenizationRequest(UUID requestId) {
-        var request = tokenizationRequestRepository.findById(requestId);
-        if(request.isPresent()) {
-            var existingRequest = request.orElseThrow();
-            existingRequest.reject();
-            tokenizationRequestRepository.save(existingRequest);
-        }
+        var request = tokenizationRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("Request does not exist"));
+        request.reject();
+        tokenizationRequestRepository.save(request);
     }
 }

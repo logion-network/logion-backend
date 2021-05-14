@@ -35,10 +35,10 @@ public class TokenRequestController {
 
         return TokenRequestView.builder()
                 .id(request.getId())
-                .requestedTokenName(request.getTokenDescription().getRequestedTokenName())
-                .legalOfficerAddress(request.getTokenDescription().getLegalOfficerAddress().getRawValue())
-                .requesterAddress(request.getTokenDescription().getRequesterAddress().getRawValue())
-                .bars(request.getTokenDescription().getBars())
+                .requestedTokenName(tokenDescription.getRequestedTokenName())
+                .legalOfficerAddress(tokenDescription.getLegalOfficerAddress().getRawValue())
+                .requesterAddress(tokenDescription.getRequesterAddress().getRawValue())
+                .bars(tokenDescription.getBars())
                 .status(request.getStatus())
                 .build();
     }

@@ -44,6 +44,6 @@ class TokenizationRequestFactoryTest {
 
     private void thenPendingRequestCreatedWithDescription(TokenizationRequestDescription description) {
         assertThat(createdTokenizationRequest.getId(), equalTo(requestId));
-        assertThat(createdTokenizationRequest.getTokenDescription(), equalTo(description));
+        assertThat(createdTokenizationRequest.getDescription(), equalTo(description));
     }
 }
