@@ -26,7 +26,7 @@ public class TokenizationRequestAggregateRoot {
     public TokenizationRequestDescription getTokenDescription() {
         return TokenizationRequestDescription.builder()
                 .legalOfficerAddress(legalOfficerAddress)
-                .requesterAddress(requestorAddress)
+                .requesterAddress(requesterAddress)
                 .requestedTokenName(requestedTokenName)
                 .bars(bars)
                 .build();
@@ -42,7 +42,7 @@ public class TokenizationRequestAggregateRoot {
     Ss58Address legalOfficerAddress;
 
     @Convert(converter = Ss58AddressConverter.class)
-    Ss58Address requestorAddress;
+    Ss58Address requesterAddress;
 
     int bars;
 

@@ -10,7 +10,7 @@ public class TokenizationRequestFactory {
         var request = new TokenizationRequestAggregateRoot();
         request.id = id;
         request.status = TokenizationRequestStatus.PENDING;
-        request.requestorAddress = tokenDescription.getRequesterAddress();
+        request.requesterAddress = tokenDescription.getRequesterAddress();
         request.legalOfficerAddress = tokenDescription.getLegalOfficerAddress();
         request.requestedTokenName = tokenDescription.getRequestedTokenName();
         request.bars = tokenDescription.getBars();
