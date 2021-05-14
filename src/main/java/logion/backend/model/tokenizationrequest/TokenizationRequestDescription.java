@@ -13,11 +13,11 @@ import lombok.Value;
 @ValueObject
 public class TokenizationRequestDescription {
 
-    private String requestedTokenName;
+    String requestedTokenName;
 
-    private Ss58Address legalOfficerAddress;
+    Ss58Address legalOfficerAddress;
 
-    private Ss58Address requesterAddress;
+    Ss58Address requesterAddress;
 
-    private int bars;
+    int bars;
 }
