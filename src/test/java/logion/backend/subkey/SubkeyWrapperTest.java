@@ -1,5 +1,6 @@
 package logion.backend.subkey;
 
+import logion.backend.model.Ss58Address;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -19,10 +20,10 @@ class SubkeyWrapperTest {
     }
 
     private void givenAddress(String address) {
-        this.address = address;
+        this.address = new Ss58Address(address);
     }
 
-    private String address;
+    private Ss58Address address;
 
     private void givenMessage(String message) {
         this.message = message;

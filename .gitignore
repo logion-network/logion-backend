@@ -36,3 +36,6 @@ build/
 .classpath
 .settings/
 .project
+
+# Config
+/application.properties

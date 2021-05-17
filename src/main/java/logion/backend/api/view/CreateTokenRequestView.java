@@ -7,8 +7,9 @@ import lombok.Value;
 @Builder
 public class CreateTokenRequestView {
 
-    String tokenName;
-    String userAccount;
-    int numberOfGoldBars;
+    String requestedTokenName;
+    String legalOfficerAddress;
+    String requesterAddress;
+    int bars;
 
 }
