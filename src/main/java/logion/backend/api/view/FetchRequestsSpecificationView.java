@@ -6,7 +6,7 @@ import lombok.Value;
 
 @Value
 @Builder
-public class QueryTokenRequestView {
+public class FetchRequestsSpecificationView {
 
     String legalOfficerAddress;
     TokenizationRequestStatus status;

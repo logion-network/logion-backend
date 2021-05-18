@@ -6,7 +6,7 @@ import lombok.Value;
 
 @Value
 @Builder
-public class QueryTokenRequestResponseView {
+public class FetchRequestsResponseView {
 
     List<TokenRequestView> requests;
 }

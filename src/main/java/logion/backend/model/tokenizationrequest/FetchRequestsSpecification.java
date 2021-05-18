@@ -6,7 +6,7 @@ import lombok.Value;
 
 @Value
 @Builder
-public class TokenizationRequestQuery {
+public class FetchRequestsSpecification {
 
     Ss58Address expectedLegalOfficer;
 

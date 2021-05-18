@@ -11,7 +11,7 @@ import logion.backend.model.Ss58Address;
 import logion.backend.model.tokenizationrequest.TokenizationRequestAggregateRoot;
 import logion.backend.model.tokenizationrequest.TokenizationRequestDescription;
 import logion.backend.model.tokenizationrequest.TokenizationRequestFactory;
-import logion.backend.model.tokenizationrequest.TokenizationRequestQuery;
+import logion.backend.model.tokenizationrequest.FetchRequestsSpecification;
 import logion.backend.model.tokenizationrequest.TokenizationRequestRepository;
 import logion.backend.model.tokenizationrequest.TokenizationRequestStatus;
 import org.json.JSONException;
@@ -112,7 +112,7 @@ class TokenRequestWebTest {
     @MethodSource
     void queryTokenRequests(
             String request,
-            TokenizationRequestQuery query,
+            FetchRequestsSpecification query,
             List<TokenizationRequestAggregateRoot> tokenizationRequests,
             int expectedResults) throws Exception {
         when(tokeninzationRequestRepository.findBy(query)).thenReturn(tokenizationRequests);
@@ -132,7 +132,7 @@ class TokenRequestWebTest {
         return Stream.of(
             Arguments.of(
                 queryRequestBody(DefaultAddresses.ALICE, TokenizationRequestStatus.PENDING),
-                TokenizationRequestQuery.builder()
+                FetchRequestsSpecification.builder()
                     .expectedLegalOfficer(DefaultAddresses.ALICE)
                     .expectedStatus(TokenizationRequestStatus.PENDING)
                     .build(),
@@ -141,7 +141,7 @@ class TokenRequestWebTest {
             ),
             Arguments.of(
                 queryRequestBody(DefaultAddresses.ALICE, TokenizationRequestStatus.REJECTED),
-                TokenizationRequestQuery.builder()
+                FetchRequestsSpecification.builder()
                     .expectedLegalOfficer(DefaultAddresses.ALICE)
                     .expectedStatus(TokenizationRequestStatus.REJECTED)
                     .build(),
@@ -150,7 +150,7 @@ class TokenRequestWebTest {
             ),
             Arguments.of(
                 queryRequestBody(DefaultAddresses.BOB, TokenizationRequestStatus.PENDING),
-                TokenizationRequestQuery.builder()
+                FetchRequestsSpecification.builder()
                     .expectedLegalOfficer(DefaultAddresses.BOB)
                     .expectedStatus(TokenizationRequestStatus.PENDING)
                     .build(),

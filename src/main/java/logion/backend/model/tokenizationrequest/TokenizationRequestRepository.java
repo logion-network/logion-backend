@@ -13,7 +13,7 @@ public interface TokenizationRequestRepository
 extends CrudRepository<TokenizationRequestAggregateRoot, UUID>,
 QuerydslPredicateExecutor<TokenizationRequestAggregateRoot> {
 
-    default List<TokenizationRequestAggregateRoot> findBy(TokenizationRequestQuery query) {
+    default List<TokenizationRequestAggregateRoot> findBy(FetchRequestsSpecification query) {
         var root = QTokenizationRequestAggregateRoot.tokenizationRequestAggregateRoot;
         var predicate = new BooleanBuilder()
                 .and(root.legalOfficerAddress.eq(query.getExpectedLegalOfficer()))

@@ -3,15 +3,15 @@ package logion.backend.api;
 import java.util.UUID;
 import logion.backend.annotation.RestQuery;
 import logion.backend.api.view.CreateTokenRequestView;
-import logion.backend.api.view.QueryTokenRequestResponseView;
-import logion.backend.api.view.QueryTokenRequestView;
+import logion.backend.api.view.FetchRequestsSpecificationView;
+import logion.backend.api.view.FetchRequestsResponseView;
 import logion.backend.api.view.TokenRequestView;
 import logion.backend.commands.TokenizationRequestCommands;
 import logion.backend.model.Ss58Address;
+import logion.backend.model.tokenizationrequest.FetchRequestsSpecification;
 import logion.backend.model.tokenizationrequest.TokenizationRequestAggregateRoot;
 import logion.backend.model.tokenizationrequest.TokenizationRequestDescription;
 import logion.backend.model.tokenizationrequest.TokenizationRequestFactory;
-import logion.backend.model.tokenizationrequest.TokenizationRequestQuery;
 import logion.backend.model.tokenizationrequest.TokenizationRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -68,14 +68,14 @@ public class TokenRequestController {
 
     @PutMapping
     @RestQuery
-    public QueryTokenRequestResponseView queryTokenRequests(@RequestBody QueryTokenRequestView queryTokenRequestView) {
-        var legalOfficerAddress = new Ss58Address(queryTokenRequestView.getLegalOfficerAddress());
-        var query = TokenizationRequestQuery.builder()
+    public FetchRequestsResponseView fetchRequests(@RequestBody FetchRequestsSpecificationView specificationView) {
+        var legalOfficerAddress = new Ss58Address(specificationView.getLegalOfficerAddress());
+        var specification = FetchRequestsSpecification.builder()
                 .expectedLegalOfficer(legalOfficerAddress)
-                .expectedStatus(queryTokenRequestView.getStatus())
+                .expectedStatus(specificationView.getStatus())
                 .build();
-        var requests = tokenizationRequestRepository.findBy(query);
-        return QueryTokenRequestResponseView.builder()
+        var requests = tokenizationRequestRepository.findBy(specification);
+        return FetchRequestsResponseView.builder()
                 .requests(stream(requests.spliterator(), false)
                         .map(this::toView)
                         .collect(toList()))
