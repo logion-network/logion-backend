@@ -11,6 +11,7 @@ import logion.backend.model.Ss58Address;
 import logion.backend.model.tokenizationrequest.TokenizationRequestAggregateRoot;
 import logion.backend.model.tokenizationrequest.TokenizationRequestDescription;
 import logion.backend.model.tokenizationrequest.TokenizationRequestFactory;
+import logion.backend.model.tokenizationrequest.TokenizationRequestQuery;
 import logion.backend.model.tokenizationrequest.TokenizationRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -68,10 +70,13 @@ public class TokenRequestController {
     @RestQuery
     public QueryTokenRequestResponseView queryTokenRequests(@RequestBody QueryTokenRequestView queryTokenRequestView) {
         var legalOfficerAddress = new Ss58Address(queryTokenRequestView.getLegalOfficerAddress());
-        var requests = tokenizationRequestRepository.findByLegalOfficerAddress(legalOfficerAddress);
+        var query = TokenizationRequestQuery.builder()
+                .expectedLegalOfficer(legalOfficerAddress)
+                .expectedStatus(queryTokenRequestView.getStatus())
+                .build();
+        var requests = tokenizationRequestRepository.findBy(query);
         return QueryTokenRequestResponseView.builder()
-                .requests(requests.stream()
-                        .filter(request -> request.getStatus() == queryTokenRequestView.getStatus())
+                .requests(stream(requests.spliterator(), false)
                         .map(this::toView)
                         .collect(toList()))
                 .build();

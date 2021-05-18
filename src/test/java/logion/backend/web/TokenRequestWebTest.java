@@ -11,6 +11,7 @@ import logion.backend.model.Ss58Address;
 import logion.backend.model.tokenizationrequest.TokenizationRequestAggregateRoot;
 import logion.backend.model.tokenizationrequest.TokenizationRequestDescription;
 import logion.backend.model.tokenizationrequest.TokenizationRequestFactory;
+import logion.backend.model.tokenizationrequest.TokenizationRequestQuery;
 import logion.backend.model.tokenizationrequest.TokenizationRequestRepository;
 import logion.backend.model.tokenizationrequest.TokenizationRequestStatus;
 import org.json.JSONException;
@@ -111,10 +112,10 @@ class TokenRequestWebTest {
     @MethodSource
     void queryTokenRequests(
             String request,
-            Ss58Address legalOfficerAddress,
+            TokenizationRequestQuery query,
             List<TokenizationRequestAggregateRoot> tokenizationRequests,
             int expectedResults) throws Exception {
-        when(tokeninzationRequestRepository.findByLegalOfficerAddress(legalOfficerAddress)).thenReturn(tokenizationRequests);
+        when(tokeninzationRequestRepository.findBy(query)).thenReturn(tokenizationRequests);
         mvc.perform(put("/token-request/")
                 .accept(APPLICATION_JSON)
                 .contentType(APPLICATION_JSON)
@@ -131,19 +132,28 @@ class TokenRequestWebTest {
         return Stream.of(
             Arguments.of(
                 queryRequestBody(DefaultAddresses.ALICE, TokenizationRequestStatus.PENDING),
-                DefaultAddresses.ALICE,
-                aliceRequests(),
+                TokenizationRequestQuery.builder()
+                    .expectedLegalOfficer(DefaultAddresses.ALICE)
+                    .expectedStatus(TokenizationRequestStatus.PENDING)
+                    .build(),
+                alicePendingRequests(),
                 3
             ),
             Arguments.of(
                 queryRequestBody(DefaultAddresses.ALICE, TokenizationRequestStatus.REJECTED),
-                DefaultAddresses.ALICE,
-                aliceRequests(),
+                TokenizationRequestQuery.builder()
+                    .expectedLegalOfficer(DefaultAddresses.ALICE)
+                    .expectedStatus(TokenizationRequestStatus.REJECTED)
+                    .build(),
+                aliceRejectedRequests(),
                 2
             ),
             Arguments.of(
                 queryRequestBody(DefaultAddresses.BOB, TokenizationRequestStatus.PENDING),
-                DefaultAddresses.BOB,
+                TokenizationRequestQuery.builder()
+                    .expectedLegalOfficer(DefaultAddresses.BOB)
+                    .expectedStatus(TokenizationRequestStatus.PENDING)
+                    .build(),
                 bobRequests(),
                 1
             )
@@ -157,13 +167,11 @@ class TokenRequestWebTest {
         return validRequest.toString();
     }
 
-    private static List<TokenizationRequestAggregateRoot> aliceRequests() {
+    private static List<TokenizationRequestAggregateRoot> alicePendingRequests() {
         var requests = new ArrayList<TokenizationRequestAggregateRoot>();
         requests.add(alicePendingRequest(1));
         requests.add(alicePendingRequest(2));
         requests.add(alicePendingRequest(3));
-        requests.add(aliceRejectedRequest(4));
-        requests.add(aliceRejectedRequest(5));
         return requests;
     }
 
@@ -182,6 +190,13 @@ class TokenRequestWebTest {
         when(request.getDescription()).thenReturn(description);
         when(request.getStatus()).thenReturn(status);
         return request;
+    }
+
+    private static List<TokenizationRequestAggregateRoot> aliceRejectedRequests() {
+        var requests = new ArrayList<TokenizationRequestAggregateRoot>();
+        requests.add(aliceRejectedRequest(4));
+        requests.add(aliceRejectedRequest(5));
+        return requests;
     }
 
     private static TokenizationRequestAggregateRoot aliceRejectedRequest(int index) {

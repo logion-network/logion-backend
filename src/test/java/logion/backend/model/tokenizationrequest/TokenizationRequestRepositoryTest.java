@@ -18,7 +18,11 @@ class TokenizationRequestRepositoryTest {
 
     @Test
     void findByLegalOfficerAddress() {
-        var requests = repository.findByLegalOfficerAddress(DefaultAddresses.ALICE);
+        var query = TokenizationRequestQuery.builder()
+                .expectedLegalOfficer(DefaultAddresses.ALICE)
+                .expectedStatus(TokenizationRequestStatus.PENDING)
+                .build();
+        var requests = repository.findBy(query);
         assertThat(requests.size(), is(2));
     }
 
