@@ -1,6 +1,7 @@
 package logion.backend.api;
 
 import java.util.UUID;
+import logion.backend.annotation.RestQuery;
 import logion.backend.api.view.CreateTokenRequestView;
 import logion.backend.api.view.QueryTokenRequestResponseView;
 import logion.backend.api.view.QueryTokenRequestView;
@@ -64,12 +65,12 @@ public class TokenRequestController {
     }
 
     @PutMapping
+    @RestQuery
     public QueryTokenRequestResponseView queryTokenRequests(@RequestBody QueryTokenRequestView queryTokenRequestView) {
         var legalOfficerAddress = new Ss58Address(queryTokenRequestView.getLegalOfficerAddress());
         var requests = tokenizationRequestRepository.findByLegalOfficerAddress(legalOfficerAddress);
         return QueryTokenRequestResponseView.builder()
                 .requests(requests.stream()
-                        .filter(request -> request.getDescription().getLegalOfficerAddress().equals(legalOfficerAddress))
                         .filter(request -> request.getStatus() == queryTokenRequestView.getStatus())
                         .map(this::toView)
                         .collect(toList()))
