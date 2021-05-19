@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.*;
 
 @RestController
 @RequestMapping(path = "/token-request", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -61,7 +61,7 @@ public class TokenRequestController {
                 .build();
     }
 
-    @PostMapping("{requestId}/reject")
+    @PostMapping(value = "{requestId}/reject", consumes = ALL_VALUE)
     public void rejectTokenRequest(@PathVariable String requestId) {
         tokenizationRequestCommands.rejectTokenizationRequest(UUID.fromString(requestId));
     }
