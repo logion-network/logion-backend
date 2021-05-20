@@ -101,8 +101,7 @@ class TokenRequestWebTest {
         var requestId = UUID.randomUUID();
 
         mvc.perform(post("/token-request/" + requestId.toString() + "/reject")
-                .accept(APPLICATION_JSON)
-                .contentType(APPLICATION_JSON))
+                .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         verify(tokenizationRequestCommands).rejectTokenizationRequest(requestId);
