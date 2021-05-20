@@ -79,7 +79,7 @@ class TokenRequestWebTest {
                     .append('-')
                     .append(expectedTokenDescription.getBars())
                     .toString();
-            var approving = signatureVerifyMock(message, DefaultAddresses.ALICE, true);
+            var approving = signatureVerifyMock(message, expectedTokenDescription.getRequesterAddress(), true);
             when(subkey.verify("signature")).thenReturn(approving);
         }
 

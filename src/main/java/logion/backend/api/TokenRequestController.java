@@ -54,7 +54,7 @@ public class TokenRequestController {
                 .append(tokenDescription.getBars())
                 .toString();
         var signatureValid = subkey.verify(createTokenRequestView.getSignature())
-                .withSs58Address(legalOfficerAddress)
+                .withSs58Address(tokenDescription.getRequesterAddress())
                 .withMessage(message);
         if(!signatureValid) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to verify signature");
