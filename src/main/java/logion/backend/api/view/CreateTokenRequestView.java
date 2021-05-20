@@ -11,5 +11,5 @@ public class CreateTokenRequestView {
     String legalOfficerAddress;
     String requesterAddress;
     int bars;
-
+    String signature;
 }
