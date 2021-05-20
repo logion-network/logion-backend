@@ -3,8 +3,8 @@ package logion.backend.api;
 import java.util.UUID;
 import logion.backend.annotation.RestQuery;
 import logion.backend.api.view.CreateTokenRequestView;
-import logion.backend.api.view.FetchRequestsSpecificationView;
 import logion.backend.api.view.FetchRequestsResponseView;
+import logion.backend.api.view.FetchRequestsSpecificationView;
 import logion.backend.api.view.TokenRequestView;
 import logion.backend.commands.TokenizationRequestCommands;
 import logion.backend.model.Ss58Address;
@@ -23,7 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.http.MediaType.*;
+import static org.springframework.http.MediaType.ALL_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(path = "/token-request", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
