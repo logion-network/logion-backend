@@ -8,15 +8,17 @@ import logion.backend.api.TokenRequestController;
 import logion.backend.commands.TokenizationRequestCommands;
 import logion.backend.model.DefaultAddresses;
 import logion.backend.model.Ss58Address;
+import logion.backend.model.Subkey;
+import logion.backend.model.tokenizationrequest.FetchRequestsSpecification;
 import logion.backend.model.tokenizationrequest.TokenizationRequestAggregateRoot;
 import logion.backend.model.tokenizationrequest.TokenizationRequestDescription;
 import logion.backend.model.tokenizationrequest.TokenizationRequestFactory;
-import logion.backend.model.tokenizationrequest.FetchRequestsSpecification;
 import logion.backend.model.tokenizationrequest.TokenizationRequestRepository;
 import logion.backend.model.tokenizationrequest.TokenizationRequestStatus;
+import logion.backend.subkey.SubkeyWrapper;
+import logion.backend.subkey.SubkeyWrapper.ExpectingAddress;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -54,6 +56,9 @@ class TokenRequestWebTest {
     @MockBean
     private TokenizationRequestCommands tokenizationRequestCommands;
 
+    @MockBean
+    private Subkey subkey;
+
     @ParameterizedTest
     @MethodSource
     void createTokenRequest(String request, ResultMatcher resultMatcher, int numberOfInvocation, TokenizationRequestDescription expectedTokenDescription) throws Exception {
@@ -63,6 +68,20 @@ class TokenRequestWebTest {
         when(tokenizationRequestFactory.newPendingTokenizationRequest(any(), eq(expectedTokenDescription)))
             .thenReturn(tokenizationRequest);
         when(tokenizationRequestCommands.addTokenizationRequest(tokenizationRequest)).thenReturn(tokenizationRequest);
+
+        if(expectedTokenDescription != null) {
+            var message =  new StringBuilder()
+                    .append(expectedTokenDescription.getLegalOfficerAddress().getRawValue())
+                    .append('-')
+                    .append(expectedTokenDescription.getRequesterAddress().getRawValue())
+                    .append('-')
+                    .append(expectedTokenDescription.getRequestedTokenName())
+                    .append('-')
+                    .append(expectedTokenDescription.getBars())
+                    .toString();
+            var approving = signatureVerifyMock(message, expectedTokenDescription.getRequesterAddress(), true);
+            when(subkey.verify("signature")).thenReturn(approving);
+        }
 
         mvc.perform(post("/token-request")
                 .accept(APPLICATION_JSON)
@@ -93,18 +112,50 @@ class TokenRequestWebTest {
         validRequest.put("legalOfficerAddress", DefaultAddresses.ALICE.getRawValue());
         validRequest.put("requesterAddress", "5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW");
         validRequest.put("bars", 1);
+        validRequest.put("signature", "signature");
         return validRequest.toString();
     }
 
-    @Test
-    void rejectTokenRequest() throws Exception {
+    @ParameterizedTest
+    @MethodSource
+    void rejectTokenRequestWithWrongSignature(boolean signatureVerifyResult, ResultMatcher matcher) throws Exception {
         var requestId = UUID.randomUUID();
+        var requestBody = new JSONObject();
+        requestBody.put("legalOfficerAddress", DefaultAddresses.ALICE.getRawValue());
+        requestBody.put("signature", SIGNATURE);
+
+        var message = DefaultAddresses.ALICE.getRawValue() + "-" + requestId.toString();
+        var approving = signatureVerifyMock(message, DefaultAddresses.ALICE, signatureVerifyResult);
+        when(subkey.verify("signature")).thenReturn(approving);
 
         mvc.perform(post("/token-request/" + requestId.toString() + "/reject")
-                .accept(APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .accept(APPLICATION_JSON)
+                .contentType(APPLICATION_JSON)
+                .content(requestBody.toString()))
+                .andExpect(matcher);
 
-        verify(tokenizationRequestCommands).rejectTokenizationRequest(requestId);
+        if(signatureVerifyResult) {
+            verify(tokenizationRequestCommands).rejectTokenizationRequest(requestId);
+        }
+    }
+
+    private static final String SIGNATURE = "signature";
+
+    private ExpectingAddress signatureVerifyMock(String message, Ss58Address address, boolean verifyResult) {
+        var expectingMessage = mock(SubkeyWrapper.ExpectingAddress.ExpectingMessage.class);
+        when(expectingMessage.withMessage(message)).thenReturn(verifyResult);
+
+        var expectingAddress = mock(SubkeyWrapper.ExpectingAddress.class);
+        when(expectingAddress.withSs58Address(address)).thenReturn(expectingMessage);
+
+        return expectingAddress;
+    }
+
+    private static Stream<Arguments> rejectTokenRequestWithWrongSignature() {
+        return Stream.of(
+            Arguments.of(true, status().isOk()),
+            Arguments.of(false, status().isBadRequest())
+        );
     }
 
     @ParameterizedTest

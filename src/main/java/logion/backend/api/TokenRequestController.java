@@ -5,21 +5,25 @@ import logion.backend.annotation.RestQuery;
 import logion.backend.api.view.CreateTokenRequestView;
 import logion.backend.api.view.FetchRequestsResponseView;
 import logion.backend.api.view.FetchRequestsSpecificationView;
+import logion.backend.api.view.RejectTokenRequestView;
 import logion.backend.api.view.TokenRequestView;
 import logion.backend.commands.TokenizationRequestCommands;
 import logion.backend.model.Ss58Address;
+import logion.backend.model.Subkey;
 import logion.backend.model.tokenizationrequest.FetchRequestsSpecification;
 import logion.backend.model.tokenizationrequest.TokenizationRequestAggregateRoot;
 import logion.backend.model.tokenizationrequest.TokenizationRequestDescription;
 import logion.backend.model.tokenizationrequest.TokenizationRequestFactory;
 import logion.backend.model.tokenizationrequest.TokenizationRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
@@ -38,6 +42,24 @@ public class TokenRequestController {
                 .requestedTokenName(createTokenRequestView.getRequestedTokenName())
                 .bars(createTokenRequestView.getBars())
                 .build();
+
+        var legalOfficerAddress = tokenDescription.getLegalOfficerAddress();
+        var message =  new StringBuilder()
+                .append(legalOfficerAddress.getRawValue())
+                .append('-')
+                .append(tokenDescription.getRequesterAddress().getRawValue())
+                .append('-')
+                .append(tokenDescription.getRequestedTokenName())
+                .append('-')
+                .append(tokenDescription.getBars())
+                .toString();
+        var signatureValid = subkey.verify(createTokenRequestView.getSignature())
+                .withSs58Address(tokenDescription.getRequesterAddress())
+                .withMessage(message);
+        if(!signatureValid) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to verify signature");
+        }
+
         var id = UUID.randomUUID();
         var request = tokenizationRequestFactory.newPendingTokenizationRequest(id, tokenDescription);
         request = tokenizationRequestCommands.addTokenizationRequest(request);
@@ -63,9 +85,20 @@ public class TokenRequestController {
     }
 
     @PostMapping(value = "{requestId}/reject", consumes = ALL_VALUE)
-    public void rejectTokenRequest(@PathVariable String requestId) {
+    public void rejectTokenRequest(@PathVariable String requestId, @RequestBody RejectTokenRequestView rejectTokenRequestView) {
+        var legalOfficerAddress = new Ss58Address(rejectTokenRequestView.getLegalOfficerAddress());
+        var message = rejectTokenRequestView.getLegalOfficerAddress() + "-" + requestId;
+        var signatureValid = subkey.verify(rejectTokenRequestView.getSignature())
+                .withSs58Address(legalOfficerAddress)
+                .withMessage(message);
+        if(!signatureValid) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to verify signature");
+        }
         tokenizationRequestCommands.rejectTokenizationRequest(UUID.fromString(requestId));
     }
+
+    @Autowired
+    private Subkey subkey;
 
     @PutMapping
     @RestQuery
