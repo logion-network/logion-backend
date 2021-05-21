@@ -10,4 +10,5 @@ public class FetchRequestsSpecificationView {
 
     String legalOfficerAddress;
     TokenizationRequestStatus status;
+    String requesterAddress;
 }

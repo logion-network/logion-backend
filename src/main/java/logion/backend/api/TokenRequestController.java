@@ -1,5 +1,6 @@
 package logion.backend.api;
 
+import java.util.Optional;
 import java.util.UUID;
 import logion.backend.annotation.RestQuery;
 import logion.backend.api.view.CreateTokenRequestView;
@@ -106,9 +107,9 @@ public class TokenRequestController {
     @PutMapping
     @RestQuery
     public FetchRequestsResponseView fetchRequests(@RequestBody FetchRequestsSpecificationView specificationView) {
-        var legalOfficerAddress = new Ss58Address(specificationView.getLegalOfficerAddress());
         var specification = FetchRequestsSpecification.builder()
-                .expectedLegalOfficer(legalOfficerAddress)
+                .expectedLegalOfficer(Optional.ofNullable(specificationView.getLegalOfficerAddress()).map(Ss58Address::new))
+                .expectedRequesterAddress(Optional.ofNullable(specificationView.getRequesterAddress()).map(Ss58Address::new))
                 .expectedStatus(specificationView.getStatus())
                 .build();
         var requests = tokenizationRequestRepository.findBy(specification);

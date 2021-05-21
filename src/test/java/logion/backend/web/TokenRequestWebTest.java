@@ -2,6 +2,7 @@ package logion.backend.web;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import logion.backend.api.TokenRequestController;
@@ -185,7 +186,8 @@ class TokenRequestWebTest {
             Arguments.of(
                 queryRequestBody(DefaultAddresses.ALICE, TokenizationRequestStatus.PENDING),
                 FetchRequestsSpecification.builder()
-                    .expectedLegalOfficer(DefaultAddresses.ALICE)
+                    .expectedLegalOfficer(Optional.of(DefaultAddresses.ALICE))
+                    .expectedRequesterAddress(Optional.empty())
                     .expectedStatus(TokenizationRequestStatus.PENDING)
                     .build(),
                 alicePendingRequests(),
@@ -194,7 +196,8 @@ class TokenRequestWebTest {
             Arguments.of(
                 queryRequestBody(DefaultAddresses.ALICE, TokenizationRequestStatus.REJECTED),
                 FetchRequestsSpecification.builder()
-                    .expectedLegalOfficer(DefaultAddresses.ALICE)
+                    .expectedLegalOfficer(Optional.of(DefaultAddresses.ALICE))
+                    .expectedRequesterAddress(Optional.empty())
                     .expectedStatus(TokenizationRequestStatus.REJECTED)
                     .build(),
                 aliceRejectedRequests(),
@@ -203,7 +206,8 @@ class TokenRequestWebTest {
             Arguments.of(
                 queryRequestBody(DefaultAddresses.BOB, TokenizationRequestStatus.PENDING),
                 FetchRequestsSpecification.builder()
-                    .expectedLegalOfficer(DefaultAddresses.BOB)
+                    .expectedLegalOfficer(Optional.of(DefaultAddresses.BOB))
+                    .expectedRequesterAddress(Optional.empty())
                     .expectedStatus(TokenizationRequestStatus.PENDING)
                     .build(),
                 bobRequests(),
