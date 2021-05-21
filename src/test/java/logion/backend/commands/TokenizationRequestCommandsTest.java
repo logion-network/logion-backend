@@ -18,6 +18,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class TokenizationRequestCommandsTest {
 
+    private static final String REJECT_REASON = "Illegal";
+
     @Test
     void addTokenizationRequest() {
         givenTokenizationRequest();
@@ -73,11 +75,11 @@ class TokenizationRequestCommandsTest {
     }
 
     private void whenRejectTokenizationRequest() {
-        commands.rejectTokenizationRequest(request.getId());
+        commands.rejectTokenizationRequest(request.getId(), REJECT_REASON);
     }
 
     private void thenRequestRejected() {
-        verify(request).reject();
+        verify(request).reject(REJECT_REASON);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package logion.backend.model.tokenizationrequest;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import logion.backend.annotation.Factory;
 
@@ -14,6 +15,7 @@ public class TokenizationRequestFactory {
         request.legalOfficerAddress = tokenDescription.getLegalOfficerAddress();
         request.requestedTokenName = tokenDescription.getRequestedTokenName();
         request.bars = tokenDescription.getBars();
+        request.createdOn = LocalDateTime.now();
         return request;
     }
 }

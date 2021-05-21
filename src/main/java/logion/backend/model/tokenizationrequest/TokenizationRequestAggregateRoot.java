@@ -1,5 +1,6 @@
 package logion.backend.model.tokenizationrequest;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -15,12 +16,14 @@ import lombok.Getter;
 @Entity(name = "tokenization_request")
 public class TokenizationRequestAggregateRoot {
 
-    public void reject() {
+    public void reject(String reason) {
         if(status != TokenizationRequestStatus.PENDING) {
             throw new IllegalStateException("Cannot reject non-pending request");
         }
 
         status = TokenizationRequestStatus.REJECTED;
+        rejectReason = reason;
+        decisionOn = LocalDateTime.now();
     }
 
     public TokenizationRequestDescription getDescription() {
@@ -49,6 +52,15 @@ public class TokenizationRequestAggregateRoot {
     @Getter
     @Enumerated(EnumType.STRING)
     TokenizationRequestStatus status;
+
+    @Getter
+    String rejectReason;
+
+    @Getter
+    LocalDateTime createdOn;
+
+    @Getter
+    LocalDateTime decisionOn;
 
     TokenizationRequestAggregateRoot() {
 

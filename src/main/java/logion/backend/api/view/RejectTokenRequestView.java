@@ -7,4 +7,5 @@ public class RejectTokenRequestView {
 
     String legalOfficerAddress;
     String signature;
+    String rejectReason;
 }

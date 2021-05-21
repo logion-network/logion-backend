@@ -15,9 +15,9 @@ QuerydslPredicateExecutor<TokenizationRequestAggregateRoot> {
 
     default List<TokenizationRequestAggregateRoot> findBy(FetchRequestsSpecification query) {
         var root = QTokenizationRequestAggregateRoot.tokenizationRequestAggregateRoot;
-        var predicate = new BooleanBuilder()
-                .and(root.legalOfficerAddress.eq(query.getExpectedLegalOfficer()))
-                .and(root.status.eq(query.getExpectedStatus()));
+        var predicate = new BooleanBuilder().and(root.status.eq(query.getExpectedStatus()));
+        query.getExpectedLegalOfficer().ifPresent(legalOfficer -> predicate.and(root.legalOfficerAddress.eq(legalOfficer)));
+        query.getExpectedRequesterAddress().ifPresent(requesterAddress -> predicate.and(root.requesterAddress.eq(requesterAddress)));
         var results = new ArrayList<TokenizationRequestAggregateRoot>();
         findAll(predicate).forEach(results::add);
         return results;

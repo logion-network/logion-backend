@@ -2,6 +2,7 @@ package logion.backend.web;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import logion.backend.api.TokenRequestController;
@@ -123,6 +124,7 @@ class TokenRequestWebTest {
         var requestBody = new JSONObject();
         requestBody.put("legalOfficerAddress", DefaultAddresses.ALICE.getRawValue());
         requestBody.put("signature", SIGNATURE);
+        requestBody.put("rejectReason", REJECT_REASON);
 
         var message = DefaultAddresses.ALICE.getRawValue() + "-" + requestId.toString();
         var approving = signatureVerifyMock(message, DefaultAddresses.ALICE, signatureVerifyResult);
@@ -135,11 +137,12 @@ class TokenRequestWebTest {
                 .andExpect(matcher);
 
         if(signatureVerifyResult) {
-            verify(tokenizationRequestCommands).rejectTokenizationRequest(requestId);
+            verify(tokenizationRequestCommands).rejectTokenizationRequest(requestId, REJECT_REASON);
         }
     }
 
     private static final String SIGNATURE = "signature";
+    private static final String REJECT_REASON = "Illegal";
 
     private ExpectingAddress signatureVerifyMock(String message, Ss58Address address, boolean verifyResult) {
         var expectingMessage = mock(SubkeyWrapper.ExpectingAddress.ExpectingMessage.class);
@@ -165,7 +168,7 @@ class TokenRequestWebTest {
             FetchRequestsSpecification query,
             List<TokenizationRequestAggregateRoot> tokenizationRequests,
             int expectedResults) throws Exception {
-        when(tokeninzationRequestRepository.findBy(query)).thenReturn(tokenizationRequests);
+        when(tokenizationRequestRepository.findBy(query)).thenReturn(tokenizationRequests);
         mvc.perform(put("/token-request/")
                 .accept(APPLICATION_JSON)
                 .contentType(APPLICATION_JSON)
@@ -175,7 +178,7 @@ class TokenRequestWebTest {
     }
 
     @MockBean
-    private TokenizationRequestRepository tokeninzationRequestRepository;
+    private TokenizationRequestRepository tokenizationRequestRepository;
 
     @SuppressWarnings("unused")
     private static Stream<Arguments> queryTokenRequests() throws JSONException {
@@ -183,7 +186,8 @@ class TokenRequestWebTest {
             Arguments.of(
                 queryRequestBody(DefaultAddresses.ALICE, TokenizationRequestStatus.PENDING),
                 FetchRequestsSpecification.builder()
-                    .expectedLegalOfficer(DefaultAddresses.ALICE)
+                    .expectedLegalOfficer(Optional.of(DefaultAddresses.ALICE))
+                    .expectedRequesterAddress(Optional.empty())
                     .expectedStatus(TokenizationRequestStatus.PENDING)
                     .build(),
                 alicePendingRequests(),
@@ -192,7 +196,8 @@ class TokenRequestWebTest {
             Arguments.of(
                 queryRequestBody(DefaultAddresses.ALICE, TokenizationRequestStatus.REJECTED),
                 FetchRequestsSpecification.builder()
-                    .expectedLegalOfficer(DefaultAddresses.ALICE)
+                    .expectedLegalOfficer(Optional.of(DefaultAddresses.ALICE))
+                    .expectedRequesterAddress(Optional.empty())
                     .expectedStatus(TokenizationRequestStatus.REJECTED)
                     .build(),
                 aliceRejectedRequests(),
@@ -201,7 +206,8 @@ class TokenRequestWebTest {
             Arguments.of(
                 queryRequestBody(DefaultAddresses.BOB, TokenizationRequestStatus.PENDING),
                 FetchRequestsSpecification.builder()
-                    .expectedLegalOfficer(DefaultAddresses.BOB)
+                    .expectedLegalOfficer(Optional.of(DefaultAddresses.BOB))
+                    .expectedRequesterAddress(Optional.empty())
                     .expectedStatus(TokenizationRequestStatus.PENDING)
                     .build(),
                 bobRequests(),
@@ -242,6 +248,13 @@ class TokenRequestWebTest {
         return request;
     }
 
+    private static TokenizationRequestAggregateRoot rejectedRequest(TokenizationRequestDescription description,
+            String rejectReason) {
+        var request = request(description, TokenizationRequestStatus.REJECTED);
+        when(request.getRejectReason()).thenReturn(rejectReason);
+        return request;
+    }
+
     private static List<TokenizationRequestAggregateRoot> aliceRejectedRequests() {
         var requests = new ArrayList<TokenizationRequestAggregateRoot>();
         requests.add(aliceRejectedRequest(4));
@@ -250,12 +263,12 @@ class TokenRequestWebTest {
     }
 
     private static TokenizationRequestAggregateRoot aliceRejectedRequest(int index) {
-        return request(TokenizationRequestDescription.builder()
+        return rejectedRequest(TokenizationRequestDescription.builder()
                 .legalOfficerAddress(DefaultAddresses.ALICE)
                 .requestedTokenName("MYT" + index)
                 .requesterAddress(new Ss58Address("requester" + index))
                 .bars(index)
-                .build(), TokenizationRequestStatus.REJECTED);
+                .build(), "Illegal" + index);
     }
 
     private static List<TokenizationRequestAggregateRoot> bobRequests() {
