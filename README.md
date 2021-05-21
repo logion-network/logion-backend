@@ -1,3 +1,5 @@
+[![Test](https://github.com/logion-network/logion-backend/actions/workflows/maven.yml/badge.svg)](https://github.com/logion-network/logion-backend/actions/workflows/maven.yml)
+
 # logion-backend
 The Logion off-chain backend handles data which should not (or must not) be stored on-chain. It exposes a REST API
 and is implemented using Spring Boot.
