@@ -8,11 +8,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TokenizationRequestAggregateRootTest {
 
+    private static final String REJECT_REASON = "Illegal";
+
     @Test
     void rejectPending() {
         givenRequestWithStatus(TokenizationRequestStatus.PENDING);
-        whenRejecting();
+        whenRejecting(REJECT_REASON);
         thenRequestStatusIs(TokenizationRequestStatus.REJECTED);
+        thenRequestRejectReasonIs(REJECT_REASON);
     }
 
     private void givenRequestWithStatus(TokenizationRequestStatus status) {
@@ -22,17 +25,21 @@ class TokenizationRequestAggregateRootTest {
 
     private TokenizationRequestAggregateRoot request;
 
-    private void whenRejecting() {
-        request.reject();
+    private void whenRejecting(String rejectReason) {
+        request.reject(rejectReason);
     }
 
     private void thenRequestStatusIs(TokenizationRequestStatus expectedStatus) {
         assertThat(request.getStatus(), equalTo(expectedStatus));
     }
 
+    private void thenRequestRejectReasonIs(String rejectReason) {
+        assertThat(request.getRejectReason(), equalTo(rejectReason));
+    }
+
     @Test
     void rejectRejectedThrows() {
         givenRequestWithStatus(TokenizationRequestStatus.REJECTED);
-        assertThrows(IllegalStateException.class, this::whenRejecting);
+        assertThrows(IllegalStateException.class, () -> whenRejecting(REJECT_REASON));
     }
 }

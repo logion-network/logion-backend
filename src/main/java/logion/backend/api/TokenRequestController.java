@@ -81,6 +81,9 @@ public class TokenRequestController {
                 .requesterAddress(tokenDescription.getRequesterAddress().getRawValue())
                 .bars(tokenDescription.getBars())
                 .status(request.getStatus())
+                .rejectReason(request.getRejectReason())
+                .createdOn(request.getCreatedOn())
+                .decisionOn(request.getDecisionOn())
                 .build();
     }
 
@@ -94,7 +97,7 @@ public class TokenRequestController {
         if(!signatureValid) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to verify signature");
         }
-        tokenizationRequestCommands.rejectTokenizationRequest(UUID.fromString(requestId));
+        tokenizationRequestCommands.rejectTokenizationRequest(UUID.fromString(requestId), rejectTokenRequestView.getRejectReason());
     }
 
     @Autowired

@@ -1,5 +1,6 @@
 package logion.backend.api.view;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import logion.backend.model.tokenizationrequest.TokenizationRequestStatus;
 import lombok.Builder;
@@ -15,4 +16,7 @@ public class TokenRequestView {
     String requesterAddress;
     int bars;
     TokenizationRequestStatus status;
+    String rejectReason;
+    LocalDateTime createdOn;
+    LocalDateTime decisionOn;
 }

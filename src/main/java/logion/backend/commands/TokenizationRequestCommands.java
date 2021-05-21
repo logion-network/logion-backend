@@ -23,10 +23,10 @@ public class TokenizationRequestCommands {
     @Autowired
     private TokenizationRequestRepository tokenizationRequestRepository;
 
-    public void rejectTokenizationRequest(UUID requestId) {
+    public void rejectTokenizationRequest(UUID requestId, String rejectReason) {
         var request = tokenizationRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Request does not exist"));
-        request.reject();
+        request.reject(rejectReason);
         tokenizationRequestRepository.save(request);
     }
 }
