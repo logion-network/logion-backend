@@ -91,7 +91,7 @@ public class TokenRequestController {
     @PostMapping(value = "{requestId}/reject", consumes = ALL_VALUE)
     public void rejectTokenRequest(@PathVariable String requestId, @RequestBody RejectTokenRequestView rejectTokenRequestView) {
         var legalOfficerAddress = new Ss58Address(rejectTokenRequestView.getLegalOfficerAddress());
-        var message = rejectTokenRequestView.getLegalOfficerAddress() + "-" + requestId;
+        var message = rejectTokenRequestView.getLegalOfficerAddress() + "-" + requestId + "-" + rejectTokenRequestView.getRejectReason();
         var signatureValid = subkey.verify(rejectTokenRequestView.getSignature())
                 .withSs58Address(legalOfficerAddress)
                 .withMessage(message);

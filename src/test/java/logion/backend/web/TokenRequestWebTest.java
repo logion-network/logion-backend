@@ -126,7 +126,7 @@ class TokenRequestWebTest {
         requestBody.put("signature", SIGNATURE);
         requestBody.put("rejectReason", REJECT_REASON);
 
-        var message = DefaultAddresses.ALICE.getRawValue() + "-" + requestId.toString();
+        var message = DefaultAddresses.ALICE.getRawValue() + "-" + requestId + "-" + REJECT_REASON;
         var approving = signatureVerifyMock(message, DefaultAddresses.ALICE, signatureVerifyResult);
         when(subkey.verify("signature")).thenReturn(approving);
 
