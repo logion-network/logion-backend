@@ -10,14 +10,13 @@ import logion.backend.commands.TokenizationRequestCommands;
 import logion.backend.model.DefaultAddresses;
 import logion.backend.model.Ss58Address;
 import logion.backend.model.Subkey;
+import logion.backend.model.Subkey.ExpectingAddress;
 import logion.backend.model.tokenizationrequest.FetchRequestsSpecification;
 import logion.backend.model.tokenizationrequest.TokenizationRequestAggregateRoot;
 import logion.backend.model.tokenizationrequest.TokenizationRequestDescription;
 import logion.backend.model.tokenizationrequest.TokenizationRequestFactory;
 import logion.backend.model.tokenizationrequest.TokenizationRequestRepository;
 import logion.backend.model.tokenizationrequest.TokenizationRequestStatus;
-import logion.backend.subkey.SubkeyWrapper;
-import logion.backend.subkey.SubkeyWrapper.ExpectingAddress;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,17 +26,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -71,16 +69,13 @@ class TokenRequestWebTest {
         when(tokenizationRequestCommands.addTokenizationRequest(tokenizationRequest)).thenReturn(tokenizationRequest);
 
         if(expectedTokenDescription != null) {
-            var message =  new StringBuilder()
-                    .append(expectedTokenDescription.getLegalOfficerAddress().getRawValue())
-                    .append('-')
-                    .append(expectedTokenDescription.getRequesterAddress().getRawValue())
-                    .append('-')
-                    .append(expectedTokenDescription.getRequestedTokenName())
-                    .append('-')
-                    .append(expectedTokenDescription.getBars())
-                    .toString();
-            var approving = signatureVerifyMock(message, expectedTokenDescription.getRequesterAddress(), true);
+            var approving = signatureVerifyMock(
+                    expectedTokenDescription.getRequesterAddress(),
+                    true,
+                    expectedTokenDescription.getLegalOfficerAddress().getRawValue(),
+                    expectedTokenDescription.getRequesterAddress().getRawValue(),
+                    expectedTokenDescription.getRequestedTokenName(),
+                    expectedTokenDescription.getBars());
             when(subkey.verify("signature")).thenReturn(approving);
         }
 
@@ -126,8 +121,12 @@ class TokenRequestWebTest {
         requestBody.put("signature", SIGNATURE);
         requestBody.put("rejectReason", REJECT_REASON);
 
-        var message = DefaultAddresses.ALICE.getRawValue() + "-" + requestId + "-" + REJECT_REASON;
-        var approving = signatureVerifyMock(message, DefaultAddresses.ALICE, signatureVerifyResult);
+        var approving = signatureVerifyMock(
+                DefaultAddresses.ALICE,
+                signatureVerifyResult,
+                DefaultAddresses.ALICE.getRawValue(),
+                requestId.toString(),
+                REJECT_REASON);
         when(subkey.verify("signature")).thenReturn(approving);
 
         mvc.perform(post("/token-request/" + requestId.toString() + "/reject")
@@ -144,16 +143,24 @@ class TokenRequestWebTest {
     private static final String SIGNATURE = "signature";
     private static final String REJECT_REASON = "Illegal";
 
-    private ExpectingAddress signatureVerifyMock(String message, Ss58Address address, boolean verifyResult) {
-        var expectingMessage = mock(SubkeyWrapper.ExpectingAddress.ExpectingMessage.class);
-        when(expectingMessage.withMessage(message)).thenReturn(verifyResult);
+    private ExpectingAddress signatureVerifyMock(Ss58Address address, boolean verifyResult, Object... attributes) {
+        var expectingMessage = mock(ExpectingAddress.ExpectingMessage.class);
+        doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to verify signature"))
+                .when(expectingMessage).withMessageBuiltFrom(any());
+        if (verifyResult) {
+            doNothing().when(expectingMessage).withMessageBuiltFrom(attributes);
+        } else {
+            doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to verify signature"))
+                    .when(expectingMessage).withMessageBuiltFrom(attributes);
+        }
 
-        var expectingAddress = mock(SubkeyWrapper.ExpectingAddress.class);
+        var expectingAddress = mock(ExpectingAddress.class);
         when(expectingAddress.withSs58Address(address)).thenReturn(expectingMessage);
 
         return expectingAddress;
     }
 
+    @SuppressWarnings("unused")
     private static Stream<Arguments> rejectTokenRequestWithWrongSignature() {
         return Stream.of(
             Arguments.of(true, status().isOk()),
