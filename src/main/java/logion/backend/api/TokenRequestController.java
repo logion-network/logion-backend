@@ -10,25 +10,22 @@ import logion.backend.api.view.RejectTokenRequestView;
 import logion.backend.api.view.TokenRequestView;
 import logion.backend.commands.TokenizationRequestCommands;
 import logion.backend.model.Ss58Address;
-import logion.backend.model.Subkey;
+import logion.backend.model.Signature;
 import logion.backend.model.tokenizationrequest.FetchRequestsSpecification;
 import logion.backend.model.tokenizationrequest.TokenizationRequestAggregateRoot;
 import logion.backend.model.tokenizationrequest.TokenizationRequestDescription;
 import logion.backend.model.tokenizationrequest.TokenizationRequestFactory;
 import logion.backend.model.tokenizationrequest.TokenizationRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -45,22 +42,15 @@ public class TokenRequestController {
                 .build();
 
         var legalOfficerAddress = tokenDescription.getLegalOfficerAddress();
-        var message =  new StringBuilder()
-                .append(legalOfficerAddress.getRawValue())
-                .append('-')
-                .append(tokenDescription.getRequesterAddress().getRawValue())
-                .append('-')
-                .append(tokenDescription.getRequestedTokenName())
-                .append('-')
-                .append(tokenDescription.getBars())
-                .toString();
-        var signatureValid = subkey.verify(createTokenRequestView.getSignature())
-                .withSs58Address(tokenDescription.getRequesterAddress())
-                .withMessage(message);
-        if(!signatureValid) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to verify signature");
-        }
 
+        signature.verify(createTokenRequestView.getSignature())
+                .withSs58Address(tokenDescription.getRequesterAddress())
+                .withMessageBuiltFrom(
+                        legalOfficerAddress.getRawValue(),
+                        tokenDescription.getRequesterAddress().getRawValue(),
+                        tokenDescription.getRequestedTokenName(),
+                        tokenDescription.getBars()
+                );
         var id = UUID.randomUUID();
         var request = tokenizationRequestFactory.newPendingTokenizationRequest(id, tokenDescription);
         request = tokenizationRequestCommands.addTokenizationRequest(request);
@@ -88,21 +78,21 @@ public class TokenRequestController {
                 .build();
     }
 
-    @PostMapping(value = "{requestId}/reject", consumes = ALL_VALUE)
+    @PostMapping(value = "{requestId}/reject")
     public void rejectTokenRequest(@PathVariable String requestId, @RequestBody RejectTokenRequestView rejectTokenRequestView) {
         var legalOfficerAddress = new Ss58Address(rejectTokenRequestView.getLegalOfficerAddress());
-        var message = rejectTokenRequestView.getLegalOfficerAddress() + "-" + requestId + "-" + rejectTokenRequestView.getRejectReason();
-        var signatureValid = subkey.verify(rejectTokenRequestView.getSignature())
+        signature.verify(rejectTokenRequestView.getSignature())
                 .withSs58Address(legalOfficerAddress)
-                .withMessage(message);
-        if(!signatureValid) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to verify signature");
-        }
+                .withMessageBuiltFrom(
+                        rejectTokenRequestView.getLegalOfficerAddress(),
+                        requestId,
+                        rejectTokenRequestView.getRejectReason()
+                );
         tokenizationRequestCommands.rejectTokenizationRequest(UUID.fromString(requestId), rejectTokenRequestView.getRejectReason());
     }
 
     @Autowired
-    private Subkey subkey;
+    private Signature signature;
 
     @PutMapping
     @RestQuery
