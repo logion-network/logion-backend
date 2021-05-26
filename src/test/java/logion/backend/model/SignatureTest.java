@@ -8,19 +8,19 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class SubkeyTest {
+class SignatureTest {
 
-    private final Subkey subkey = new Subkey();
+    private final Signature signature = new Signature();
 
     @ParameterizedTest
     @MethodSource
-    void createMessage(String expectedMessage, Object... attributes) {
-        var message = subkey.createHash(attributes);
+    void createHash(String expectedMessage, Object... attributes) {
+        var message = signature.createHash(attributes);
         assertEquals(expectedMessage, message);
     }
 
     @SuppressWarnings("unused")
-    private static Stream<Arguments> createMessage() {
+    private static Stream<Arguments> createHash() {
         return Stream.of(
                 Arguments.of("iNQmb9TmM40TuEX88olXnSCciXgjuSF9o+Fhk28DFYk=", new Object[]{"abcd"}),
                 Arguments.of("d6wxm/4ZeeLXmdnmmH5l/rVPYVEcA1UuuumQgmwghZA=", new Object[]{1.2f}),

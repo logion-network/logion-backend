@@ -9,8 +9,8 @@ import logion.backend.api.TokenRequestController;
 import logion.backend.commands.TokenizationRequestCommands;
 import logion.backend.model.DefaultAddresses;
 import logion.backend.model.Ss58Address;
-import logion.backend.model.Subkey;
-import logion.backend.model.Subkey.ExpectingAddress;
+import logion.backend.model.Signature;
+import logion.backend.model.Signature.ExpectingAddress;
 import logion.backend.model.tokenizationrequest.FetchRequestsSpecification;
 import logion.backend.model.tokenizationrequest.TokenizationRequestAggregateRoot;
 import logion.backend.model.tokenizationrequest.TokenizationRequestDescription;
@@ -56,7 +56,7 @@ class TokenRequestWebTest {
     private TokenizationRequestCommands tokenizationRequestCommands;
 
     @MockBean
-    private Subkey subkey;
+    private Signature signature;
 
     @ParameterizedTest
     @MethodSource
@@ -76,7 +76,7 @@ class TokenRequestWebTest {
                     expectedTokenDescription.getRequesterAddress().getRawValue(),
                     expectedTokenDescription.getRequestedTokenName(),
                     expectedTokenDescription.getBars());
-            when(subkey.verify("signature")).thenReturn(approving);
+            when(signature.verify("signature")).thenReturn(approving);
         }
 
         mvc.perform(post("/token-request")
@@ -127,7 +127,7 @@ class TokenRequestWebTest {
                 DefaultAddresses.ALICE.getRawValue(),
                 requestId.toString(),
                 REJECT_REASON);
-        when(subkey.verify("signature")).thenReturn(approving);
+        when(signature.verify("signature")).thenReturn(approving);
 
         mvc.perform(post("/token-request/" + requestId.toString() + "/reject")
                 .accept(APPLICATION_JSON)

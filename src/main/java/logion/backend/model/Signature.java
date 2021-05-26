@@ -17,7 +17,7 @@ import java.util.Base64;
 import static java.util.Arrays.stream;
 
 @Service
-public class Subkey implements InitializingBean {
+public class Signature implements InitializingBean {
 
     private static final String ALGORITHM = "SHA-256";
 
@@ -76,7 +76,7 @@ public class Subkey implements InitializingBean {
     private String subkeyPath;
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         logger.info("Subkey command: {}", subkeyPath);
     }
 

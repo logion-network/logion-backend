@@ -10,7 +10,7 @@ import logion.backend.api.view.RejectTokenRequestView;
 import logion.backend.api.view.TokenRequestView;
 import logion.backend.commands.TokenizationRequestCommands;
 import logion.backend.model.Ss58Address;
-import logion.backend.model.Subkey;
+import logion.backend.model.Signature;
 import logion.backend.model.tokenizationrequest.FetchRequestsSpecification;
 import logion.backend.model.tokenizationrequest.TokenizationRequestAggregateRoot;
 import logion.backend.model.tokenizationrequest.TokenizationRequestDescription;
@@ -43,7 +43,7 @@ public class TokenRequestController {
 
         var legalOfficerAddress = tokenDescription.getLegalOfficerAddress();
 
-        subkey.verify(createTokenRequestView.getSignature())
+        signature.verify(createTokenRequestView.getSignature())
                 .withSs58Address(tokenDescription.getRequesterAddress())
                 .withMessageBuiltFrom(
                         legalOfficerAddress.getRawValue(),
@@ -81,7 +81,7 @@ public class TokenRequestController {
     @PostMapping(value = "{requestId}/reject")
     public void rejectTokenRequest(@PathVariable String requestId, @RequestBody RejectTokenRequestView rejectTokenRequestView) {
         var legalOfficerAddress = new Ss58Address(rejectTokenRequestView.getLegalOfficerAddress());
-        subkey.verify(rejectTokenRequestView.getSignature())
+        signature.verify(rejectTokenRequestView.getSignature())
                 .withSs58Address(legalOfficerAddress)
                 .withMessageBuiltFrom(
                         rejectTokenRequestView.getLegalOfficerAddress(),
@@ -92,7 +92,7 @@ public class TokenRequestController {
     }
 
     @Autowired
-    private Subkey subkey;
+    private Signature signature;
 
     @PutMapping
     @RestQuery
