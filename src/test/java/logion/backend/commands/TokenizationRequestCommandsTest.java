@@ -1,5 +1,6 @@
 package logion.backend.commands;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import logion.backend.model.tokenizationrequest.TokenizationRequestAggregateRoot;
@@ -19,6 +20,7 @@ import static org.mockito.Mockito.when;
 class TokenizationRequestCommandsTest {
 
     private static final String REJECT_REASON = "Illegal";
+    private static final LocalDateTime REJECTED_ON = LocalDateTime.now();
 
     @Test
     void addTokenizationRequest() {
@@ -75,11 +77,11 @@ class TokenizationRequestCommandsTest {
     }
 
     private void whenRejectTokenizationRequest() {
-        commands.rejectTokenizationRequest(request.getId(), REJECT_REASON);
+        commands.rejectTokenizationRequest(request.getId(), REJECT_REASON, REJECTED_ON);
     }
 
     private void thenRequestRejected() {
-        verify(request).reject(REJECT_REASON);
+        verify(request).reject(REJECT_REASON, REJECTED_ON);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package logion.backend.web;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -64,7 +65,7 @@ class TokenRequestWebTest {
         var tokenizationRequest = mock(TokenizationRequestAggregateRoot.class);
         when(tokenizationRequest.getDescription()).thenReturn(expectedTokenDescription);
 
-        when(tokenizationRequestFactory.newPendingTokenizationRequest(any(), eq(expectedTokenDescription)))
+        when(tokenizationRequestFactory.newPendingTokenizationRequest(any(), eq(expectedTokenDescription), any()))
             .thenReturn(tokenizationRequest);
         when(tokenizationRequestCommands.addTokenizationRequest(tokenizationRequest)).thenReturn(tokenizationRequest);
 
@@ -136,7 +137,7 @@ class TokenRequestWebTest {
                 .andExpect(matcher);
 
         if(signatureVerifyResult) {
-            verify(tokenizationRequestCommands).rejectTokenizationRequest(requestId, REJECT_REASON);
+            verify(tokenizationRequestCommands).rejectTokenizationRequest(eq(requestId), eq(REJECT_REASON), isA(LocalDateTime.class));
         }
     }
 

@@ -1,5 +1,6 @@
 package logion.backend.api;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import logion.backend.annotation.RestQuery;
@@ -52,7 +53,7 @@ public class TokenRequestController {
                         tokenDescription.getBars()
                 );
         var id = UUID.randomUUID();
-        var request = tokenizationRequestFactory.newPendingTokenizationRequest(id, tokenDescription);
+        var request = tokenizationRequestFactory.newPendingTokenizationRequest(id, tokenDescription, LocalDateTime.now());
         request = tokenizationRequestCommands.addTokenizationRequest(request);
         return toView(request);
     }
@@ -88,7 +89,7 @@ public class TokenRequestController {
                         requestId,
                         rejectTokenRequestView.getRejectReason()
                 );
-        tokenizationRequestCommands.rejectTokenizationRequest(UUID.fromString(requestId), rejectTokenRequestView.getRejectReason());
+        tokenizationRequestCommands.rejectTokenizationRequest(UUID.fromString(requestId), rejectTokenRequestView.getRejectReason(), LocalDateTime.now());
     }
 
     @Autowired
