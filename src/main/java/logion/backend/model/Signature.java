@@ -21,6 +21,12 @@ public class Signature implements InitializingBean {
 
     private static final String ALGORITHM = "SHA-256";
 
+    private SubkeyWrapper subkeyWrapper;
+
+    void setSubkeyWrapper(SubkeyWrapper subkeyWrapper) {
+        this.subkeyWrapper = subkeyWrapper;
+    }
+
     public ExpectingAddress verify(String signature) {
         var verifier = new ExpectingAddress();
         verifier.signature = signature;
@@ -43,18 +49,12 @@ public class Signature implements InitializingBean {
 
             public void withMessageBuiltFrom(Object... attributes) {
                 String message = createHash(attributes);
-                var signatureValid = newWrapper().verify(signature)
+                var signatureValid = subkeyWrapper.verify(signature)
                         .withSs58Address(address)
                         .withMessage(message);
-                if(!signatureValid) {
+                if (!signatureValid) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to verify signature");
                 }
-            }
-
-            private SubkeyWrapper newWrapper() {
-                return new SubkeyWrapper.Builder()
-                        .withSubkey(subkeyPath)
-                        .build();
             }
         }
     }
@@ -78,6 +78,9 @@ public class Signature implements InitializingBean {
     @Override
     public void afterPropertiesSet() {
         logger.info("Subkey command: {}", subkeyPath);
+        this.subkeyWrapper = new SubkeyWrapper.Builder()
+                .withSubkey(subkeyPath)
+                .build();
     }
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
