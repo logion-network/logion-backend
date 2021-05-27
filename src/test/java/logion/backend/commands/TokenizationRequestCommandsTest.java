@@ -21,6 +21,7 @@ class TokenizationRequestCommandsTest {
 
     private static final String REJECT_REASON = "Illegal";
     private static final LocalDateTime REJECTED_ON = LocalDateTime.now();
+    private static final LocalDateTime ACCEPTED_ON = REJECTED_ON.plusMinutes(1);
 
     @Test
     void addTokenizationRequest() {
@@ -72,6 +73,15 @@ class TokenizationRequestCommandsTest {
         thenRequestSaved();
     }
 
+    @Test
+    void acceptTokenizationRequest() {
+        givenTokenizationRequest();
+        givenTokenizationRequestFindable();
+        whenAcceptTokenizationRequest();
+        thenRequestAccepted();
+        thenRequestSaved();
+    }
+
     private void givenTokenizationRequestFindable() {
         when(tokenizationRequestRepository.findById(request.getId())).thenReturn(Optional.of(request));
     }
@@ -80,8 +90,16 @@ class TokenizationRequestCommandsTest {
         commands.rejectTokenizationRequest(request.getId(), REJECT_REASON, REJECTED_ON);
     }
 
+    private void whenAcceptTokenizationRequest() {
+        commands.acceptTokenizationRequest(request.getId(), ACCEPTED_ON);
+    }
+
     private void thenRequestRejected() {
         verify(request).reject(REJECT_REASON, REJECTED_ON);
+    }
+
+    private void thenRequestAccepted() {
+        verify(request).accept(ACCEPTED_ON);
     }
 
     @Test

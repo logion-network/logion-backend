@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import logion.backend.annotation.RestQuery;
+import logion.backend.api.view.AcceptTokenRequestView;
 import logion.backend.api.view.CreateTokenRequestView;
 import logion.backend.api.view.FetchRequestsResponseView;
 import logion.backend.api.view.FetchRequestsSpecificationView;
@@ -90,6 +91,18 @@ public class TokenRequestController {
                         rejectTokenRequestView.getRejectReason()
                 );
         tokenizationRequestCommands.rejectTokenizationRequest(UUID.fromString(requestId), rejectTokenRequestView.getRejectReason(), LocalDateTime.now());
+    }
+
+    @PostMapping(value = "{requestId}/accept")
+    public void acceptTokenRequest(@PathVariable String requestId, @RequestBody AcceptTokenRequestView acceptTokenRequestView) {
+        var legalOfficerAddress = new Ss58Address(acceptTokenRequestView.getLegalOfficerAddress());
+        signature.verify(acceptTokenRequestView.getSignature())
+                .withSs58Address(legalOfficerAddress)
+                .withMessageBuiltFrom(
+                        acceptTokenRequestView.getLegalOfficerAddress(),
+                        requestId
+                );
+        tokenizationRequestCommands.acceptTokenizationRequest(UUID.fromString(requestId), LocalDateTime.now());
     }
 
     @Autowired
