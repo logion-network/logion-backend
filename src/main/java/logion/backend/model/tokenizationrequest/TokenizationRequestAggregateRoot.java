@@ -16,14 +16,14 @@ import lombok.Getter;
 @Entity(name = "tokenization_request")
 public class TokenizationRequestAggregateRoot {
 
-    public void reject(String reason) {
+    public void reject(String reason, LocalDateTime rejectedOn) {
         if(status != TokenizationRequestStatus.PENDING) {
             throw new IllegalStateException("Cannot reject non-pending request");
         }
 
         status = TokenizationRequestStatus.REJECTED;
         rejectReason = reason;
-        decisionOn = LocalDateTime.now();
+        decisionOn = rejectedOn;
     }
 
     public TokenizationRequestDescription getDescription() {

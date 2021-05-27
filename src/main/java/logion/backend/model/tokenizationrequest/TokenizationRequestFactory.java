@@ -7,7 +7,7 @@ import logion.backend.annotation.Factory;
 @Factory
 public class TokenizationRequestFactory {
 
-    public TokenizationRequestAggregateRoot newPendingTokenizationRequest(UUID id, TokenizationRequestDescription tokenDescription) {
+    public TokenizationRequestAggregateRoot newPendingTokenizationRequest(UUID id, TokenizationRequestDescription tokenDescription, LocalDateTime createdOn) {
         var request = new TokenizationRequestAggregateRoot();
         request.id = id;
         request.status = TokenizationRequestStatus.PENDING;
@@ -15,7 +15,7 @@ public class TokenizationRequestFactory {
         request.legalOfficerAddress = tokenDescription.getLegalOfficerAddress();
         request.requestedTokenName = tokenDescription.getRequestedTokenName();
         request.bars = tokenDescription.getBars();
-        request.createdOn = LocalDateTime.now();
+        request.createdOn = createdOn;
         return request;
     }
 }

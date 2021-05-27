@@ -1,5 +1,6 @@
 package logion.backend.commands;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import javax.transaction.Transactional;
 import logion.backend.annotation.Commands;
@@ -23,10 +24,10 @@ public class TokenizationRequestCommands {
     @Autowired
     private TokenizationRequestRepository tokenizationRequestRepository;
 
-    public void rejectTokenizationRequest(UUID requestId, String rejectReason) {
+    public void rejectTokenizationRequest(UUID requestId, String rejectReason, LocalDateTime rejectedOn) {
         var request = tokenizationRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Request does not exist"));
-        request.reject(rejectReason);
+        request.reject(rejectReason, rejectedOn);
         tokenizationRequestRepository.save(request);
     }
 }
