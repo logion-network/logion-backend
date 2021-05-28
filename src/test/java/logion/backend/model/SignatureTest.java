@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,7 +40,7 @@ class SignatureTest {
 
     @ParameterizedTest
     @MethodSource
-    void testVerify(boolean success) {
+    void testVerify(boolean success, Object... attributes) {
         // Given
         Signature signature = new Signature();
         var subkeyWrapper = mock(SubkeyWrapper.class);
@@ -51,9 +52,19 @@ class SignatureTest {
         signature.setSubkeyWrapper(subkeyWrapper);
 
         // When
-        Executable executable = () -> signature.verify("signature")
-                .withSs58Address(DefaultAddresses.BOB)
-                .withMessageBuiltFrom("abcd");
+        Executable executable = () -> {
+            var em = signature.verify("signature")
+                    .withSs58Address(DefaultAddresses.BOB)
+                    .withResource("resource")
+                    .withOperation("operation")
+                    .withTimestamp(LocalDateTime.now());
+
+            if (attributes == null) {
+                em.withoutMessage();
+            } else {
+                em.withMessageBuiltFrom(attributes);
+            }
+        };
         // Then
         if (success) {
             assertDoesNotThrow(executable);
@@ -65,8 +76,10 @@ class SignatureTest {
     @SuppressWarnings("unused")
     private static Stream<Arguments> testVerify() {
         return Stream.of(
-                Arguments.of(true),
-                Arguments.of(false)
+                Arguments.of(true, new Object[] {"abcd"}),
+                Arguments.of(false, new Object[] {"abcd"}),
+                Arguments.of(true, null),
+                Arguments.of(false, null)
         );
     }
 }

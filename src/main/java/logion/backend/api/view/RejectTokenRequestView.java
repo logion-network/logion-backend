@@ -1,11 +1,12 @@
 package logion.backend.api.view;
 
-import lombok.Value;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-@Value
-public class RejectTokenRequestView {
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class RejectTokenRequestView extends SignedOperationView {
 
     String legalOfficerAddress;
-    String signature;
     String rejectReason;
 }

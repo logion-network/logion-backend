@@ -30,7 +30,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -111,6 +110,7 @@ class TokenRequestWebTest {
         validRequest.put("requesterAddress", "5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW");
         validRequest.put("bars", 1);
         validRequest.put("signature", "signature");
+        validRequest.put("signedOn", LocalDateTime.now());
         return validRequest.toString();
     }
 
@@ -122,6 +122,8 @@ class TokenRequestWebTest {
         requestBody.put("legalOfficerAddress", DefaultAddresses.ALICE.getRawValue());
         requestBody.put("signature", SIGNATURE);
         requestBody.put("rejectReason", REJECT_REASON);
+        requestBody.put("signedOn", LocalDateTime.now());
+
 
         var approving = signatureVerifyMock(
                 DefaultAddresses.ALICE,
@@ -150,6 +152,7 @@ class TokenRequestWebTest {
         var requestBody = new JSONObject();
         requestBody.put("legalOfficerAddress", DefaultAddresses.ALICE.getRawValue());
         requestBody.put("signature", SIGNATURE);
+        requestBody.put("signedOn", LocalDateTime.now());
 
         var approving = signatureVerifyMock(
                 DefaultAddresses.ALICE,
@@ -175,6 +178,9 @@ class TokenRequestWebTest {
 
     private ExpectingAddress signatureVerifyMock(Ss58Address address, boolean verifyResult, Object... attributes) {
         var expectingMessage = mock(ExpectingAddress.ExpectingMessage.class);
+        when(expectingMessage.withResource(anyString())).thenReturn(expectingMessage);
+        when(expectingMessage.withOperation(anyString())).thenReturn(expectingMessage);
+        when(expectingMessage.withTimestamp(any(LocalDateTime.class))).thenReturn(expectingMessage);
         doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to verify signature"))
                 .when(expectingMessage).withMessageBuiltFrom(any());
         if (verifyResult) {

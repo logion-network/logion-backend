@@ -34,6 +34,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(path = "/token-request", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 public class TokenRequestController {
 
+    public static final String RESOURCE = "token-request";
+
     @PostMapping
     public TokenRequestView createTokenRequest(@RequestBody CreateTokenRequestView createTokenRequestView) {
         var tokenDescription = TokenizationRequestDescription.builder()
@@ -47,6 +49,9 @@ public class TokenRequestController {
 
         signature.verify(createTokenRequestView.getSignature())
                 .withSs58Address(tokenDescription.getRequesterAddress())
+                .withResource(RESOURCE)
+                .withOperation("create")
+                .withTimestamp(createTokenRequestView.getSignedOn())
                 .withMessageBuiltFrom(
                         legalOfficerAddress.getRawValue(),
                         tokenDescription.getRequesterAddress().getRawValue(),
@@ -85,6 +90,9 @@ public class TokenRequestController {
         var legalOfficerAddress = new Ss58Address(rejectTokenRequestView.getLegalOfficerAddress());
         signature.verify(rejectTokenRequestView.getSignature())
                 .withSs58Address(legalOfficerAddress)
+                .withResource(RESOURCE)
+                .withOperation("reject")
+                .withTimestamp(rejectTokenRequestView.getSignedOn())
                 .withMessageBuiltFrom(
                         rejectTokenRequestView.getLegalOfficerAddress(),
                         requestId,
@@ -98,6 +106,9 @@ public class TokenRequestController {
         var legalOfficerAddress = new Ss58Address(acceptTokenRequestView.getLegalOfficerAddress());
         signature.verify(acceptTokenRequestView.getSignature())
                 .withSs58Address(legalOfficerAddress)
+                .withResource(RESOURCE)
+                .withOperation("accept")
+                .withTimestamp(acceptTokenRequestView.getSignedOn())
                 .withMessageBuiltFrom(
                         acceptTokenRequestView.getLegalOfficerAddress(),
                         requestId
