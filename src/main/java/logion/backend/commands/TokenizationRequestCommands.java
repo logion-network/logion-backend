@@ -4,8 +4,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import javax.transaction.Transactional;
 import logion.backend.annotation.Commands;
+import logion.backend.crypto.Hashing;
+import logion.backend.model.tokenizationrequest.AssetDescription;
 import logion.backend.model.tokenizationrequest.TokenizationRequestAggregateRoot;
 import logion.backend.model.tokenizationrequest.TokenizationRequestRepository;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,15 +29,25 @@ public class TokenizationRequestCommands {
 
     public void rejectTokenizationRequest(UUID requestId, String rejectReason, LocalDateTime rejectedOn) {
         var request = tokenizationRequestRepository.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException("Request does not exist"));
+                .orElseThrow(TokenizationRequestRepository.requestNotFound);
         request.reject(rejectReason, rejectedOn);
         tokenizationRequestRepository.save(request);
     }
 
-    public void acceptTokenizationRequest(UUID requestId, LocalDateTime acceptedOn) {
+    public String acceptTokenizationRequest(UUID requestId, LocalDateTime acceptedOn) {
         var request = tokenizationRequestRepository.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException("Request does not exist"));
-        request.accept(acceptedOn);
+                .orElseThrow(TokenizationRequestRepository.requestNotFound);
+        var sessionToken = RandomStringUtils.random(32);
+        request.accept(acceptedOn, Hashing.sha256(sessionToken));
+        tokenizationRequestRepository.save(request);
+        return sessionToken;
+    }
+
+    public void setAssetDescription(UUID requestId, String sessionToken, AssetDescription description) {
+        var request = tokenizationRequestRepository.findById(requestId)
+                .orElseThrow(TokenizationRequestRepository.requestNotFound);
+        var sessionTokenHash = Hashing.sha256(sessionToken);
+        request.setAssetDescription(sessionTokenHash, description);
         tokenizationRequestRepository.save(request);
     }
 }

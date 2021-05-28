@@ -5,14 +5,19 @@ import java.util.Optional;
 import java.util.UUID;
 import logion.backend.annotation.RestQuery;
 import logion.backend.api.view.AcceptTokenRequestView;
+import logion.backend.api.view.AssetDescriptionView;
 import logion.backend.api.view.CreateTokenRequestView;
 import logion.backend.api.view.FetchRequestsResponseView;
 import logion.backend.api.view.FetchRequestsSpecificationView;
 import logion.backend.api.view.RejectTokenRequestView;
+import logion.backend.api.view.SetAssetDescriptionView;
+import logion.backend.api.view.TokenRequestAcceptedView;
 import logion.backend.api.view.TokenRequestView;
 import logion.backend.commands.TokenizationRequestCommands;
-import logion.backend.model.Ss58Address;
 import logion.backend.model.Signature;
+import logion.backend.model.Ss58Address;
+import logion.backend.model.tokenizationrequest.AssetDescription;
+import logion.backend.model.tokenizationrequest.AssetId;
 import logion.backend.model.tokenizationrequest.FetchRequestsSpecification;
 import logion.backend.model.tokenizationrequest.TokenizationRequestAggregateRoot;
 import logion.backend.model.tokenizationrequest.TokenizationRequestDescription;
@@ -81,6 +86,14 @@ public class TokenRequestController {
                 .rejectReason(request.getRejectReason())
                 .createdOn(request.getCreatedOn())
                 .decisionOn(request.getDecisionOn())
+                .assetDescription(request.getAssetDescription().map(this::toView).orElse(null))
+                .build();
+    }
+
+    private AssetDescriptionView toView(AssetDescription description) {
+        return AssetDescriptionView.builder()
+                .assetId(description.getAssetId().getValue())
+                .decimals(description.getDecimals())
                 .build();
     }
 
@@ -102,7 +115,7 @@ public class TokenRequestController {
     }
 
     @PostMapping(value = "{requestId}/accept")
-    public void acceptTokenRequest(@PathVariable String requestId, @RequestBody AcceptTokenRequestView acceptTokenRequestView) {
+    public TokenRequestAcceptedView acceptTokenRequest(@PathVariable String requestId, @RequestBody AcceptTokenRequestView acceptTokenRequestView) {
         var id = UUID.fromString(requestId);
         var request = tokenizationRequestRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Request does not exist"));
@@ -112,11 +125,24 @@ public class TokenRequestController {
                 .withOperation("accept")
                 .withTimestamp(acceptTokenRequestView.getSignedOn())
                 .withMessageBuiltFrom(requestId);
-        tokenizationRequestCommands.acceptTokenizationRequest(id, LocalDateTime.now());
+        String sessionToken = tokenizationRequestCommands.acceptTokenizationRequest(UUID.fromString(requestId), LocalDateTime.now());
+        return TokenRequestAcceptedView.builder()
+                .sessionToken(sessionToken)
+                .build();
     }
 
     @Autowired
     private Signature signature;
+
+    @PostMapping(value = "{requestId}/asset")
+    public void setAssetDescription(@PathVariable String requestId, @RequestBody SetAssetDescriptionView requestBody) {
+        var sessionToken = requestBody.getSessionToken();
+        var description = AssetDescription.builder()
+                .assetId(new AssetId(requestBody.getDescription().getAssetId()))
+                .decimals(requestBody.getDescription().getDecimals())
+                .build();
+        tokenizationRequestCommands.setAssetDescription(UUID.fromString(requestId), sessionToken, description);
+    }
 
     @PutMapping
     @RestQuery

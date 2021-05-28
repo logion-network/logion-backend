@@ -1,5 +1,7 @@
 package logion.backend.model;
 
+import java.time.LocalDateTime;
+import java.util.stream.Stream;
 import logion.backend.subkey.SubkeyWrapper;
 import logion.backend.subkey.SubkeyWrapper.ExpectingAddress;
 import logion.backend.subkey.SubkeyWrapper.ExpectingAddress.ExpectingMessage;
@@ -9,34 +11,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class SignatureTest {
-
-    private final Signature signature = new Signature();
-
-    @ParameterizedTest
-    @MethodSource
-    void createHash(String expectedMessage, Object... attributes) {
-        var message = signature.createHash(attributes);
-        assertEquals(expectedMessage, message);
-    }
-
-    @SuppressWarnings("unused")
-    private static Stream<Arguments> createHash() {
-        return Stream.of(
-                Arguments.of("iNQmb9TmM40TuEX88olXnSCciXgjuSF9o+Fhk28DFYk=", new Object[]{"abcd"}),
-                Arguments.of("d6wxm/4ZeeLXmdnmmH5l/rVPYVEcA1UuuumQgmwghZA=", new Object[]{1.2f}),
-                Arguments.of("s6jg4fmrG/46NvIx9nb3i7MKUZ0rIebFMMDu6Ou0pdA=", new Object[]{456}),
-                Arguments.of("L1IAt8dg2CXiUjCoVZ3wf4uIJWocNgsmhmswXmH0oAU=", new Object[]{"ABC", 123, true})
-        );
-    }
 
     @ParameterizedTest
     @MethodSource
