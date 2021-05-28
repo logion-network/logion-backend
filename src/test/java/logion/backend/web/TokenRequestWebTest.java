@@ -74,7 +74,6 @@ class TokenRequestWebTest {
                     expectedTokenDescription.getRequesterAddress(),
                     true,
                     expectedTokenDescription.getLegalOfficerAddress().getRawValue(),
-                    expectedTokenDescription.getRequesterAddress().getRawValue(),
                     expectedTokenDescription.getRequestedTokenName(),
                     expectedTokenDescription.getBars());
             when(signature.verify("signature")).thenReturn(approving);
@@ -128,7 +127,6 @@ class TokenRequestWebTest {
         var approving = signatureVerifyMock(
                 DefaultAddresses.ALICE,
                 signatureVerifyResult,
-                DefaultAddresses.ALICE.getRawValue(),
                 requestId.toString(),
                 REJECT_REASON);
         when(signature.verify("signature")).thenReturn(approving);
@@ -157,7 +155,6 @@ class TokenRequestWebTest {
         var approving = signatureVerifyMock(
                 DefaultAddresses.ALICE,
                 signatureVerifyResult,
-                DefaultAddresses.ALICE.getRawValue(),
                 requestId.toString());
         when(signature.verify("signature")).thenReturn(approving);
 

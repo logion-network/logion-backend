@@ -54,7 +54,6 @@ public class TokenRequestController {
                 .withTimestamp(createTokenRequestView.getSignedOn())
                 .withMessageBuiltFrom(
                         legalOfficerAddress.getRawValue(),
-                        tokenDescription.getRequesterAddress().getRawValue(),
                         tokenDescription.getRequestedTokenName(),
                         tokenDescription.getBars()
                 );
@@ -94,7 +93,6 @@ public class TokenRequestController {
                 .withOperation("reject")
                 .withTimestamp(rejectTokenRequestView.getSignedOn())
                 .withMessageBuiltFrom(
-                        rejectTokenRequestView.getLegalOfficerAddress(),
                         requestId,
                         rejectTokenRequestView.getRejectReason()
                 );
@@ -109,10 +107,7 @@ public class TokenRequestController {
                 .withResource(RESOURCE)
                 .withOperation("accept")
                 .withTimestamp(acceptTokenRequestView.getSignedOn())
-                .withMessageBuiltFrom(
-                        acceptTokenRequestView.getLegalOfficerAddress(),
-                        requestId
-                );
+                .withMessageBuiltFrom(requestId);
         tokenizationRequestCommands.acceptTokenizationRequest(UUID.fromString(requestId), LocalDateTime.now());
     }
 
