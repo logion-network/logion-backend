@@ -16,7 +16,7 @@ public class Hash {
         this.bytes = bytes;
     }
 
-    private byte[] bytes;
+    private final byte[] bytes;
 
     public String toBase64() {
         return Base64.getEncoder().encodeToString(bytes);

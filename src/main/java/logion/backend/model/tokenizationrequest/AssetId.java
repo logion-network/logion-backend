@@ -7,5 +7,5 @@ import lombok.Value;
 @ValueObject
 public class AssetId {
 
-    private String value;
+    String value;
 }

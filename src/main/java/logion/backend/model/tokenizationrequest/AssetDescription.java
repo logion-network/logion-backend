@@ -9,7 +9,7 @@ import lombok.Value;
 @ValueObject
 public class AssetDescription {
 
-    private AssetId assetId;
+    AssetId assetId;
 
-    private int decimals;
+    int decimals;
 }

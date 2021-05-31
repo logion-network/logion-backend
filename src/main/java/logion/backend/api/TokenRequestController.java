@@ -101,7 +101,7 @@ public class TokenRequestController {
     public void rejectTokenRequest(@PathVariable String requestId, @RequestBody RejectTokenRequestView rejectTokenRequestView) {
         var id = UUID.fromString(requestId);
         var request = tokenizationRequestRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Request does not exist"));
+                .orElseThrow(TokenizationRequestRepository.requestNotFound);
         signature.verify(rejectTokenRequestView.getSignature())
                 .withSs58Address(request.getDescription().getLegalOfficerAddress())
                 .withResource(RESOURCE)
@@ -118,7 +118,7 @@ public class TokenRequestController {
     public TokenRequestAcceptedView acceptTokenRequest(@PathVariable String requestId, @RequestBody AcceptTokenRequestView acceptTokenRequestView) {
         var id = UUID.fromString(requestId);
         var request = tokenizationRequestRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Request does not exist"));
+                .orElseThrow(TokenizationRequestRepository.requestNotFound);
         signature.verify(acceptTokenRequestView.getSignature())
                 .withSs58Address(request.getDescription().getLegalOfficerAddress())
                 .withResource(RESOURCE)

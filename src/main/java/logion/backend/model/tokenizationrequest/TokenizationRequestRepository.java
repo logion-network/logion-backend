@@ -14,7 +14,7 @@ public interface TokenizationRequestRepository
 extends CrudRepository<TokenizationRequestAggregateRoot, UUID>,
 QuerydslPredicateExecutor<TokenizationRequestAggregateRoot> {
 
-    static Supplier<IllegalArgumentException> requestNotFound = () -> new IllegalArgumentException("Request does not exist");
+    Supplier<IllegalArgumentException> requestNotFound = () -> new IllegalArgumentException("Request does not exist");
 
     default List<TokenizationRequestAggregateRoot> findBy(FetchRequestsSpecification query) {
         var root = QTokenizationRequestAggregateRoot.tokenizationRequestAggregateRoot;
