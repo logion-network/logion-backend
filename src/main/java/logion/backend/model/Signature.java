@@ -1,5 +1,9 @@
 package logion.backend.model;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import logion.backend.crypto.Hashing;
 import logion.backend.subkey.SubkeyWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,18 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.time.LocalDateTime;
-import java.util.*;
-
 import static java.util.Objects.requireNonNull;
 
 @Service
 public class Signature implements InitializingBean {
-
-    private static final String ALGORITHM = "SHA-256";
 
     private SubkeyWrapper subkeyWrapper;
 
@@ -83,31 +79,14 @@ public class Signature implements InitializingBean {
                 if (otherAttributes != null) {
                     allAttributes.addAll(Arrays.asList(otherAttributes));
                 }
-                String message = createHash(allAttributes);
+                var message = Hashing.sha256(allAttributes);
                 var signatureValid = subkeyWrapper.verify(signature)
                         .withSs58Address(address)
-                        .withMessage(message);
+                        .withMessage(message.toBase64());
                 if (!signatureValid) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to verify signature");
                 }
             }
-        }
-    }
-
-    String createHash(Object... attributes) {
-        return createHash(Arrays.asList(attributes));
-    }
-
-    private String createHash(List<Object> attributes) {
-        try {
-            var digest = MessageDigest.getInstance(ALGORITHM);
-            attributes.stream()
-                    .map(Object::toString)
-                    .map(s -> s.getBytes(StandardCharsets.UTF_8))
-                    .forEach(digest::update);
-            return Base64.getEncoder().encodeToString(digest.digest());
-        } catch (NoSuchAlgorithmException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Invalid digest algorithm", e);
         }
     }
 
@@ -117,7 +96,7 @@ public class Signature implements InitializingBean {
     @Override
     public void afterPropertiesSet() {
         logger.info("Subkey command: {}", subkeyPath);
-        this.subkeyWrapper = new SubkeyWrapper.Builder()
+        subkeyWrapper = new SubkeyWrapper.Builder()
                 .withSubkey(subkeyPath)
                 .build();
     }

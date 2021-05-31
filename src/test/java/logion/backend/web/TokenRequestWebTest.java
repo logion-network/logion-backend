@@ -9,9 +9,11 @@ import java.util.stream.Stream;
 import logion.backend.api.TokenRequestController;
 import logion.backend.commands.TokenizationRequestCommands;
 import logion.backend.model.DefaultAddresses;
-import logion.backend.model.Ss58Address;
 import logion.backend.model.Signature;
 import logion.backend.model.Signature.ExpectingAddress;
+import logion.backend.model.Ss58Address;
+import logion.backend.model.tokenizationrequest.AssetDescription;
+import logion.backend.model.tokenizationrequest.AssetId;
 import logion.backend.model.tokenizationrequest.FetchRequestsSpecification;
 import logion.backend.model.tokenizationrequest.TokenizationRequestAggregateRoot;
 import logion.backend.model.tokenizationrequest.TokenizationRequestDescription;
@@ -20,6 +22,7 @@ import logion.backend.model.tokenizationrequest.TokenizationRequestRepository;
 import logion.backend.model.tokenizationrequest.TokenizationRequestStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -35,8 +38,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -165,16 +176,22 @@ class TokenRequestWebTest {
                 requestId.toString());
         when(signature.verify("signature")).thenReturn(approving);
 
-        mvc.perform(post("/token-request/" + requestId.toString() + "/accept")
+        var sessionToken = "token";
+        if(signatureVerifyResult) {
+            when(tokenizationRequestCommands.acceptTokenizationRequest(eq(requestId), isA(LocalDateTime.class)))
+                .thenReturn(sessionToken);
+        }
+
+        var result = mvc.perform(post("/token-request/" + requestId.toString() + "/accept")
                 .accept(APPLICATION_JSON)
                 .contentType(APPLICATION_JSON)
                 .content(requestBody.toString()))
                 .andExpect(matcher);
-
         if(signatureVerifyResult) {
-            verify(tokenizationRequestCommands).acceptTokenizationRequest(eq(requestId), isA(LocalDateTime.class));
+            result.andExpect(jsonPath("$.sessionToken").isString());
+        } else {
+            verifyNoMoreInteractions(tokenizationRequestCommands);
         }
-        verifyNoMoreInteractions(tokenizationRequestCommands);
     }
 
     private static final String SIGNATURE = "signature";
@@ -331,5 +348,29 @@ class TokenRequestWebTest {
                 .requesterAddress(new Ss58Address("requester" + index))
                 .bars(index)
                 .build(), TokenizationRequestStatus.PENDING);
+    }
+
+    @Test
+    void setAssetDescription() throws Exception {
+        var description = AssetDescription.builder()
+                .assetId(new AssetId("assetId"))
+                .decimals(18)
+                .build();
+        var sessionToken = "token";
+        var requestBody = new JSONObject()
+            .put("sessionToken", sessionToken)
+            .put("description", new JSONObject()
+                .put("assetId", description.getAssetId().getValue())
+                .put("decimals", description.getDecimals()));
+
+        var requestId = UUID.randomUUID();
+        mvc.perform(post("/token-request/" + requestId.toString() + "/asset")
+                .accept(APPLICATION_JSON)
+                .contentType(APPLICATION_JSON)
+                .content(requestBody.toString()))
+                .andExpect(status().isOk());
+
+        verify(tokenizationRequestCommands).setAssetDescription(requestId, sessionToken, description);
+        verifyNoMoreInteractions(tokenizationRequestCommands);
     }
 }

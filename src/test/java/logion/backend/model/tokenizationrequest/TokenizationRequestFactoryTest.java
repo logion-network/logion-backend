@@ -1,11 +1,13 @@
 package logion.backend.model.tokenizationrequest;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 import logion.backend.model.Ss58Address;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 class TokenizationRequestFactoryTest {
@@ -54,5 +56,7 @@ class TokenizationRequestFactoryTest {
         assertThat(createdTokenizationRequest.getId(), equalTo(requestId));
         assertThat(createdTokenizationRequest.getDescription(), equalTo(description));
         assertThat(createdTokenizationRequest.getCreatedOn(), equalTo(createdOn));
+        assertThat(createdTokenizationRequest.getAssetDescription(), equalTo(Optional.empty()));
+        assertThat(createdTokenizationRequest.acceptSessionTokenHash, nullValue());
     }
 }

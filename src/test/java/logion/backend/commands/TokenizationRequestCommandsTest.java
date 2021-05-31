@@ -3,6 +3,10 @@ package logion.backend.commands;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import logion.backend.crypto.Hash;
+import logion.backend.crypto.Hashing;
+import logion.backend.model.tokenizationrequest.AssetDescription;
+import logion.backend.model.tokenizationrequest.AssetId;
 import logion.backend.model.tokenizationrequest.TokenizationRequestAggregateRoot;
 import logion.backend.model.tokenizationrequest.TokenizationRequestRepository;
 import org.junit.jupiter.api.Test;
@@ -12,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -77,6 +83,7 @@ class TokenizationRequestCommandsTest {
     void acceptTokenizationRequest() {
         givenTokenizationRequest();
         givenTokenizationRequestFindable();
+        givenTokenizationRequestSaveable();
         whenAcceptTokenizationRequest();
         thenRequestAccepted();
         thenRequestSaved();
@@ -84,6 +91,10 @@ class TokenizationRequestCommandsTest {
 
     private void givenTokenizationRequestFindable() {
         when(tokenizationRequestRepository.findById(request.getId())).thenReturn(Optional.of(request));
+    }
+
+    private void givenTokenizationRequestSaveable() {
+        when(tokenizationRequestRepository.save(request)).thenReturn(request);
     }
 
     private void whenRejectTokenizationRequest() {
@@ -99,12 +110,46 @@ class TokenizationRequestCommandsTest {
     }
 
     private void thenRequestAccepted() {
-        verify(request).accept(ACCEPTED_ON);
+        verify(request).accept(eq(ACCEPTED_ON), any(Hash.class));
     }
 
     @Test
     void rejectTokenizationRequestFailsIfNotExists() {
         givenTokenizationRequest();
         assertThrows(IllegalArgumentException.class, this::whenRejectTokenizationRequest);
+    }
+
+    @Test
+    void setAssetDescription() {
+        givenTokenizationRequest();
+        givenTokenizationRequestFindable();
+        givenSessionToken("token");
+        givenAssetDescription(AssetDescription.builder()
+                .assetId(new AssetId("assetId"))
+                .decimals(18)
+                .build());
+        whenSetAssetDescription();
+        thenAssetDescriptionSet();
+        thenRequestSaved();
+    }
+
+    private void givenAssetDescription(AssetDescription assetDescription) {
+        description = assetDescription;
+    }
+
+    private void givenSessionToken(String value) {
+        sessionToken = value;
+    }
+
+    private String sessionToken;
+
+    private AssetDescription description;
+
+    private void whenSetAssetDescription() {
+        commands.setAssetDescription(request.getId(), sessionToken, description);
+    }
+
+    private void thenAssetDescriptionSet() {
+        verify(request).setAssetDescription(Hashing.sha256(sessionToken), description);
     }
 }
