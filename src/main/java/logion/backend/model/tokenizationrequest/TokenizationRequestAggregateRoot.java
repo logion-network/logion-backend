@@ -26,6 +26,15 @@ public class TokenizationRequestAggregateRoot {
         decisionOn = rejectedOn;
     }
 
+    public void accept(LocalDateTime acceptedOn) {
+        if(status != TokenizationRequestStatus.PENDING) {
+            throw new IllegalStateException("Cannot accept non-pending request");
+        }
+
+        status = TokenizationRequestStatus.ACCEPTED;
+        decisionOn = acceptedOn;
+    }
+
     public TokenizationRequestDescription getDescription() {
         return TokenizationRequestDescription.builder()
                 .legalOfficerAddress(legalOfficerAddress)

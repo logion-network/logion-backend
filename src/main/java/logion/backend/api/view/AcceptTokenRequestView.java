@@ -5,7 +5,5 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class RejectTokenRequestView extends SignedOperationView {
-
-    String rejectReason;
+public class AcceptTokenRequestView extends SignedOperationView {
 }

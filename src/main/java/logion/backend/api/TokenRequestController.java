@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import logion.backend.annotation.RestQuery;
+import logion.backend.api.view.AcceptTokenRequestView;
 import logion.backend.api.view.CreateTokenRequestView;
 import logion.backend.api.view.FetchRequestsResponseView;
 import logion.backend.api.view.FetchRequestsSpecificationView;
@@ -33,6 +34,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(path = "/token-request", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 public class TokenRequestController {
 
+    public static final String RESOURCE = "token-request";
+
     @PostMapping
     public TokenRequestView createTokenRequest(@RequestBody CreateTokenRequestView createTokenRequestView) {
         var tokenDescription = TokenizationRequestDescription.builder()
@@ -46,9 +49,11 @@ public class TokenRequestController {
 
         signature.verify(createTokenRequestView.getSignature())
                 .withSs58Address(tokenDescription.getRequesterAddress())
+                .withResource(RESOURCE)
+                .withOperation("create")
+                .withTimestamp(createTokenRequestView.getSignedOn())
                 .withMessageBuiltFrom(
                         legalOfficerAddress.getRawValue(),
-                        tokenDescription.getRequesterAddress().getRawValue(),
                         tokenDescription.getRequestedTokenName(),
                         tokenDescription.getBars()
                 );
@@ -81,15 +86,33 @@ public class TokenRequestController {
 
     @PostMapping(value = "{requestId}/reject")
     public void rejectTokenRequest(@PathVariable String requestId, @RequestBody RejectTokenRequestView rejectTokenRequestView) {
-        var legalOfficerAddress = new Ss58Address(rejectTokenRequestView.getLegalOfficerAddress());
+        var id = UUID.fromString(requestId);
+        var request = tokenizationRequestRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Request does not exist"));
         signature.verify(rejectTokenRequestView.getSignature())
-                .withSs58Address(legalOfficerAddress)
+                .withSs58Address(request.getDescription().getLegalOfficerAddress())
+                .withResource(RESOURCE)
+                .withOperation("reject")
+                .withTimestamp(rejectTokenRequestView.getSignedOn())
                 .withMessageBuiltFrom(
-                        rejectTokenRequestView.getLegalOfficerAddress(),
                         requestId,
                         rejectTokenRequestView.getRejectReason()
                 );
-        tokenizationRequestCommands.rejectTokenizationRequest(UUID.fromString(requestId), rejectTokenRequestView.getRejectReason(), LocalDateTime.now());
+        tokenizationRequestCommands.rejectTokenizationRequest(id, rejectTokenRequestView.getRejectReason(), LocalDateTime.now());
+    }
+
+    @PostMapping(value = "{requestId}/accept")
+    public void acceptTokenRequest(@PathVariable String requestId, @RequestBody AcceptTokenRequestView acceptTokenRequestView) {
+        var id = UUID.fromString(requestId);
+        var request = tokenizationRequestRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Request does not exist"));
+        signature.verify(acceptTokenRequestView.getSignature())
+                .withSs58Address(request.getDescription().getLegalOfficerAddress())
+                .withResource(RESOURCE)
+                .withOperation("accept")
+                .withTimestamp(acceptTokenRequestView.getSignedOn())
+                .withMessageBuiltFrom(requestId);
+        tokenizationRequestCommands.acceptTokenizationRequest(id, LocalDateTime.now());
     }
 
     @Autowired

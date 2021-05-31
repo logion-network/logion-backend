@@ -30,4 +30,11 @@ public class TokenizationRequestCommands {
         request.reject(rejectReason, rejectedOn);
         tokenizationRequestRepository.save(request);
     }
+
+    public void acceptTokenizationRequest(UUID requestId, LocalDateTime acceptedOn) {
+        var request = tokenizationRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("Request does not exist"));
+        request.accept(acceptedOn);
+        tokenizationRequestRepository.save(request);
+    }
 }

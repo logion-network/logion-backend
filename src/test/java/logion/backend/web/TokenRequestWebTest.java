@@ -74,7 +74,6 @@ class TokenRequestWebTest {
                     expectedTokenDescription.getRequesterAddress(),
                     true,
                     expectedTokenDescription.getLegalOfficerAddress().getRawValue(),
-                    expectedTokenDescription.getRequesterAddress().getRawValue(),
                     expectedTokenDescription.getRequestedTokenName(),
                     expectedTokenDescription.getBars());
             when(signature.verify("signature")).thenReturn(approving);
@@ -110,22 +109,27 @@ class TokenRequestWebTest {
         validRequest.put("requesterAddress", "5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW");
         validRequest.put("bars", 1);
         validRequest.put("signature", "signature");
+        validRequest.put("signedOn", LocalDateTime.now());
         return validRequest.toString();
     }
 
     @ParameterizedTest
-    @MethodSource
+    @MethodSource("signatureValidityWithStatus")
     void rejectTokenRequestWithWrongSignature(boolean signatureVerifyResult, ResultMatcher matcher) throws Exception {
         var requestId = UUID.randomUUID();
+
+        var request = bobPendingRequest(0);
+        when(tokenizationRequestRepository.findById(requestId))
+                .thenReturn(Optional.of(request));
+
         var requestBody = new JSONObject();
-        requestBody.put("legalOfficerAddress", DefaultAddresses.ALICE.getRawValue());
         requestBody.put("signature", SIGNATURE);
         requestBody.put("rejectReason", REJECT_REASON);
+        requestBody.put("signedOn", LocalDateTime.now());
 
         var approving = signatureVerifyMock(
-                DefaultAddresses.ALICE,
+                DefaultAddresses.BOB,
                 signatureVerifyResult,
-                DefaultAddresses.ALICE.getRawValue(),
                 requestId.toString(),
                 REJECT_REASON);
         when(signature.verify("signature")).thenReturn(approving);
@@ -139,6 +143,38 @@ class TokenRequestWebTest {
         if(signatureVerifyResult) {
             verify(tokenizationRequestCommands).rejectTokenizationRequest(eq(requestId), eq(REJECT_REASON), isA(LocalDateTime.class));
         }
+        verifyNoMoreInteractions(tokenizationRequestCommands);
+    }
+
+    @ParameterizedTest
+    @MethodSource("signatureValidityWithStatus")
+    void acceptTokenRequestWithWrongSignature(boolean signatureVerifyResult, ResultMatcher matcher) throws Exception {
+        var requestId = UUID.randomUUID();
+
+        var request = bobPendingRequest(0);
+        when(tokenizationRequestRepository.findById(requestId))
+                .thenReturn(Optional.of(request));
+
+        var requestBody = new JSONObject();
+        requestBody.put("signature", SIGNATURE);
+        requestBody.put("signedOn", LocalDateTime.now());
+
+        var approving = signatureVerifyMock(
+                DefaultAddresses.BOB,
+                signatureVerifyResult,
+                requestId.toString());
+        when(signature.verify("signature")).thenReturn(approving);
+
+        mvc.perform(post("/token-request/" + requestId.toString() + "/accept")
+                .accept(APPLICATION_JSON)
+                .contentType(APPLICATION_JSON)
+                .content(requestBody.toString()))
+                .andExpect(matcher);
+
+        if(signatureVerifyResult) {
+            verify(tokenizationRequestCommands).acceptTokenizationRequest(eq(requestId), isA(LocalDateTime.class));
+        }
+        verifyNoMoreInteractions(tokenizationRequestCommands);
     }
 
     private static final String SIGNATURE = "signature";
@@ -146,6 +182,9 @@ class TokenRequestWebTest {
 
     private ExpectingAddress signatureVerifyMock(Ss58Address address, boolean verifyResult, Object... attributes) {
         var expectingMessage = mock(ExpectingAddress.ExpectingMessage.class);
+        when(expectingMessage.withResource(anyString())).thenReturn(expectingMessage);
+        when(expectingMessage.withOperation(anyString())).thenReturn(expectingMessage);
+        when(expectingMessage.withTimestamp(any(LocalDateTime.class))).thenReturn(expectingMessage);
         doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to verify signature"))
                 .when(expectingMessage).withMessageBuiltFrom(any());
         if (verifyResult) {
@@ -162,7 +201,7 @@ class TokenRequestWebTest {
     }
 
     @SuppressWarnings("unused")
-    private static Stream<Arguments> rejectTokenRequestWithWrongSignature() {
+    private static Stream<Arguments> signatureValidityWithStatus() {
         return Stream.of(
             Arguments.of(true, status().isOk()),
             Arguments.of(false, status().isBadRequest())

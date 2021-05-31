@@ -1,15 +1,14 @@
 package logion.backend.api.view;
 
-import lombok.Builder;
-import lombok.Value;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-@Value
-@Builder
-public class CreateTokenRequestView {
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class CreateTokenRequestView extends SignedOperationView {
 
     String requestedTokenName;
     String legalOfficerAddress;
     String requesterAddress;
     int bars;
-    String signature;
 }
