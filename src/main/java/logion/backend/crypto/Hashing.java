@@ -33,4 +33,8 @@ public class Hashing {
             throw new IllegalArgumentException(e);
         }
     }
+
+    private Hashing() {
+
+    }
 }
