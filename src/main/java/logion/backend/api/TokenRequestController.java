@@ -86,9 +86,11 @@ public class TokenRequestController {
 
     @PostMapping(value = "{requestId}/reject")
     public void rejectTokenRequest(@PathVariable String requestId, @RequestBody RejectTokenRequestView rejectTokenRequestView) {
-        var legalOfficerAddress = new Ss58Address(rejectTokenRequestView.getLegalOfficerAddress());
+        var id = UUID.fromString(requestId);
+        var request = tokenizationRequestRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Request does not exist"));
         signature.verify(rejectTokenRequestView.getSignature())
-                .withSs58Address(legalOfficerAddress)
+                .withSs58Address(request.getDescription().getLegalOfficerAddress())
                 .withResource(RESOURCE)
                 .withOperation("reject")
                 .withTimestamp(rejectTokenRequestView.getSignedOn())
@@ -96,19 +98,21 @@ public class TokenRequestController {
                         requestId,
                         rejectTokenRequestView.getRejectReason()
                 );
-        tokenizationRequestCommands.rejectTokenizationRequest(UUID.fromString(requestId), rejectTokenRequestView.getRejectReason(), LocalDateTime.now());
+        tokenizationRequestCommands.rejectTokenizationRequest(id, rejectTokenRequestView.getRejectReason(), LocalDateTime.now());
     }
 
     @PostMapping(value = "{requestId}/accept")
     public void acceptTokenRequest(@PathVariable String requestId, @RequestBody AcceptTokenRequestView acceptTokenRequestView) {
-        var legalOfficerAddress = new Ss58Address(acceptTokenRequestView.getLegalOfficerAddress());
+        var id = UUID.fromString(requestId);
+        var request = tokenizationRequestRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Request does not exist"));
         signature.verify(acceptTokenRequestView.getSignature())
-                .withSs58Address(legalOfficerAddress)
+                .withSs58Address(request.getDescription().getLegalOfficerAddress())
                 .withResource(RESOURCE)
                 .withOperation("accept")
                 .withTimestamp(acceptTokenRequestView.getSignedOn())
                 .withMessageBuiltFrom(requestId);
-        tokenizationRequestCommands.acceptTokenizationRequest(UUID.fromString(requestId), LocalDateTime.now());
+        tokenizationRequestCommands.acceptTokenizationRequest(id, LocalDateTime.now());
     }
 
     @Autowired

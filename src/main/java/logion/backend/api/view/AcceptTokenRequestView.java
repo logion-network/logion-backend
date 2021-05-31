@@ -6,7 +6,4 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class AcceptTokenRequestView extends SignedOperationView {
-
-    String legalOfficerAddress;
-
 }

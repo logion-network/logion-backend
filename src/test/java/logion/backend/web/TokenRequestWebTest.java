@@ -117,15 +117,18 @@ class TokenRequestWebTest {
     @MethodSource("signatureValidityWithStatus")
     void rejectTokenRequestWithWrongSignature(boolean signatureVerifyResult, ResultMatcher matcher) throws Exception {
         var requestId = UUID.randomUUID();
+
+        var request = bobPendingRequest(0);
+        when(tokenizationRequestRepository.findById(requestId))
+                .thenReturn(Optional.of(request));
+
         var requestBody = new JSONObject();
-        requestBody.put("legalOfficerAddress", DefaultAddresses.ALICE.getRawValue());
         requestBody.put("signature", SIGNATURE);
         requestBody.put("rejectReason", REJECT_REASON);
         requestBody.put("signedOn", LocalDateTime.now());
 
-
         var approving = signatureVerifyMock(
-                DefaultAddresses.ALICE,
+                DefaultAddresses.BOB,
                 signatureVerifyResult,
                 requestId.toString(),
                 REJECT_REASON);
@@ -147,13 +150,17 @@ class TokenRequestWebTest {
     @MethodSource("signatureValidityWithStatus")
     void acceptTokenRequestWithWrongSignature(boolean signatureVerifyResult, ResultMatcher matcher) throws Exception {
         var requestId = UUID.randomUUID();
+
+        var request = bobPendingRequest(0);
+        when(tokenizationRequestRepository.findById(requestId))
+                .thenReturn(Optional.of(request));
+
         var requestBody = new JSONObject();
-        requestBody.put("legalOfficerAddress", DefaultAddresses.ALICE.getRawValue());
         requestBody.put("signature", SIGNATURE);
         requestBody.put("signedOn", LocalDateTime.now());
 
         var approving = signatureVerifyMock(
-                DefaultAddresses.ALICE,
+                DefaultAddresses.BOB,
                 signatureVerifyResult,
                 requestId.toString());
         when(signature.verify("signature")).thenReturn(approving);
