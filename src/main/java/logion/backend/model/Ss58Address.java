@@ -1,5 +1,6 @@
 package logion.backend.model;
 
+import java.io.Serializable;
 import logion.backend.annotation.ValueObject;
 import lombok.Value;
 
@@ -9,7 +10,7 @@ import lombok.Value;
  */
 @Value
 @ValueObject
-public class Ss58Address {
+public class Ss58Address implements Serializable {
 
-    private String rawValue;
+    String rawValue;
 }
