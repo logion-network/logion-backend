@@ -8,8 +8,8 @@ import lombok.Value;
  * Wraps the string representation of an
  * <a href="https://github.com/paritytech/substrate/wiki/External-Address-Format-(SS58)">SS58 address</a>.
  */
-@Value
 @ValueObject
+@Value
 public class Ss58Address implements Serializable {
 
     String rawValue;

@@ -4,10 +4,10 @@ import logion.backend.annotation.ValueObject;
 import lombok.Builder;
 import lombok.Value;
 
+@ValueObject
 @Value
 @Builder
-@ValueObject
-public class UserIdentityDescription {
+public class UserIdentity {
 
     String firstName;
     String lastName;

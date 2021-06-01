@@ -4,10 +4,10 @@ import logion.backend.annotation.ValueObject;
 import lombok.Builder;
 import lombok.Value;
 
+@ValueObject
 @Value
 @Builder
-@ValueObject
-public class PostalAddressDescription {
+public class PostalAddress {
 
     String line1;
     String line2;
