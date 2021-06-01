@@ -11,6 +11,7 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import logion.backend.annotation.AggregateRoot;
 import logion.backend.model.Ss58Address;
@@ -111,7 +112,8 @@ public class ProtectionRequestAggregateRoot {
     @Convert(converter = Ss58AddressConverter.class)
     Ss58Address requesterAddress;
 
-    @OneToMany(mappedBy = "id.requestId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "requestId", referencedColumnName = "id")
     Set<LegalOfficerDecision> decisions;
 
     ProtectionRequestAggregateRoot() {
