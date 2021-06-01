@@ -29,6 +29,7 @@ public class ProtectionRequestAggregateRoot {
                 .requesterAddress(requesterAddress)
                 .userIdentity(userIdentity())
                 .userPostalAddress(userPostalAddress())
+                .createdOn(createdOn)
                 .build();
     }
 
@@ -106,7 +107,6 @@ public class ProtectionRequestAggregateRoot {
     @Embedded
     EmbeddablePostalAddress userPostalAddress;
 
-    @Getter
     LocalDateTime createdOn;
 
     @Convert(converter = Ss58AddressConverter.class)

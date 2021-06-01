@@ -1,6 +1,5 @@
 package logion.backend.model.protectionrequest;
 
-import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 import logion.backend.annotation.Factory;
@@ -12,15 +11,14 @@ public class ProtectionRequestFactory {
     public ProtectionRequestAggregateRoot newProtectionRequest(
             UUID id,
             ProtectionRequestDescription description,
-            Set<Ss58Address> legalOfficerAddresses,
-            LocalDateTime createdOn) {
+            Set<Ss58Address> legalOfficerAddresses) {
         var request = new ProtectionRequestAggregateRoot();
         request.id = id;
         request.requesterAddress = description.getRequesterAddress();
         request.setUserIdentityDescription(description.getUserIdentity());
         request.setUserPostalAddress(description.getUserPostalAddress());
-        request.setLegalOfficerDecisions(legalOfficerAddresses, createdOn);
-        request.createdOn = createdOn;
+        request.setLegalOfficerDecisions(legalOfficerAddresses, description.getCreatedOn());
+        request.createdOn = description.getCreatedOn();
         return request;
     }
 }

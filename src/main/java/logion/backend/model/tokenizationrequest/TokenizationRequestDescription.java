@@ -1,5 +1,6 @@
 package logion.backend.model.tokenizationrequest;
 
+import java.time.LocalDateTime;
 import logion.backend.annotation.ValueObject;
 import logion.backend.model.Ss58Address;
 import lombok.Builder;
@@ -8,9 +9,9 @@ import lombok.Value;
 /**
  * The tokenization request description submitted by a requester.
  */
+@ValueObject
 @Value
 @Builder
-@ValueObject
 public class TokenizationRequestDescription {
 
     String requestedTokenName;
@@ -20,4 +21,6 @@ public class TokenizationRequestDescription {
     Ss58Address requesterAddress;
 
     int bars;
+
+    LocalDateTime createdOn;
 }

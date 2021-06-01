@@ -36,10 +36,10 @@ class ProtectionRequestFactoryTest {
                 .requesterAddress(new Ss58Address("5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW"))
                 .userIdentity(userIdentity)
                 .userPostalAddress(postalAddress)
+                .createdOn(LocalDateTime.now())
                 .build();
         givenProtectionRequestDescription(description);
         givenLegalOfficers(DefaultAddresses.ALICE, DefaultAddresses.BOB);
-        givenCreatedOn(LocalDateTime.now());
 
         whenCreatingProtectionRequest();
 
@@ -74,20 +74,13 @@ class ProtectionRequestFactoryTest {
 
     private Set<Ss58Address> legalOfficerAddresses;
 
-    private void givenCreatedOn(LocalDateTime createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    private LocalDateTime createdOn;
-
     private ProtectionRequestDescription protectionRequestDescription;
 
     private void whenCreatingProtectionRequest() {
         protectionRequest = new ProtectionRequestFactory().newProtectionRequest(
                 requestId,
                 protectionRequestDescription,
-                legalOfficerAddresses,
-                createdOn
+                legalOfficerAddresses
         );
     }
 
@@ -104,6 +97,5 @@ class ProtectionRequestFactoryTest {
                 .map(LegalOfficerDecisionDescription::getLegalOfficerAddress)
                 .collect(Collectors.toSet());
         assertThat(actualLegalOfficerAddresses, equalTo(legalOfficerAddresses));
-        assertThat(protectionRequest.getCreatedOn(), equalTo(createdOn));
     }
 }

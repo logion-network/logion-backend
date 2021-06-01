@@ -19,9 +19,9 @@ class TokenizationRequestFactoryTest {
                 .requesterAddress(new Ss58Address("5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW"))
                 .requestedTokenName("MYT")
                 .bars(1)
+                .createdOn(LocalDateTime.now())
                 .build();
         givenTokenDescription(description);
-        givenCreatedOn(LocalDateTime.now());
         whenCreatingTokenizationRequest();
         thenPendingRequestCreatedWithDescription(description);
     }
@@ -38,14 +38,8 @@ class TokenizationRequestFactoryTest {
 
     private TokenizationRequestDescription tokenDescription;
 
-    private void givenCreatedOn(LocalDateTime createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    private LocalDateTime createdOn;
-
     private void whenCreatingTokenizationRequest() {
-        createdTokenizationRequest = factory.newPendingTokenizationRequest(requestId, tokenDescription, createdOn);
+        createdTokenizationRequest = factory.newPendingTokenizationRequest(requestId, tokenDescription);
     }
 
     private final TokenizationRequestFactory factory = new TokenizationRequestFactory();
@@ -55,7 +49,6 @@ class TokenizationRequestFactoryTest {
     private void thenPendingRequestCreatedWithDescription(TokenizationRequestDescription description) {
         assertThat(createdTokenizationRequest.getId(), equalTo(requestId));
         assertThat(createdTokenizationRequest.getDescription(), equalTo(description));
-        assertThat(createdTokenizationRequest.getCreatedOn(), equalTo(createdOn));
         assertThat(createdTokenizationRequest.getAssetDescription(), equalTo(Optional.empty()));
         assertThat(createdTokenizationRequest.acceptSessionTokenHash, nullValue());
     }
