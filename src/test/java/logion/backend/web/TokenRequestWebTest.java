@@ -76,7 +76,7 @@ class TokenRequestWebTest {
         var tokenizationRequest = mock(TokenizationRequestAggregateRoot.class);
         when(tokenizationRequest.getDescription()).thenReturn(expectedTokenDescription);
 
-        when(tokenizationRequestFactory.newPendingTokenizationRequest(any(), eq(expectedTokenDescription), any()))
+        when(tokenizationRequestFactory.newPendingTokenizationRequest(any(), isA(TokenizationRequestDescription.class)))
             .thenReturn(tokenizationRequest);
         when(tokenizationRequestCommands.addTokenizationRequest(tokenizationRequest)).thenReturn(tokenizationRequest);
 
@@ -106,6 +106,7 @@ class TokenRequestWebTest {
                 .legalOfficerAddress(DefaultAddresses.ALICE)
                 .requesterAddress(new Ss58Address("5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW"))
                 .bars(1)
+                .createdOn(LocalDateTime.now())
                 .build();
         return Stream.of(
                 Arguments.of(validRequest(), status().isOk(), 1, tokenDescription),
@@ -145,7 +146,7 @@ class TokenRequestWebTest {
                 REJECT_REASON);
         when(signature.verify("signature")).thenReturn(approving);
 
-        mvc.perform(post("/token-request/" + requestId.toString() + "/reject")
+        mvc.perform(post("/token-request/" + requestId + "/reject")
                 .accept(APPLICATION_JSON)
                 .contentType(APPLICATION_JSON)
                 .content(requestBody.toString()))
@@ -182,7 +183,7 @@ class TokenRequestWebTest {
                 .thenReturn(sessionToken);
         }
 
-        var result = mvc.perform(post("/token-request/" + requestId.toString() + "/accept")
+        var result = mvc.perform(post("/token-request/" + requestId + "/accept")
                 .accept(APPLICATION_JSON)
                 .contentType(APPLICATION_JSON)
                 .content(requestBody.toString()))
@@ -301,6 +302,7 @@ class TokenRequestWebTest {
                 .requestedTokenName("MYT" + index)
                 .requesterAddress(new Ss58Address("requester" + index))
                 .bars(index)
+                .createdOn(LocalDateTime.now())
                 .build(), TokenizationRequestStatus.PENDING);
     }
 
@@ -332,6 +334,7 @@ class TokenRequestWebTest {
                 .requestedTokenName("MYT" + index)
                 .requesterAddress(new Ss58Address("requester" + index))
                 .bars(index)
+                .createdOn(LocalDateTime.now())
                 .build(), "Illegal" + index);
     }
 
@@ -347,6 +350,7 @@ class TokenRequestWebTest {
                 .requestedTokenName("MYT" + index)
                 .requesterAddress(new Ss58Address("requester" + index))
                 .bars(index)
+                .createdOn(LocalDateTime.now())
                 .build(), TokenizationRequestStatus.PENDING);
     }
 
@@ -364,7 +368,7 @@ class TokenRequestWebTest {
                 .put("decimals", description.getDecimals()));
 
         var requestId = UUID.randomUUID();
-        mvc.perform(post("/token-request/" + requestId.toString() + "/asset")
+        mvc.perform(post("/token-request/" + requestId + "/asset")
                 .accept(APPLICATION_JSON)
                 .contentType(APPLICATION_JSON)
                 .content(requestBody.toString()))

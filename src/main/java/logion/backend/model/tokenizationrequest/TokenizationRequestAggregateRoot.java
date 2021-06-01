@@ -46,6 +46,7 @@ public class TokenizationRequestAggregateRoot {
                 .requesterAddress(requesterAddress)
                 .requestedTokenName(requestedTokenName)
                 .bars(bars)
+                .createdOn(createdOn)
                 .build();
     }
 
@@ -70,7 +71,6 @@ public class TokenizationRequestAggregateRoot {
     @Getter
     String rejectReason;
 
-    @Getter
     LocalDateTime createdOn;
 
     @Getter

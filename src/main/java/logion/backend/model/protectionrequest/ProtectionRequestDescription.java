@@ -1,4 +1,4 @@
-package logion.backend.model.tokenizationrequest;
+package logion.backend.model.protectionrequest;
 
 import java.time.LocalDateTime;
 import logion.backend.annotation.ValueObject;
@@ -6,21 +6,13 @@ import logion.backend.model.Ss58Address;
 import lombok.Builder;
 import lombok.Value;
 
-/**
- * The tokenization request description submitted by a requester.
- */
 @ValueObject
 @Value
 @Builder
-public class TokenizationRequestDescription {
-
-    String requestedTokenName;
-
-    Ss58Address legalOfficerAddress;
+public class ProtectionRequestDescription {
 
     Ss58Address requesterAddress;
-
-    int bars;
-
+    UserIdentity userIdentity;
+    PostalAddress userPostalAddress;
     LocalDateTime createdOn;
 }

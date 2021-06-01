@@ -48,6 +48,7 @@ public class TokenRequestController {
                 .requesterAddress(new Ss58Address(createTokenRequestView.getRequesterAddress()))
                 .requestedTokenName(createTokenRequestView.getRequestedTokenName())
                 .bars(createTokenRequestView.getBars())
+                .createdOn(LocalDateTime.now())
                 .build();
 
         var legalOfficerAddress = tokenDescription.getLegalOfficerAddress();
@@ -63,7 +64,7 @@ public class TokenRequestController {
                         tokenDescription.getBars()
                 );
         var id = UUID.randomUUID();
-        var request = tokenizationRequestFactory.newPendingTokenizationRequest(id, tokenDescription, LocalDateTime.now());
+        var request = tokenizationRequestFactory.newPendingTokenizationRequest(id, tokenDescription);
         request = tokenizationRequestCommands.addTokenizationRequest(request);
         return toView(request);
     }
@@ -84,7 +85,7 @@ public class TokenRequestController {
                 .bars(tokenDescription.getBars())
                 .status(request.getStatus())
                 .rejectReason(request.getRejectReason())
-                .createdOn(request.getCreatedOn())
+                .createdOn(tokenDescription.getCreatedOn())
                 .decisionOn(request.getDecisionOn())
                 .assetDescription(request.getAssetDescription().map(this::toView).orElse(null))
                 .build();
