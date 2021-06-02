@@ -25,6 +25,7 @@ public class LegalOfficerDecision {
         return LegalOfficerDecisionDescription.builder()
                 .legalOfficerAddress(id.legalOfficerAddress)
                 .status(status)
+                .createdOn(createdOn)
                 .build();
     }
 
@@ -46,7 +47,6 @@ public class LegalOfficerDecision {
     @Enumerated(EnumType.STRING)
     LegalOfficerDecisionStatus status;
 
-    @Getter
     LocalDateTime createdOn;
 
     @Getter

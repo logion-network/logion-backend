@@ -1,5 +1,6 @@
 package logion.backend.model.protectionrequest;
 
+import java.time.LocalDateTime;
 import logion.backend.annotation.ValueObject;
 import logion.backend.model.Ss58Address;
 import lombok.Builder;
@@ -12,7 +13,7 @@ import lombok.Value;
 public class LegalOfficerDecisionDescription {
 
     Ss58Address legalOfficerAddress;
-    @Default
-    LegalOfficerDecisionStatus status = LegalOfficerDecisionStatus.PENDING;
+    @Default LegalOfficerDecisionStatus status = LegalOfficerDecisionStatus.PENDING;
+    LocalDateTime createdOn;
 
 }
