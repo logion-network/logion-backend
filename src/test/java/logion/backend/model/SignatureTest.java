@@ -1,6 +1,9 @@
 package logion.backend.model;
 
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 import logion.backend.subkey.SubkeyWrapper;
 import logion.backend.subkey.SubkeyWrapper.ExpectingAddress;
@@ -15,13 +18,14 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class SignatureTest {
 
     @ParameterizedTest
     @MethodSource
-    void testVerify(boolean success, Object... attributes) {
+    void testVerify(boolean success, String expectedMessage, Object... attributes) {
         // Given
         Signature signature = new Signature();
         var subkeyWrapper = mock(SubkeyWrapper.class);
@@ -38,7 +42,7 @@ class SignatureTest {
                     .withSs58Address(DefaultAddresses.BOB)
                     .withResource("resource")
                     .withOperation("operation")
-                    .withTimestamp(LocalDateTime.now());
+                    .withTimestamp(LocalDateTime.of(2021, Month.MAY, 10, 0, 0));
 
             if (attributes == null) {
                 em.withoutMessage();
@@ -49,6 +53,7 @@ class SignatureTest {
         // Then
         if (success) {
             assertDoesNotThrow(executable);
+            verify(expectingMessage).withMessage(expectedMessage);
         } else {
             assertThrows(ResponseStatusException.class, executable);
         }
@@ -56,11 +61,16 @@ class SignatureTest {
 
     @SuppressWarnings("unused")
     private static Stream<Arguments> testVerify() {
+        var sameSignature = "FtvKwzH/OdYXynVMDeOh6WD77O5gYD8LtDzs5qqDf2U=";
         return Stream.of(
-                Arguments.of(true, new Object[] {"abcd"}),
-                Arguments.of(false, new Object[] {"abcd"}),
-                Arguments.of(true, null),
-                Arguments.of(false, null)
+                Arguments.of(true, "SdPF9uK+K2RNcs0m0OYPXTTNUhJ06/+v8CcZrv9f8jo=", new Object[] {"abcd"}),
+                Arguments.of(false, null, new Object[] {"abcd"}),
+                Arguments.of(true, "CjwOkiDFvZWqt+uZYPktkdggygroB60g0mVn7QxyZm8=", null),
+                Arguments.of(false, null, null),
+                Arguments.of(true, sameSignature, new Object[]{"abc", 123, true}),
+                Arguments.of(true, sameSignature, new Object[]{List.of("abc", 123, true)}),
+                Arguments.of(true, sameSignature, new Object[]{"abc", List.of(123, true)}),
+                Arguments.of(true, sameSignature, new Object[]{"abc", new Object[]{123, true}})
         );
     }
 }

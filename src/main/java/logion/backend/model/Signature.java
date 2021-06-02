@@ -3,6 +3,8 @@ package logion.backend.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import logion.backend.crypto.Hashing;
 import logion.backend.subkey.SubkeyWrapper;
 import org.slf4j.Logger;
@@ -77,7 +79,9 @@ public class Signature implements InitializingBean {
                 allAttributes.add(requireNonNull(operation, "operation is mandatory to check signature"));
                 allAttributes.add(requireNonNull(signedOn, "timestamp is mandatory to check signature"));
                 if (otherAttributes != null) {
-                    allAttributes.addAll(Arrays.asList(otherAttributes));
+                    for (Object otherAttribute:otherAttributes) {
+                        allAttributes.addAll(expandArray(otherAttribute));
+                    }
                 }
                 var message = Hashing.sha256(allAttributes);
                 var signatureValid = subkeyWrapper.verify(signature)
@@ -86,6 +90,16 @@ public class Signature implements InitializingBean {
                 if (!signatureValid) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to verify signature");
                 }
+            }
+
+            private Collection<?> expandArray(Object obj) {
+                if (obj.getClass().isArray()) {
+                    return Arrays.asList((Object[]) obj);
+                }
+                if (obj instanceof Collection) {
+                    return (Collection<?>) obj;
+                }
+                return Collections.singleton(obj);
             }
         }
     }

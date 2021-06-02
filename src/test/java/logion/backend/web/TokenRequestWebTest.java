@@ -10,7 +10,6 @@ import logion.backend.api.TokenRequestController;
 import logion.backend.commands.TokenizationRequestCommands;
 import logion.backend.model.DefaultAddresses;
 import logion.backend.model.Signature;
-import logion.backend.model.Signature.ExpectingAddress;
 import logion.backend.model.Ss58Address;
 import logion.backend.model.tokenizationrequest.AssetDescription;
 import logion.backend.model.tokenizationrequest.AssetId;
@@ -30,19 +29,15 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
-import org.springframework.web.server.ResponseStatusException;
 
+import static logion.backend.testutil.MockSignature.signatureVerifyMock;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -83,6 +78,8 @@ class TokenRequestWebTest {
         if(expectedTokenDescription != null) {
             var approving = signatureVerifyMock(
                     expectedTokenDescription.getRequesterAddress(),
+                    "token-request",
+                    "create",
                     true,
                     expectedTokenDescription.getLegalOfficerAddress().getRawValue(),
                     expectedTokenDescription.getRequestedTokenName(),
@@ -141,6 +138,8 @@ class TokenRequestWebTest {
 
         var approving = signatureVerifyMock(
                 DefaultAddresses.BOB,
+                "token-request",
+                "reject",
                 signatureVerifyResult,
                 requestId.toString(),
                 REJECT_REASON);
@@ -173,6 +172,8 @@ class TokenRequestWebTest {
 
         var approving = signatureVerifyMock(
                 DefaultAddresses.BOB,
+                "token-request",
+                "accept",
                 signatureVerifyResult,
                 requestId.toString());
         when(signature.verify("signature")).thenReturn(approving);
@@ -197,26 +198,6 @@ class TokenRequestWebTest {
 
     private static final String SIGNATURE = "signature";
     private static final String REJECT_REASON = "Illegal";
-
-    private ExpectingAddress signatureVerifyMock(Ss58Address address, boolean verifyResult, Object... attributes) {
-        var expectingMessage = mock(ExpectingAddress.ExpectingMessage.class);
-        when(expectingMessage.withResource(anyString())).thenReturn(expectingMessage);
-        when(expectingMessage.withOperation(anyString())).thenReturn(expectingMessage);
-        when(expectingMessage.withTimestamp(any(LocalDateTime.class))).thenReturn(expectingMessage);
-        doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to verify signature"))
-                .when(expectingMessage).withMessageBuiltFrom(any());
-        if (verifyResult) {
-            doNothing().when(expectingMessage).withMessageBuiltFrom(attributes);
-        } else {
-            doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to verify signature"))
-                    .when(expectingMessage).withMessageBuiltFrom(attributes);
-        }
-
-        var expectingAddress = mock(ExpectingAddress.class);
-        when(expectingAddress.withSs58Address(address)).thenReturn(expectingMessage);
-
-        return expectingAddress;
-    }
 
     @SuppressWarnings("unused")
     private static Stream<Arguments> signatureValidityWithStatus() {
