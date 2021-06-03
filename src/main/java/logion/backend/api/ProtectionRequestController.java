@@ -1,5 +1,8 @@
 package logion.backend.api;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import logion.backend.api.view.CreateProtectionRequestView;
@@ -27,12 +30,20 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(path = "/protection-request", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+@Api(tags = "Protection Requests", value = "ProtectionRequestController", description = "Handling of Protection Requests")
 public class ProtectionRequestController {
 
     public static final String RESOURCE = "protection-request";
 
     @PostMapping
-    public ProtectionRequestView createProtectionRequest(@RequestBody CreateProtectionRequestView createProtectionRequestView) {
+    @ApiOperation(
+        value = "Creates a new Protection Request",
+        notes = "<p>The signature's resource is <code>protection-request</code>, the operation <code>create</code> and the additional fields are:</p><ul><li><code>userIdentity.firstName</code></li><li><code>userIdentity.lastName</code></li><li><code>userIdentity.email</code></li><li><code>userIdentity.phoneNumber</code></li><li><code>userPostalAddress.line1</code></li><li><code>userPostalAddress.line2</code></li><li><code>userPostalAddress.postalCode</code></li><li><code>userPostalAddress.city</code></li><li><code>userPostalAddress.country</code></li><li><code>userPostalAddress.line1</code></li><li><code>legalOfficerAddresses*</code></li></ul><p>where <code>legalOfficerAddresses*</code> is the concatenation of all SS58 addresses from field <code>legalOfficerAddresses</code></p>"
+    )
+    public ProtectionRequestView createProtectionRequest(
+            @RequestBody
+            @ApiParam(value = "Protection Request creation data", name = "body", required = true)
+            CreateProtectionRequestView createProtectionRequestView) {
         var userIdentity = createProtectionRequestView.getUserIdentity();
         var userPostalAddress = createProtectionRequestView.getUserPostalAddress();
         var requesterAddress = new Ss58Address(createProtectionRequestView.getRequesterAddress());
@@ -105,7 +116,7 @@ public class ProtectionRequestController {
     private LegalOfficerDecisionView toView(LegalOfficerDecisionDescription legalOfficerDecision) {
         return LegalOfficerDecisionView.builder()
                 .legalOfficerAddress(legalOfficerDecision.getLegalOfficerAddress().getRawValue())
-                .status(legalOfficerDecision.getStatus().name())
+                .status(legalOfficerDecision.getStatus())
                 .build();
     }
 }
