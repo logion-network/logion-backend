@@ -18,14 +18,18 @@ import logion.backend.model.protectionrequest.PostalAddress;
 import logion.backend.model.protectionrequest.ProtectionRequestAggregateRoot;
 import logion.backend.model.protectionrequest.ProtectionRequestDescription;
 import logion.backend.model.protectionrequest.ProtectionRequestFactory;
+import logion.backend.model.protectionrequest.ProtectionRequestRepository;
 import logion.backend.model.protectionrequest.UserIdentity;
 import logion.backend.util.CollectionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -78,11 +82,27 @@ public class ProtectionRequestController {
         return toView(request);
     }
 
+    @GetMapping(consumes = ALL_VALUE)
+    @ApiOperation(
+            value = "Fetch an existing Protection Request",
+            notes = "No authentication required yet"
+    )
+    public ProtectionRequestView fetchProtectionRequest(
+            @ApiParam(value = "The SS58 address of the protection requester", name = "requesterAddress", required = true)
+            @RequestParam("requesterAddress") String requesterAddress) {
+        return protectionRequestRepository.findByRequesterAddress(new Ss58Address(requesterAddress))
+                .map(this::toView)
+                .orElseThrow(ProtectionRequestRepository.requestNotFound);
+    }
+
     @Autowired
     private ProtectionRequestFactory protectionRequestFactory;
 
     @Autowired
     private ProtectionRequestCommands protectionRequestCommands;
+
+    @Autowired
+    private ProtectionRequestRepository protectionRequestRepository;
 
     @Autowired
     private Signature signature;

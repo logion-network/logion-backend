@@ -1,7 +1,8 @@
 package logion.backend.model.protectionrequest;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 import logion.backend.annotation.Repository;
 import logion.backend.model.Ss58Address;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
@@ -12,6 +13,8 @@ public interface ProtectionRequestRepository
         extends CrudRepository<ProtectionRequestAggregateRoot, UUID>,
         QuerydslPredicateExecutor<ProtectionRequestAggregateRoot> {
 
-    List<ProtectionRequestAggregateRoot> findByRequesterAddress(Ss58Address requesterAddress);
+    Supplier<IllegalArgumentException> requestNotFound = () -> new IllegalArgumentException("Protection request does not exist");
+
+    Optional<ProtectionRequestAggregateRoot> findByRequesterAddress(Ss58Address requesterAddress);
 
 }

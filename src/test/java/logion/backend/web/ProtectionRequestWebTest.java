@@ -15,6 +15,7 @@ import logion.backend.model.protectionrequest.PostalAddress;
 import logion.backend.model.protectionrequest.ProtectionRequestAggregateRoot;
 import logion.backend.model.protectionrequest.ProtectionRequestDescription;
 import logion.backend.model.protectionrequest.ProtectionRequestFactory;
+import logion.backend.model.protectionrequest.ProtectionRequestRepository;
 import logion.backend.model.protectionrequest.UserIdentity;
 import logion.backend.util.CollectionMapper;
 import org.json.JSONException;
@@ -53,6 +54,9 @@ class ProtectionRequestWebTest {
 
     @MockBean
     private ProtectionRequestCommands protectionRequestCommands;
+
+    @MockBean
+    private ProtectionRequestRepository protectionRequestRepository;
 
     @MockBean
     private Signature signature;

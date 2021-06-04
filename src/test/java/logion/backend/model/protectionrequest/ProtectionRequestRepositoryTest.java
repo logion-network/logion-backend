@@ -23,10 +23,10 @@ class ProtectionRequestRepositoryTest {
     @Test
     void findByRequesterAddress() {
         Ss58Address requesterAddress = new Ss58Address("5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW");
-        var requests = repository.findByRequesterAddress(requesterAddress);
-        assertThat(requests.size(), is(1));
+        var request = repository.findByRequesterAddress(requesterAddress);
+        assertThat(request.isPresent(), is(true));
 
-        var protectionRequest = requests.get(0);
+        var protectionRequest = request.get();
 
         Set<LegalOfficerDecisionDescription> legalOfficerDecisionDescriptions = protectionRequest.getLegalOfficerDecisionDescriptions();
 

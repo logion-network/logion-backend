@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -110,6 +111,7 @@ public class ProtectionRequestAggregateRoot {
     LocalDateTime createdOn;
 
     @Convert(converter = Ss58AddressConverter.class)
+    @Column(unique=true)
     Ss58Address requesterAddress;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
