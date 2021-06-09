@@ -17,6 +17,9 @@ public class ProtectionRequestView {
     @ApiModelProperty("The ID of created Protection Request")
     UUID id;
 
+    @ApiModelProperty("The SS58 address of the requester")
+    String requesterAddress;
+
     @ApiModelProperty("The identification data of the requester")
     UserIdentityView userIdentity;
 

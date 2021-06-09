@@ -18,4 +18,7 @@ public class LegalOfficerDecisionView {
 
     @ApiModelProperty("The decision status")
     LegalOfficerDecisionStatus status;
+
+    @ApiModelProperty("If status is 'REJECTED', the reason of the rejection")
+    String rejectReason;
 }
