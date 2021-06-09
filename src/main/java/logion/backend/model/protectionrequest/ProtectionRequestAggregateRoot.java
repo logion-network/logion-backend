@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -43,6 +44,21 @@ public class ProtectionRequestAggregateRoot {
                 .collect(Collectors.toSet());
     }
 
+    public void accept(Ss58Address legalOfficerAddress, LocalDateTime acceptedOn) {
+        decisionByOfficer(legalOfficerAddress).accept(acceptedOn);
+    }
+
+    public void reject(Ss58Address legalOfficerAddress, LocalDateTime acceptedOn) {
+        decisionByOfficer(legalOfficerAddress).reject(acceptedOn);
+    }
+
+    private LegalOfficerDecision decisionByOfficer(Ss58Address legalOfficerAddress) {
+        return decisions.stream()
+                .filter(d -> d.id.legalOfficerAddress.equals(legalOfficerAddress))
+                .findAny()
+                .orElseThrow(officerNotFound);
+    }
+
     void setUserIdentityDescription(UserIdentity userIdentity) {
         this.userIdentity = new EmbeddableUserIdentity();
         this.userIdentity.setFirstName(userIdentity.getFirstName());
@@ -72,6 +88,8 @@ public class ProtectionRequestAggregateRoot {
                 .collect(Collectors.toSet());
 
     }
+
+    private static final Supplier<IllegalStateException> officerNotFound = () -> new IllegalStateException("Legal Officer not implied in this request");
 
     private UserIdentity userIdentity() {
         if (userIdentity == null) {

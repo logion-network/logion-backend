@@ -29,6 +29,22 @@ public class LegalOfficerDecision {
                 .build();
     }
 
+    void accept(LocalDateTime acceptedOn) {
+        if (status != LegalOfficerDecisionStatus.PENDING) {
+            throw new IllegalStateException("Cannot accept non-pending request");
+        }
+        status = LegalOfficerDecisionStatus.ACCEPTED;
+        decisionOn = acceptedOn;
+    }
+
+    void reject(LocalDateTime rejectedOn) {
+        if (status != LegalOfficerDecisionStatus.PENDING) {
+            throw new IllegalStateException("Cannot reject non-pending request");
+        }
+        status = LegalOfficerDecisionStatus.REJECTED;
+        decisionOn = rejectedOn;
+    }
+
     @Embeddable
     @Data
     @AllArgsConstructor

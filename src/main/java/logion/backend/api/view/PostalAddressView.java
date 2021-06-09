@@ -3,10 +3,12 @@ package logion.backend.api.view;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import logion.backend.annotation.View;
+import lombok.Builder;
 import lombok.Value;
 
 @View
 @Value
+@Builder
 @ApiModel(description = "A postal address")
 public class PostalAddressView {
 
