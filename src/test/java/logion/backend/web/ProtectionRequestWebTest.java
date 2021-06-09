@@ -51,7 +51,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -159,7 +158,7 @@ class ProtectionRequestWebTest {
                 .country("Belgium")
                 .build();
         return ProtectionRequestDescription.builder()
-                .requesterAddress(new Ss58Address("5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW"))
+                .requesterAddress(new Ss58Address(REQUESTER_ADDRESS))
                 .userIdentity(userIdentity)
                 .userPostalAddress(postalAddress)
                 .createdOn(LocalDateTime.now())
@@ -169,7 +168,7 @@ class ProtectionRequestWebTest {
     private static String validRequest() throws JSONException {
         var validRequest = new JSONObject();
         validRequest.put("legalOfficerAddresses", new String[]{DefaultAddresses.ALICE.getRawValue(), DefaultAddresses.BOB.getRawValue()});
-        validRequest.put("requesterAddress", "5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW");
+        validRequest.put("requesterAddress", REQUESTER_ADDRESS);
         validRequest.put("signature", "signature");
         validRequest.put("signedOn", "2021-06-02T16:00:41.542839");
 
@@ -263,13 +262,15 @@ class ProtectionRequestWebTest {
     void fetchProtectionRequests() throws Exception {
 
         var requestBody = new JSONObject();
-        requestBody.put("requesterAddress", "5H4MvAsobfZ6bBCDyj5dsrWYLrA8HrRzaqa9p61UXtxMhSCY");
+        requestBody.put("requesterAddress", REQUESTER_ADDRESS);
         requestBody.put("legalOfficerAddress", DefaultAddresses.ALICE.getRawValue());
         requestBody.put("statuses", new String[]{"ACCEPTED", "REJECTED"});
 
+        var id = UUID.randomUUID();
         var protectionRequest = mock(ProtectionRequestAggregateRoot.class);
         when(protectionRequest.getDescription()).thenReturn(protectionRequestDescription());
         when(protectionRequest.getLegalOfficerDecisionDescriptions()).thenReturn(legalOfficerDecisionDescriptions());
+        when(protectionRequest.getId()).thenReturn(id);
 
         when(protectionRequestRepository.findBy(any(FetchProtectionRequestsSpecification.class))).thenReturn(singletonList(protectionRequest));
 
@@ -279,6 +280,8 @@ class ProtectionRequestWebTest {
                 .content(requestBody.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.requests.length()").value(is(1)))
+                .andExpect(jsonPath("$.requests[0].id").value(is(id.toString())))
+                .andExpect(jsonPath("$.requests[0].requesterAddress").value(is(REQUESTER_ADDRESS)))
                 .andExpect(jsonPath("$.requests[0].userIdentity.firstName").value(is("John")))
                 .andExpect(jsonPath("$.requests[0].userIdentity.lastName").value(is("Doe")))
                 .andExpect(jsonPath("$.requests[0].userIdentity.email").value(is("john.doe@logion.network")))
@@ -293,13 +296,14 @@ class ProtectionRequestWebTest {
         verify(protectionRequestRepository).findBy(argumentCaptor.capture());
         FetchProtectionRequestsSpecification actualSpecification = argumentCaptor.getValue();
 
-        assertThat(actualSpecification.getExpectedRequesterAddress(), is(Optional.of(new Ss58Address("5H4MvAsobfZ6bBCDyj5dsrWYLrA8HrRzaqa9p61UXtxMhSCY"))));
+        assertThat(actualSpecification.getExpectedRequesterAddress(), is(Optional.of(new Ss58Address(REQUESTER_ADDRESS))));
         assertThat(actualSpecification.getExpectedLegalOfficer(), is(Optional.of(DefaultAddresses.ALICE)));
         assertThat(actualSpecification.getExpectedStatuses(), hasItems(LegalOfficerDecisionStatus.ACCEPTED, LegalOfficerDecisionStatus.REJECTED));
     }
 
     private static final String SIGNATURE = "signature";
     private static final String REJECT_REASON = "Illegal";
+    private static final String REQUESTER_ADDRESS = "5H4MvAsobfZ6bBCDyj5dsrWYLrA8HrRzaqa9p61UXtxMhSCY";
 
     @SuppressWarnings("unused")
     private static Stream<Arguments> signatureValidityWithStatus() {
