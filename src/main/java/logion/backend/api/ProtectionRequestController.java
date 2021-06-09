@@ -4,8 +4,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
+import logion.backend.annotation.RestQuery;
+import logion.backend.api.view.AcceptOrRejectProtectionRequestView;
 import logion.backend.api.view.CreateProtectionRequestView;
+import logion.backend.api.view.FetchProtectionRequestsResponseView;
+import logion.backend.api.view.FetchProtectionRequestsSpecificationView;
 import logion.backend.api.view.LegalOfficerDecisionView;
 import logion.backend.api.view.PostalAddressView;
 import logion.backend.api.view.ProtectionRequestView;
@@ -13,6 +18,7 @@ import logion.backend.api.view.UserIdentityView;
 import logion.backend.commands.ProtectionRequestCommands;
 import logion.backend.model.Signature;
 import logion.backend.model.Ss58Address;
+import logion.backend.model.protectionrequest.FetchProtectionRequestsSpecification;
 import logion.backend.model.protectionrequest.LegalOfficerDecisionDescription;
 import logion.backend.model.protectionrequest.PostalAddress;
 import logion.backend.model.protectionrequest.ProtectionRequestAggregateRoot;
@@ -22,14 +28,13 @@ import logion.backend.model.protectionrequest.ProtectionRequestRepository;
 import logion.backend.model.protectionrequest.UserIdentity;
 import logion.backend.util.CollectionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -82,17 +87,71 @@ public class ProtectionRequestController {
         return toView(request);
     }
 
-    @GetMapping(consumes = ALL_VALUE)
+    @PutMapping
+    @RestQuery
     @ApiOperation(
-            value = "Fetch an existing Protection Request",
+            value = "Lists Protection Requests based on a given specification",
             notes = "No authentication required yet"
     )
-    public ProtectionRequestView fetchProtectionRequest(
-            @ApiParam(value = "The SS58 address of the protection requester", name = "requesterAddress", required = true)
-            @RequestParam("requesterAddress") String requesterAddress) {
-        return protectionRequestRepository.findByRequesterAddress(new Ss58Address(requesterAddress))
-                .map(this::toView)
-                .orElseThrow(ProtectionRequestRepository.requestNotFound);
+    public FetchProtectionRequestsResponseView fetchProtectionRequests(
+            @RequestBody
+            @ApiParam(value = "The specification for fetching Protection Requests", name = "body")
+                    FetchProtectionRequestsSpecificationView specificationView) {
+        var specification = FetchProtectionRequestsSpecification.builder()
+                .expectedLegalOfficer(Optional.ofNullable(specificationView.getLegalOfficerAddress()).map(Ss58Address::new))
+                .expectedRequesterAddress(Optional.ofNullable(specificationView.getRequesterAddress()).map(Ss58Address::new))
+                .expectedStatuses(specificationView.getStatuses())
+                .build();
+        var requests = protectionRequestRepository.findBy(specification);
+        return FetchProtectionRequestsResponseView.builder()
+                .requests(CollectionMapper.mapList(this::toView, requests))
+                .build();
+    }
+
+    @PostMapping(value = "{requestId}/accept")
+    @ApiOperation(
+            value = "Accepts a Protection Request",
+            notes = "<p>The signature's resource is <code>protection-request</code>, the operation <code>accept</code> and the additional field is the <code>requestId</code>.<p>"
+    )
+    public void acceptTokenRequest(
+            @PathVariable
+            @ApiParam(value = "The ID of the request to accept")
+                    String requestId,
+            @RequestBody
+            @ApiParam(value = "Protection Request acceptance data", name = "body")
+                    AcceptOrRejectProtectionRequestView acceptProtectionRequestView) {
+        var id = UUID.fromString(requestId);
+        var legalOfficerAddress = new Ss58Address(acceptProtectionRequestView.getLegalOfficerAddress());
+        signature.verify(acceptProtectionRequestView.getSignature())
+                .withSs58Address(legalOfficerAddress)
+                .withResource(RESOURCE)
+                .withOperation("accept")
+                .withTimestamp(acceptProtectionRequestView.getSignedOn())
+                .withMessageBuiltFrom(requestId);
+        protectionRequestCommands.acceptProtectionRequest(id, legalOfficerAddress, LocalDateTime.now());
+    }
+
+    @PostMapping(value = "{requestId}/reject")
+    @ApiOperation(
+            value = "Rejects a Protection Request",
+            notes = "<p>The signature's resource is <code>protection-request</code>, the operation <code>reject</code> and the additional field is the <code>requestId</code>.<p>"
+    )
+    public void rejectTokenRequest(
+            @PathVariable
+            @ApiParam(value = "The ID of the request to reject")
+                    String requestId,
+            @RequestBody
+            @ApiParam(value = "Protection Request rejection data", name = "body")
+                    AcceptOrRejectProtectionRequestView rejectProtectionRequestView) {
+        var id = UUID.fromString(requestId);
+        var legalOfficerAddress = new Ss58Address(rejectProtectionRequestView.getLegalOfficerAddress());
+        signature.verify(rejectProtectionRequestView.getSignature())
+                .withSs58Address(legalOfficerAddress)
+                .withResource(RESOURCE)
+                .withOperation("reject")
+                .withTimestamp(rejectProtectionRequestView.getSignedOn())
+                .withMessageBuiltFrom(requestId);
+        protectionRequestCommands.rejectProtectionRequest(id, legalOfficerAddress, LocalDateTime.now());
     }
 
     @Autowired

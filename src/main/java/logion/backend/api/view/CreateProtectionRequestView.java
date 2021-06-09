@@ -15,7 +15,7 @@ public class CreateProtectionRequestView extends SignedOperationView {
     @ApiModelProperty("The SS58 address of the requester")
     String requesterAddress;
 
-    @ApiModelProperty("The identitication data of the requester")
+    @ApiModelProperty("The identification data of the requester")
     UserIdentityView userIdentity;
 
     @ApiModelProperty("The postal address of the requester")
