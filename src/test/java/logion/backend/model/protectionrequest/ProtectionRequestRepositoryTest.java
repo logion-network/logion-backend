@@ -24,7 +24,7 @@ class ProtectionRequestRepositoryTest {
 
     @Test
     void findBy() {
-        FetchProtectionRequestsSpecification specification = FetchProtectionRequestsSpecification.builder()
+        var specification = FetchProtectionRequestsSpecification.builder()
                 .expectedLegalOfficer(Optional.of(DefaultAddresses.ALICE))
                 .expectedStatuses(Set.of(
                         LegalOfficerDecisionStatus.ACCEPTED,
@@ -43,8 +43,8 @@ class ProtectionRequestRepositoryTest {
 
     @Test
     void findByRequesterAddress() {
-        Ss58Address requesterAddress = new Ss58Address("5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW");
-        FetchProtectionRequestsSpecification specification = FetchProtectionRequestsSpecification.builder()
+        var requesterAddress = new Ss58Address("5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW");
+        var specification = FetchProtectionRequestsSpecification.builder()
                 .expectedRequesterAddress(Optional.of(requesterAddress))
                 .build();
         var request = repository.findBy(specification);
@@ -52,7 +52,7 @@ class ProtectionRequestRepositoryTest {
 
         var protectionRequest = request.get(0);
 
-        Set<LegalOfficerDecisionDescription> legalOfficerDecisionDescriptions = protectionRequest.getLegalOfficerDecisionDescriptions();
+        var legalOfficerDecisionDescriptions = protectionRequest.getLegalOfficerDecisionDescriptions();
 
         assertThat(legalOfficerDecisionDescriptions.size(), is(2));
 
