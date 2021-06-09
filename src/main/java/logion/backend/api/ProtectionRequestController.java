@@ -188,7 +188,28 @@ public class ProtectionRequestController {
     private ProtectionRequestView toView(ProtectionRequestAggregateRoot request) {
         return ProtectionRequestView.builder()
                 .id(request.getId())
+                .userIdentity(toView(request.getDescription().getUserIdentity()))
+                .userPostalAddress(toView(request.getDescription().getUserPostalAddress()))
                 .decisions(CollectionMapper.mapSet(this::toView, request.getLegalOfficerDecisionDescriptions()))
+                .build();
+    }
+
+    private UserIdentityView toView(UserIdentity userIdentity) {
+        return UserIdentityView.builder()
+                .firstName(userIdentity.getFirstName())
+                .lastName(userIdentity.getLastName())
+                .email(userIdentity.getEmail())
+                .phoneNumber(userIdentity.getPhoneNumber())
+                .build();
+    }
+
+    private PostalAddressView toView(PostalAddress postalAddress) {
+        return PostalAddressView.builder()
+                .line1(postalAddress.getLine1())
+                .line2(postalAddress.getLine2())
+                .postalCode(postalAddress.getPostalCode())
+                .city(postalAddress.getCity())
+                .country(postalAddress.getCountry())
                 .build();
     }
 

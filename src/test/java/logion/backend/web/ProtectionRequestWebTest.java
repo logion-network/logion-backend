@@ -271,7 +271,16 @@ class ProtectionRequestWebTest {
                 .contentType(APPLICATION_JSON)
                 .content(requestBody.toString()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.requests.length()").value(is(1)));
+                .andExpect(jsonPath("$.requests.length()").value(is(1)))
+                .andExpect(jsonPath("$.requests[0].userIdentity.firstName").value(is("John")))
+                .andExpect(jsonPath("$.requests[0].userIdentity.lastName").value(is("Doe")))
+                .andExpect(jsonPath("$.requests[0].userIdentity.email").value(is("john.doe@logion.network")))
+                .andExpect(jsonPath("$.requests[0].userIdentity.phoneNumber").value(is("+1234")))
+                .andExpect(jsonPath("$.requests[0].userPostalAddress.line1").value(is("Place de le République Française, 10")))
+                .andExpect(jsonPath("$.requests[0].userPostalAddress.line2").value(is("boite 15")))
+                .andExpect(jsonPath("$.requests[0].userPostalAddress.postalCode").value(is("4000")))
+                .andExpect(jsonPath("$.requests[0].userPostalAddress.city").value(is("Liège")))
+                .andExpect(jsonPath("$.requests[0].userPostalAddress.country").value(is("Belgium")));
 
         var argumentCaptor = ArgumentCaptor.forClass(FetchProtectionRequestsSpecification.class);
         verify(protectionRequestRepository).findBy(argumentCaptor.capture());

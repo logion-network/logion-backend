@@ -17,6 +17,12 @@ public class ProtectionRequestView {
     @ApiModelProperty("The ID of created Protection Request")
     UUID id;
 
+    @ApiModelProperty("The identification data of the requester")
+    UserIdentityView userIdentity;
+
+    @ApiModelProperty("The postal address of the requester")
+    PostalAddressView userPostalAddress;
+
     @ApiModelProperty("The Legal Officer decisions")
     Set<LegalOfficerDecisionView> decisions;
 }
