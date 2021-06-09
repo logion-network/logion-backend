@@ -7,13 +7,14 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import logion.backend.annotation.RestQuery;
-import logion.backend.api.view.AcceptOrRejectProtectionRequestView;
+import logion.backend.api.view.AcceptProtectionRequestView;
 import logion.backend.api.view.CreateProtectionRequestView;
 import logion.backend.api.view.FetchProtectionRequestsResponseView;
 import logion.backend.api.view.FetchProtectionRequestsSpecificationView;
 import logion.backend.api.view.LegalOfficerDecisionView;
 import logion.backend.api.view.PostalAddressView;
 import logion.backend.api.view.ProtectionRequestView;
+import logion.backend.api.view.RejectProtectionRequestView;
 import logion.backend.api.view.UserIdentityView;
 import logion.backend.commands.ProtectionRequestCommands;
 import logion.backend.model.Signature;
@@ -119,7 +120,7 @@ public class ProtectionRequestController {
                     String requestId,
             @RequestBody
             @ApiParam(value = "Protection Request acceptance data", name = "body")
-                    AcceptOrRejectProtectionRequestView acceptProtectionRequestView) {
+                    AcceptProtectionRequestView acceptProtectionRequestView) {
         var id = UUID.fromString(requestId);
         var legalOfficerAddress = new Ss58Address(acceptProtectionRequestView.getLegalOfficerAddress());
         signature.verify(acceptProtectionRequestView.getSignature())
@@ -142,16 +143,19 @@ public class ProtectionRequestController {
                     String requestId,
             @RequestBody
             @ApiParam(value = "Protection Request rejection data", name = "body")
-                    AcceptOrRejectProtectionRequestView rejectProtectionRequestView) {
+                    RejectProtectionRequestView rejectProtectionRequestView) {
         var id = UUID.fromString(requestId);
         var legalOfficerAddress = new Ss58Address(rejectProtectionRequestView.getLegalOfficerAddress());
+        String rejectReason = rejectProtectionRequestView.getRejectReason();
         signature.verify(rejectProtectionRequestView.getSignature())
                 .withSs58Address(legalOfficerAddress)
                 .withResource(RESOURCE)
                 .withOperation("reject")
                 .withTimestamp(rejectProtectionRequestView.getSignedOn())
-                .withMessageBuiltFrom(requestId);
-        protectionRequestCommands.rejectProtectionRequest(id, legalOfficerAddress, LocalDateTime.now());
+                .withMessageBuiltFrom(
+                        requestId,
+                        rejectReason);
+        protectionRequestCommands.rejectProtectionRequest(id, legalOfficerAddress, rejectReason, LocalDateTime.now());
     }
 
     @Autowired
@@ -217,6 +221,7 @@ public class ProtectionRequestController {
         return LegalOfficerDecisionView.builder()
                 .legalOfficerAddress(legalOfficerDecision.getLegalOfficerAddress().getRawValue())
                 .status(legalOfficerDecision.getStatus())
+                .rejectReason(legalOfficerDecision.getRejectReason())
                 .build();
     }
 }

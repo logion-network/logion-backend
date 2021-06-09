@@ -22,10 +22,10 @@ public class ProtectionRequestCommands {
         return repository.save(request);
     }
 
-    public void rejectProtectionRequest(UUID requestId, Ss58Address legalOfficerAddress, LocalDateTime rejectedOn) {
+    public void rejectProtectionRequest(UUID requestId, Ss58Address legalOfficerAddress, String reason, LocalDateTime rejectedOn) {
         var request = repository.findById(requestId)
                 .orElseThrow(ProtectionRequestRepository.requestNotFound);
-        request.reject(legalOfficerAddress, rejectedOn);
+        request.reject(legalOfficerAddress, reason, rejectedOn);
         repository.save(request);
     }
 

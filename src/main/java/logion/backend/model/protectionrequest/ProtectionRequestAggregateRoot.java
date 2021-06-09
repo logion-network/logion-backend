@@ -48,8 +48,8 @@ public class ProtectionRequestAggregateRoot {
         decisionByOfficer(legalOfficerAddress).accept(acceptedOn);
     }
 
-    public void reject(Ss58Address legalOfficerAddress, LocalDateTime acceptedOn) {
-        decisionByOfficer(legalOfficerAddress).reject(acceptedOn);
+    public void reject(Ss58Address legalOfficerAddress, String reason, LocalDateTime acceptedOn) {
+        decisionByOfficer(legalOfficerAddress).reject(reason, acceptedOn);
     }
 
     private LegalOfficerDecision decisionByOfficer(Ss58Address legalOfficerAddress) {

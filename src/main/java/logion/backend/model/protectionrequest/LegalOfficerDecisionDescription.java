@@ -15,5 +15,6 @@ public class LegalOfficerDecisionDescription {
     Ss58Address legalOfficerAddress;
     @Default LegalOfficerDecisionStatus status = LegalOfficerDecisionStatus.PENDING;
     LocalDateTime createdOn;
+    @Default String rejectReason = null;
 
 }

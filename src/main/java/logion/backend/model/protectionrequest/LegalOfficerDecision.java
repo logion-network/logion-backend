@@ -25,6 +25,7 @@ public class LegalOfficerDecision {
         return LegalOfficerDecisionDescription.builder()
                 .legalOfficerAddress(id.legalOfficerAddress)
                 .status(status)
+                .rejectReason(rejectReason)
                 .createdOn(createdOn)
                 .build();
     }
@@ -37,11 +38,12 @@ public class LegalOfficerDecision {
         decisionOn = acceptedOn;
     }
 
-    void reject(LocalDateTime rejectedOn) {
+    void reject(String reason, LocalDateTime rejectedOn) {
         if (status != LegalOfficerDecisionStatus.PENDING) {
             throw new IllegalStateException("Cannot reject non-pending request");
         }
         status = LegalOfficerDecisionStatus.REJECTED;
+        rejectReason = reason;
         decisionOn = rejectedOn;
     }
 
@@ -62,6 +64,9 @@ public class LegalOfficerDecision {
     @Getter
     @Enumerated(EnumType.STRING)
     LegalOfficerDecisionStatus status;
+
+    @Getter
+    String rejectReason;
 
     LocalDateTime createdOn;
 

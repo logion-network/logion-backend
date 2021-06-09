@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 import logion.backend.api.ProtectionRequestController;
 import logion.backend.commands.ProtectionRequestCommands;
@@ -20,7 +20,6 @@ import logion.backend.model.protectionrequest.ProtectionRequestDescription;
 import logion.backend.model.protectionrequest.ProtectionRequestFactory;
 import logion.backend.model.protectionrequest.ProtectionRequestRepository;
 import logion.backend.model.protectionrequest.UserIdentity;
-import logion.backend.util.CollectionMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -52,6 +51,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -132,11 +132,16 @@ class ProtectionRequestWebTest {
     }
 
     private static Set<LegalOfficerDecisionDescription> legalOfficerDecisionDescriptions() {
-        Function<Ss58Address, LegalOfficerDecisionDescription> pendingDecision = address -> LegalOfficerDecisionDescription.builder()
+        BiFunction<Ss58Address, LegalOfficerDecisionStatus, LegalOfficerDecisionDescription> decision = (address,status) -> LegalOfficerDecisionDescription.builder()
                 .legalOfficerAddress(address)
-                .status(LegalOfficerDecisionStatus.PENDING)
+                .rejectReason(status == LegalOfficerDecisionStatus.REJECTED ? REJECT_REASON : null)
+                .status(status)
                 .build();
-        return CollectionMapper.mapArrayToSet(pendingDecision, DefaultAddresses.ALICE, DefaultAddresses.BOB);
+
+        return Set.of(
+                decision.apply(DefaultAddresses.ALICE, LegalOfficerDecisionStatus.PENDING),
+                decision.apply(DefaultAddresses.BOB, LegalOfficerDecisionStatus.REJECTED)
+                );
     }
 
     private static ProtectionRequestDescription protectionRequestDescription() {
@@ -232,13 +237,15 @@ class ProtectionRequestWebTest {
         requestBody.put("signature", SIGNATURE);
         requestBody.put("signedOn", LocalDateTime.now());
         requestBody.put("legalOfficerAddress", DefaultAddresses.BOB.getRawValue());
+        requestBody.put("rejectReason", REJECT_REASON);
 
         var approving = signatureVerifyMock(
                 DefaultAddresses.BOB,
                 "protection-request",
                 "reject",
                 signatureVerifyResult,
-                requestId.toString());
+                requestId.toString(),
+                REJECT_REASON);
         when(signature.verify(SIGNATURE)).thenReturn(approving);
 
         mvc.perform(post("/protection-request/" + requestId + "/reject")
@@ -247,7 +254,7 @@ class ProtectionRequestWebTest {
                 .content(requestBody.toString()))
                 .andExpect(matcher);
         if (signatureVerifyResult) {
-            verify(protectionRequestCommands).rejectProtectionRequest(eq(requestId), eq(DefaultAddresses.BOB), isA(LocalDateTime.class));
+            verify(protectionRequestCommands).rejectProtectionRequest(eq(requestId), eq(DefaultAddresses.BOB), eq(REJECT_REASON), isA(LocalDateTime.class));
         }
         verifyNoMoreInteractions(protectionRequestCommands);
     }
@@ -292,6 +299,7 @@ class ProtectionRequestWebTest {
     }
 
     private static final String SIGNATURE = "signature";
+    private static final String REJECT_REASON = "Illegal";
 
     @SuppressWarnings("unused")
     private static Stream<Arguments> signatureValidityWithStatus() {

@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 class ProtectionRequestCommandsTest {
 
     private static final LocalDateTime REJECTED_ON = LocalDateTime.now();
+    private static final String REJECT_REASON = "Illegal";
     private static final LocalDateTime ACCEPTED_ON = REJECTED_ON.plusMinutes(1);
 
     @Test
@@ -59,7 +60,7 @@ class ProtectionRequestCommandsTest {
     }
 
     private void whenRejectProtectionRequest(Ss58Address legalOfficerAddress) {
-        commands.rejectProtectionRequest(request.getId(), legalOfficerAddress, REJECTED_ON);
+        commands.rejectProtectionRequest(request.getId(), legalOfficerAddress, REJECT_REASON, REJECTED_ON);
     }
 
     private void thenRequestAccepted(Ss58Address legalOfficerAddress) {
@@ -67,7 +68,7 @@ class ProtectionRequestCommandsTest {
     }
 
     private void thenRequestRejected(Ss58Address legalOfficerAddress) {
-        verify(request).reject(legalOfficerAddress, REJECTED_ON);
+        verify(request).reject(legalOfficerAddress, REJECT_REASON, REJECTED_ON);
     }
 
     private void givenProtectionRequest() {
