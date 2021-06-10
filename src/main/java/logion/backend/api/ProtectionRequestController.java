@@ -223,6 +223,8 @@ public class ProtectionRequestController {
                 .legalOfficerAddress(legalOfficerDecision.getLegalOfficerAddress().getRawValue())
                 .status(legalOfficerDecision.getStatus())
                 .rejectReason(legalOfficerDecision.getRejectReason())
+                .createdOn(legalOfficerDecision.getCreatedOn())
+                .decisionOn(legalOfficerDecision.getDecisionOn())
                 .build();
     }
 }

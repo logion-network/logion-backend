@@ -27,6 +27,7 @@ public class LegalOfficerDecision {
                 .status(status)
                 .rejectReason(rejectReason)
                 .createdOn(createdOn)
+                .decisionOn(decisionOn)
                 .build();
     }
 

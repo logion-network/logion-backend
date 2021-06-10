@@ -134,6 +134,8 @@ class ProtectionRequestWebTest {
         BiFunction<Ss58Address, LegalOfficerDecisionStatus, LegalOfficerDecisionDescription> decision = (address,status) -> LegalOfficerDecisionDescription.builder()
                 .legalOfficerAddress(address)
                 .rejectReason(status == LegalOfficerDecisionStatus.REJECTED ? REJECT_REASON : null)
+                .createdOn(TIMESTAMP)
+                .decisionOn(status == LegalOfficerDecisionStatus.REJECTED ? TIMESTAMP : null)
                 .status(status)
                 .build();
 
@@ -304,6 +306,7 @@ class ProtectionRequestWebTest {
     private static final String SIGNATURE = "signature";
     private static final String REJECT_REASON = "Illegal";
     private static final String REQUESTER_ADDRESS = "5H4MvAsobfZ6bBCDyj5dsrWYLrA8HrRzaqa9p61UXtxMhSCY";
+    private static final LocalDateTime TIMESTAMP = LocalDateTime.now();
 
     @SuppressWarnings("unused")
     private static Stream<Arguments> signatureValidityWithStatus() {
