@@ -2,6 +2,7 @@ package logion.backend.api.view;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import logion.backend.annotation.View;
@@ -28,4 +29,7 @@ public class ProtectionRequestView {
 
     @ApiModelProperty("The Legal Officer decisions")
     List<LegalOfficerDecisionView> decisions;
+
+    @ApiModelProperty("The creation timestamp")
+    LocalDateTime createdOn;
 }

@@ -164,7 +164,7 @@ class ProtectionRequestWebTest {
                 .requesterAddress(new Ss58Address(REQUESTER_ADDRESS))
                 .userIdentity(userIdentity)
                 .userPostalAddress(postalAddress)
-                .createdOn(LocalDateTime.now())
+                .createdOn(TIMESTAMP)
                 .build();
     }
 
@@ -302,6 +302,7 @@ class ProtectionRequestWebTest {
                 .andExpect(jsonPath("$.requests[0].decisions[1].rejectReason").value(is(REJECT_REASON)))
                 .andExpect(jsonPath("$.requests[0].decisions[1].createdOn").value(TIMESTAMP.toString()))
                 .andExpect(jsonPath("$.requests[0].decisions[1].decisionOn").value(TIMESTAMP.toString()))
+                .andExpect(jsonPath("$.requests[0].createdOn").value(TIMESTAMP.toString()))
                 ;
 
         var argumentCaptor = ArgumentCaptor.forClass(FetchProtectionRequestsSpecification.class);
