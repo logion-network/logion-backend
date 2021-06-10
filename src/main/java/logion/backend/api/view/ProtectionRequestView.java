@@ -2,7 +2,7 @@ package logion.backend.api.view;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 import logion.backend.annotation.View;
 import lombok.Builder;
@@ -27,5 +27,5 @@ public class ProtectionRequestView {
     PostalAddressView userPostalAddress;
 
     @ApiModelProperty("The Legal Officer decisions")
-    Set<LegalOfficerDecisionView> decisions;
+    List<LegalOfficerDecisionView> decisions;
 }

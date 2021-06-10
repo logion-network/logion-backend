@@ -195,7 +195,7 @@ public class ProtectionRequestController {
                 .userIdentity(toView(request.getDescription().getUserIdentity()))
                 .userPostalAddress(toView(request.getDescription().getUserPostalAddress()))
                 .requesterAddress(request.getDescription().getRequesterAddress().getRawValue())
-                .decisions(CollectionMapper.mapSet(this::toView, request.getLegalOfficerDecisionDescriptions()))
+                .decisions(CollectionMapper.mapList(this::toView, request.getLegalOfficerDecisionDescriptions()))
                 .build();
     }
 

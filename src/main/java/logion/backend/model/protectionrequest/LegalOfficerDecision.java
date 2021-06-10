@@ -69,6 +69,7 @@ public class LegalOfficerDecision {
     @Getter
     String rejectReason;
 
+    @Getter
     LocalDateTime createdOn;
 
     @Getter
