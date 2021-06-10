@@ -2,6 +2,7 @@ package logion.backend.model.protectionrequest;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -22,6 +23,9 @@ import logion.backend.model.protectionrequest.adapters.EmbeddablePostalAddress;
 import logion.backend.model.protectionrequest.adapters.EmbeddableUserIdentity;
 import lombok.Getter;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
+
 @AggregateRoot
 @Entity(name = "protection_request")
 public class ProtectionRequestAggregateRoot {
@@ -35,13 +39,14 @@ public class ProtectionRequestAggregateRoot {
                 .build();
     }
 
-    public Set<LegalOfficerDecisionDescription> getLegalOfficerDecisionDescriptions() {
+    public List<LegalOfficerDecisionDescription> getLegalOfficerDecisionDescriptions() {
         if (decisions == null) {
-            return Collections.emptySet();
+            return Collections.emptyList();
         }
         return decisions.stream()
                 .map(LegalOfficerDecision::getDescription)
-                .collect(Collectors.toSet());
+                .sorted(comparing(LegalOfficerDecisionDescription::getLegalOfficerAddress))
+                .collect(toList());
     }
 
     public void accept(Ss58Address legalOfficerAddress, LocalDateTime acceptedOn) {

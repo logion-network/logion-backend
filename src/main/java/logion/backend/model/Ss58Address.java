@@ -10,7 +10,12 @@ import lombok.Value;
  */
 @ValueObject
 @Value
-public class Ss58Address implements Serializable {
+public class Ss58Address implements Serializable, Comparable<Ss58Address> {
 
     String rawValue;
+
+    @Override
+    public int compareTo(Ss58Address address) {
+        return this.rawValue.compareTo(address.rawValue);
+    }
 }

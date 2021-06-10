@@ -27,6 +27,7 @@ public class LegalOfficerDecision {
                 .status(status)
                 .rejectReason(rejectReason)
                 .createdOn(createdOn)
+                .decisionOn(decisionOn)
                 .build();
     }
 
@@ -68,6 +69,7 @@ public class LegalOfficerDecision {
     @Getter
     String rejectReason;
 
+    @Getter
     LocalDateTime createdOn;
 
     @Getter

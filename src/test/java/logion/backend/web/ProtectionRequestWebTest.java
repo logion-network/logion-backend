@@ -1,6 +1,7 @@
 package logion.backend.web;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -80,7 +81,7 @@ class ProtectionRequestWebTest {
                                  ResultMatcher resultMatcher,
                                  int numberOfInvocation,
                                  ProtectionRequestDescription expectedProtectionRequestDescription,
-                                 Set<LegalOfficerDecisionDescription> expectedLegalOfficerDecisionDescriptions)
+                                 List<LegalOfficerDecisionDescription> expectedLegalOfficerDecisionDescriptions)
             throws Exception {
 
         var protectionRequest = mock(ProtectionRequestAggregateRoot.class);
@@ -130,14 +131,16 @@ class ProtectionRequestWebTest {
         );
     }
 
-    private static Set<LegalOfficerDecisionDescription> legalOfficerDecisionDescriptions() {
+    private static List<LegalOfficerDecisionDescription> legalOfficerDecisionDescriptions() {
         BiFunction<Ss58Address, LegalOfficerDecisionStatus, LegalOfficerDecisionDescription> decision = (address,status) -> LegalOfficerDecisionDescription.builder()
                 .legalOfficerAddress(address)
                 .rejectReason(status == LegalOfficerDecisionStatus.REJECTED ? REJECT_REASON : null)
+                .createdOn(TIMESTAMP)
+                .decisionOn(status == LegalOfficerDecisionStatus.REJECTED ? TIMESTAMP : null)
                 .status(status)
                 .build();
 
-        return Set.of(
+        return List.of(
                 decision.apply(DefaultAddresses.ALICE, LegalOfficerDecisionStatus.PENDING),
                 decision.apply(DefaultAddresses.BOB, LegalOfficerDecisionStatus.REJECTED)
                 );
@@ -161,7 +164,7 @@ class ProtectionRequestWebTest {
                 .requesterAddress(new Ss58Address(REQUESTER_ADDRESS))
                 .userIdentity(userIdentity)
                 .userPostalAddress(postalAddress)
-                .createdOn(LocalDateTime.now())
+                .createdOn(TIMESTAMP)
                 .build();
     }
 
@@ -290,7 +293,17 @@ class ProtectionRequestWebTest {
                 .andExpect(jsonPath("$.requests[0].userPostalAddress.line2").value(is("boite 15")))
                 .andExpect(jsonPath("$.requests[0].userPostalAddress.postalCode").value(is("4000")))
                 .andExpect(jsonPath("$.requests[0].userPostalAddress.city").value(is("Liège")))
-                .andExpect(jsonPath("$.requests[0].userPostalAddress.country").value(is("Belgium")));
+                .andExpect(jsonPath("$.requests[0].userPostalAddress.country").value(is("Belgium")))
+                .andExpect(jsonPath("$.requests[0].decisions[0].legalOfficerAddress").value(is(DefaultAddresses.ALICE.getRawValue())))
+                .andExpect(jsonPath("$.requests[0].decisions[0].status").value(is("PENDING")))
+                .andExpect(jsonPath("$.requests[0].decisions[0].createdOn").value(TIMESTAMP.toString()))
+                .andExpect(jsonPath("$.requests[0].decisions[1].legalOfficerAddress").value(is(DefaultAddresses.BOB.getRawValue())))
+                .andExpect(jsonPath("$.requests[0].decisions[1].status").value(is("REJECTED")))
+                .andExpect(jsonPath("$.requests[0].decisions[1].rejectReason").value(is(REJECT_REASON)))
+                .andExpect(jsonPath("$.requests[0].decisions[1].createdOn").value(TIMESTAMP.toString()))
+                .andExpect(jsonPath("$.requests[0].decisions[1].decisionOn").value(TIMESTAMP.toString()))
+                .andExpect(jsonPath("$.requests[0].createdOn").value(TIMESTAMP.toString()))
+                ;
 
         var argumentCaptor = ArgumentCaptor.forClass(FetchProtectionRequestsSpecification.class);
         verify(protectionRequestRepository).findBy(argumentCaptor.capture());
@@ -304,6 +317,7 @@ class ProtectionRequestWebTest {
     private static final String SIGNATURE = "signature";
     private static final String REJECT_REASON = "Illegal";
     private static final String REQUESTER_ADDRESS = "5H4MvAsobfZ6bBCDyj5dsrWYLrA8HrRzaqa9p61UXtxMhSCY";
+    private static final LocalDateTime TIMESTAMP = LocalDateTime.now();
 
     @SuppressWarnings("unused")
     private static Stream<Arguments> signatureValidityWithStatus() {

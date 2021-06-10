@@ -135,7 +135,7 @@ public class ProtectionRequestController {
     @PostMapping(value = "{requestId}/reject")
     @ApiOperation(
             value = "Rejects a Protection Request",
-            notes = "<p>The signature's resource is <code>protection-request</code>, the operation <code>reject</code> and the additional field is the <code>requestId</code>.<p>"
+            notes = "<p>The signature's resource is <code>protection-request</code>, the operation <code>reject</code> and the additional fields are the <code>requestId</code> and the <code>rejectReason</code>.<p>"
     )
     public void rejectTokenRequest(
             @PathVariable
@@ -195,7 +195,8 @@ public class ProtectionRequestController {
                 .userIdentity(toView(request.getDescription().getUserIdentity()))
                 .userPostalAddress(toView(request.getDescription().getUserPostalAddress()))
                 .requesterAddress(request.getDescription().getRequesterAddress().getRawValue())
-                .decisions(CollectionMapper.mapSet(this::toView, request.getLegalOfficerDecisionDescriptions()))
+                .decisions(CollectionMapper.mapList(this::toView, request.getLegalOfficerDecisionDescriptions()))
+                .createdOn(request.getDescription().getCreatedOn())
                 .build();
     }
 
@@ -223,6 +224,8 @@ public class ProtectionRequestController {
                 .legalOfficerAddress(legalOfficerDecision.getLegalOfficerAddress().getRawValue())
                 .status(legalOfficerDecision.getStatus())
                 .rejectReason(legalOfficerDecision.getRejectReason())
+                .createdOn(legalOfficerDecision.getCreatedOn())
+                .decisionOn(legalOfficerDecision.getDecisionOn())
                 .build();
     }
 }
