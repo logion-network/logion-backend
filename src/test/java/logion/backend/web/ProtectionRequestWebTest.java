@@ -36,6 +36,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static logion.backend.testutil.MockSignature.signatureVerifyMock;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -314,10 +315,30 @@ class ProtectionRequestWebTest {
         assertThat(actualSpecification.getExpectedStatuses(), hasItems(LegalOfficerDecisionStatus.ACCEPTED, LegalOfficerDecisionStatus.REJECTED));
     }
 
+    @ParameterizedTest
+    @MethodSource
+    void checkProtection(boolean expectedResult, String userAddress, String legalOfficerAddress, List<ProtectionRequestAggregateRoot> requests) throws Exception {
+
+        when(protectionRequestRepository.findBy(any(FetchProtectionRequestsSpecification.class))).thenReturn(requests);
+
+        var requestBody = new JSONObject();
+        requestBody.put("userAddress", userAddress);
+        requestBody.put("legalOfficerAddress", legalOfficerAddress);
+        requestBody.put("unexpectedAttributeToCheckRobustness", "something useless");
+
+        mvc.perform(put("/protection-request/check")
+                .accept(APPLICATION_JSON)
+                .contentType(APPLICATION_JSON)
+                .content(requestBody.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.protection").value(is(expectedResult)));
+
+    }
+
     private static final String SIGNATURE = "signature";
     private static final String REJECT_REASON = "Illegal";
     private static final String REQUESTER_ADDRESS = "5H4MvAsobfZ6bBCDyj5dsrWYLrA8HrRzaqa9p61UXtxMhSCY";
-    private static final LocalDateTime TIMESTAMP = LocalDateTime.now();
+    private static final LocalDateTime TIMESTAMP = LocalDateTime.parse("2021-06-10T16:25:23.668294");
 
     @SuppressWarnings("unused")
     private static Stream<Arguments> signatureValidityWithStatus() {
@@ -327,4 +348,13 @@ class ProtectionRequestWebTest {
         );
     }
 
+    @SuppressWarnings("unused")
+    private static Stream<Arguments> checkProtection() {
+        return Stream.of(
+                Arguments.of(true, REQUESTER_ADDRESS, DefaultAddresses.ALICE.getRawValue(), singletonList(mock(ProtectionRequestAggregateRoot.class))),
+                Arguments.of(false, REQUESTER_ADDRESS, DefaultAddresses.ALICE.getRawValue(), emptyList()),
+                Arguments.of(false, null, DefaultAddresses.ALICE.getRawValue(), null),
+                Arguments.of(false, REQUESTER_ADDRESS, null, null)
+        );
+    }
 }
