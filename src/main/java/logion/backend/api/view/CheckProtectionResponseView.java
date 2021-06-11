@@ -7,7 +7,7 @@ import lombok.Value;
 
 @View
 @Value
-@ApiModel(description = "The response of the confirm protection")
+@ApiModel(description = "The response of the check protection")
 public class CheckProtectionResponseView {
 
     @ApiModelProperty("<code>true</code> if and only if the user has submitted a protection request to the legal " +

@@ -164,16 +164,16 @@ public class ProtectionRequestController {
         protectionRequestCommands.rejectProtectionRequest(id, legalOfficerAddress, rejectReason, LocalDateTime.now());
     }
 
-    @PutMapping(value = "/confirm")
+    @PutMapping(value = "/check")
     @ApiOperation(
-            value = "Confirms that the user has submitted a protection request to the legal officer(s), and that the " +
+            value = "Checks that the user has submitted a protection request to the legal officer(s), and that the " +
                     "legal officer(s) accepted. The intended user is the chain itself.",
             notes = "No authentication required",
             tags = "Chain"
     )
-    public CheckProtectionResponseView confirmProtection(
+    public CheckProtectionResponseView checkProtection(
             @RequestBody
-            @ApiParam(value = "The specification for confirming if existence of an accepted protection request", name = "body")
+            @ApiParam(value = "The specification for checking the existence of an accepted protection request", name = "body")
                     CheckProtectionSpecificationView checkSpecification) {
 
         if (!hasText(checkSpecification.getUserAddress())) {
@@ -183,14 +183,14 @@ public class ProtectionRequestController {
             return new CheckProtectionResponseView(false);
         }
         var userAddress = new Ss58Address(checkSpecification.getUserAddress());
-        boolean protectionConfirmed = checkSpecification.getLegalOfficerAddresses()
+        boolean protectionChecked = checkSpecification.getLegalOfficerAddresses()
                 .stream()
                 .allMatch(legalOfficerAddress -> hasText(legalOfficerAddress) &&
-                                confirmProtection(userAddress, new Ss58Address(legalOfficerAddress)));
-        return new CheckProtectionResponseView(protectionConfirmed);
+                                checkProtection(userAddress, new Ss58Address(legalOfficerAddress)));
+        return new CheckProtectionResponseView(protectionChecked);
     }
 
-    private boolean confirmProtection(Ss58Address userAddress, Ss58Address legalOfficerAddress) {
+    private boolean checkProtection(Ss58Address userAddress, Ss58Address legalOfficerAddress) {
         var querySpecification = FetchProtectionRequestsSpecification.builder()
                 .expectedRequesterAddress(Optional.of(userAddress))
                 .expectedStatuses(Set.of(LegalOfficerDecisionStatus.ACCEPTED))

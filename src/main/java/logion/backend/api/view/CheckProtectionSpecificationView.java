@@ -10,7 +10,7 @@ import lombok.Value;
 @View
 @Value
 @Builder
-@ApiModel(description = "The specification to confirm that a user is protected by legal officer(s)")
+@ApiModel(description = "The specification to check that a user is protected by legal officer(s)")
 public class CheckProtectionSpecificationView {
 
     @ApiModelProperty("The SS58 address of the legal officer")

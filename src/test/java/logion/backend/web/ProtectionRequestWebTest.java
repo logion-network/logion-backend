@@ -327,7 +327,7 @@ class ProtectionRequestWebTest {
         requestBody.put("legalOfficerAddresses", legalOfficerAddress);
         requestBody.put("unexpectedAttributeToCheckRobustness", "something useless");
 
-        mvc.perform(put("/protection-request/confirm")
+        mvc.perform(put("/protection-request/check")
                 .accept(APPLICATION_JSON)
                 .contentType(APPLICATION_JSON)
                 .content(requestBody.toString()))
@@ -360,7 +360,7 @@ class ProtectionRequestWebTest {
                 Arguments.of(true, REQUESTER_ADDRESS, alice, singletonList(mock(ProtectionRequestAggregateRoot.class)), 1),
                 Arguments.of(false, REQUESTER_ADDRESS, alice, emptyList(), 1),
                 Arguments.of(true, REQUESTER_ADDRESS, aliceAndBob, singletonList(mock(ProtectionRequestAggregateRoot.class)), 2),
-                Arguments.of(false, REQUESTER_ADDRESS, aliceAndBob, emptyList(), 1), // If Alice not confirmed, we won't even try to confirm Bob
+                Arguments.of(false, REQUESTER_ADDRESS, aliceAndBob, emptyList(), 1), // If Alice not checked, we won't even try to check Bob
                 // invalid requests
                 Arguments.of(false, null, aliceAndBob, null, 0),
                 Arguments.of(false, "", aliceAndBob, null, 0),
