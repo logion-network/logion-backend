@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.BooleanSupplier;
 import logion.backend.annotation.RestQuery;
 import logion.backend.api.view.AcceptProtectionRequestView;
 import logion.backend.api.view.CheckProtectionResponseView;
@@ -42,6 +41,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.util.CollectionUtils.isEmpty;
+import static org.springframework.util.StringUtils.hasText;
 
 @RestController
 @RequestMapping(path = "/protection-request", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -163,36 +164,40 @@ public class ProtectionRequestController {
         protectionRequestCommands.rejectProtectionRequest(id, legalOfficerAddress, rejectReason, LocalDateTime.now());
     }
 
-    @PutMapping(value = "/check")
+    @PutMapping(value = "/confirm")
     @ApiOperation(
-            value = "Check if the user has submitted a protection request to the legal officer, and the legal officer" +
-                    " accepted. The intended user is the chain itself.",
-            notes = "No authentication required"
+            value = "Confirms that the user has submitted a protection request to the legal officer(s), and that the " +
+                    "legal officer(s) accepted. The intended user is the chain itself.",
+            notes = "No authentication required",
+            tags = "Chain"
     )
-    public CheckProtectionResponseView checkProtection(
+    public CheckProtectionResponseView confirmProtection(
             @RequestBody
-            @ApiParam(value = "The specification for checking if existence of an accepted protection request", name = "body")
+            @ApiParam(value = "The specification for confirming if existence of an accepted protection request", name = "body")
                     CheckProtectionSpecificationView checkSpecification) {
 
-        BooleanSupplier isProtected = () -> {
-            var userAddress = Optional.ofNullable(checkSpecification.getUserAddress())
-                    .map(Ss58Address::new);
-            var legalOfficerAddress = Optional.ofNullable(checkSpecification.getLegalOfficerAddress())
-                    .map(Ss58Address::new);
-            if (userAddress.isEmpty() || legalOfficerAddress.isEmpty()) {
-                return false;
-            }
-            var querySpecification = FetchProtectionRequestsSpecification.builder()
-                    .expectedRequesterAddress(userAddress)
-                    .expectedStatuses(Set.of(LegalOfficerDecisionStatus.ACCEPTED))
-                    .expectedLegalOfficer(legalOfficerAddress)
-                    .build();
-            var protections = protectionRequestRepository.findBy(querySpecification);
-            return !protections.isEmpty();
-        };
-        return CheckProtectionResponseView.builder()
-                .protection(isProtected.getAsBoolean())
+        if (!hasText(checkSpecification.getUserAddress())) {
+            return new CheckProtectionResponseView(false);
+        }
+        if (isEmpty(checkSpecification.getLegalOfficerAddresses())) {
+            return new CheckProtectionResponseView(false);
+        }
+        var userAddress = new Ss58Address(checkSpecification.getUserAddress());
+        boolean protectionConfirmed = checkSpecification.getLegalOfficerAddresses()
+                .stream()
+                .allMatch(legalOfficerAddress -> hasText(legalOfficerAddress) &&
+                                confirmProtection(userAddress, new Ss58Address(legalOfficerAddress)));
+        return new CheckProtectionResponseView(protectionConfirmed);
+    }
+
+    private boolean confirmProtection(Ss58Address userAddress, Ss58Address legalOfficerAddress) {
+        var querySpecification = FetchProtectionRequestsSpecification.builder()
+                .expectedRequesterAddress(Optional.of(userAddress))
+                .expectedStatuses(Set.of(LegalOfficerDecisionStatus.ACCEPTED))
+                .expectedLegalOfficer(Optional.of(legalOfficerAddress))
                 .build();
+        var protections = protectionRequestRepository.findBy(querySpecification);
+        return !protections.isEmpty();
     }
 
     @Autowired

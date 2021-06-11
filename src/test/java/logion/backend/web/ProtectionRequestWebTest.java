@@ -53,6 +53,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -317,22 +318,24 @@ class ProtectionRequestWebTest {
 
     @ParameterizedTest
     @MethodSource
-    void checkProtection(boolean expectedResult, String userAddress, String legalOfficerAddress, List<ProtectionRequestAggregateRoot> requests) throws Exception {
+    void checkProtection(boolean expectedResult, String userAddress, List<String> legalOfficerAddress, List<ProtectionRequestAggregateRoot> requests, int numberOfRepoCall) throws Exception {
 
         when(protectionRequestRepository.findBy(any(FetchProtectionRequestsSpecification.class))).thenReturn(requests);
 
         var requestBody = new JSONObject();
         requestBody.put("userAddress", userAddress);
-        requestBody.put("legalOfficerAddress", legalOfficerAddress);
+        requestBody.put("legalOfficerAddresses", legalOfficerAddress);
         requestBody.put("unexpectedAttributeToCheckRobustness", "something useless");
 
-        mvc.perform(put("/protection-request/check")
+        mvc.perform(put("/protection-request/confirm")
                 .accept(APPLICATION_JSON)
                 .contentType(APPLICATION_JSON)
                 .content(requestBody.toString()))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.protection").value(is(expectedResult)));
 
+            verify(protectionRequestRepository, times(numberOfRepoCall)).findBy(any(FetchProtectionRequestsSpecification.class));
     }
 
     private static final String SIGNATURE = "signature";
@@ -350,11 +353,19 @@ class ProtectionRequestWebTest {
 
     @SuppressWarnings("unused")
     private static Stream<Arguments> checkProtection() {
+        List<String> alice = List.of(DefaultAddresses.ALICE.getRawValue());
+        List<String> aliceAndBob = List.of(DefaultAddresses.ALICE.getRawValue(), DefaultAddresses.BOB.getRawValue());
         return Stream.of(
-                Arguments.of(true, REQUESTER_ADDRESS, DefaultAddresses.ALICE.getRawValue(), singletonList(mock(ProtectionRequestAggregateRoot.class))),
-                Arguments.of(false, REQUESTER_ADDRESS, DefaultAddresses.ALICE.getRawValue(), emptyList()),
-                Arguments.of(false, null, DefaultAddresses.ALICE.getRawValue(), null),
-                Arguments.of(false, REQUESTER_ADDRESS, null, null)
+                // valid requests
+                Arguments.of(true, REQUESTER_ADDRESS, alice, singletonList(mock(ProtectionRequestAggregateRoot.class)), 1),
+                Arguments.of(false, REQUESTER_ADDRESS, alice, emptyList(), 1),
+                Arguments.of(true, REQUESTER_ADDRESS, aliceAndBob, singletonList(mock(ProtectionRequestAggregateRoot.class)), 2),
+                Arguments.of(false, REQUESTER_ADDRESS, aliceAndBob, emptyList(), 1), // If Alice not confirmed, we won't even try to confirm Bob
+                // invalid requests
+                Arguments.of(false, null, aliceAndBob, null, 0),
+                Arguments.of(false, "", aliceAndBob, null, 0),
+                Arguments.of(false, REQUESTER_ADDRESS, emptyList(), null, 0),
+                Arguments.of(false, REQUESTER_ADDRESS, null, null, 0)
         );
     }
 }
