@@ -25,6 +25,9 @@ Finally, run the backend with:
 The `logion.backend.annotation` package contains annotations used to document patterns, concepts, conventions used
 in the code.
 
+## Authentication
+More details can be found [here](doc/Authentication.md).
+
 ## Domain-Driven Design
 Domain-Driven Design (DDD) is used to model Logion's domain.
 The `logion.backend.model` package contains the aggregates of Logion model.
