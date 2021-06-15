@@ -50,7 +50,7 @@ logion_backend --> Alice: 401 Unauthorized
 logion_backend --> Alice: 200 OK \n \
 {}
 ... later ...
-Alice -> logion_backend: PUT /auth/refresh \n \
+Alice -> logion_backend: **PUT /auth/refresh** \n \
 Authorization: Bearer <token> \n \
 X-Forwarded-For: <ip> \n
 logion_backend -> logion_backend: All validations on token

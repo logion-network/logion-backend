@@ -12,7 +12,11 @@ See this [sequence diagram](Authentication.puml) - requires PlanUML plugin for [
 or [IntelliJ](https://plugins.jetbrains.com/plugin/7017-plantuml-integration) 
 
 ## Back-end
+* Tokens are signed by the emitter. We will use a public/private key pair. This will allow other parties (like the
+  front or another backend) to verify the signature.
 * Tokens are validated using spring-security filter.
+* The authentic source for determining if a given user is legal officer will be ultimately the chain. As a temporary
+  solution, the info could be stored locally (database), and later on the backend can query the chain to get this info.
 * Operations (Http method `POST`) can still be protected by the existing signature mechanism
 * Read access to resources (Http method `PUT` or `GET`) require authentication, 
     * Some resources can be statically protected via annotation `@PreAuthorize("hasRole('LEGAL_OFFICER')")`
@@ -25,9 +29,9 @@ or [IntelliJ](https://plugins.jetbrains.com/plugin/7017-plantuml-integration)
 * Starts a session.
 * Authenticates a session by signing a payload.
 * Receives a token with a limited temporal validity.
-* Add the token as an http header in each subsequent API call. 
+* Adds the token as an http header in each subsequent API call.
+* Has the possibility to verify token's signature.
+* Has the possibility to access to token's content (token expiration date and roles).
 
 ## Open issues
-* Where is the authentic source of legal officer address ?
-* To Sign token: symmetric (secret) vs asymmetric (public/private key)
-* We have no logion screen - what about UX ?
+* We have no classical user/password input screen - what about UX ?
