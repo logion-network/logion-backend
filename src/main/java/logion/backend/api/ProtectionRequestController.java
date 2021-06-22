@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.UUID;
 import logion.backend.annotation.RestQuery;
 import logion.backend.api.view.AcceptProtectionRequestView;
+import logion.backend.api.view.CheckProtectionActivationView;
 import logion.backend.api.view.CheckProtectionResponseView;
 import logion.backend.api.view.CheckProtectionSpecificationView;
 import logion.backend.api.view.CreateProtectionRequestView;
@@ -125,7 +126,7 @@ public class ProtectionRequestController {
             value = "Accepts a Protection Request",
             notes = "<p>The signature's resource is <code>protection-request</code>, the operation <code>accept</code> and the additional field is the <code>requestId</code>.<p>"
     )
-    public void acceptTokenRequest(
+    public void acceptProtectionRequest(
             @PathVariable
             @ApiParam(value = "The ID of the request to accept")
                     String requestId,
@@ -148,7 +149,7 @@ public class ProtectionRequestController {
             value = "Rejects a Protection Request",
             notes = "<p>The signature's resource is <code>protection-request</code>, the operation <code>reject</code> and the additional fields are the <code>requestId</code> and the <code>rejectReason</code>.<p>"
     )
-    public void rejectTokenRequest(
+    public void rejectProtectionRequest(
             @PathVariable
             @ApiParam(value = "The ID of the request to reject")
                     String requestId,
@@ -191,8 +192,36 @@ public class ProtectionRequestController {
         boolean protectionChecked = checkSpecification.getLegalOfficerAddresses()
                 .stream()
                 .allMatch(legalOfficerAddress -> hasText(legalOfficerAddress) &&
-                                checkProtection(userAddress, new Ss58Address(legalOfficerAddress)));
+                        checkProtection(userAddress, new Ss58Address(legalOfficerAddress)));
         return new CheckProtectionResponseView(protectionChecked);
+    }
+
+    @PostMapping(value = "{requestId}/check-activation")
+    @ApiOperation(
+            value = "Checks if a Protection Request is activated on chain, and return the (possibly updated) protection request",
+            notes = "<p>The signature's resource is <code>protection-request</code>, the operation <code>check-activation</code> and the additional fields are the <code>requestId</code>.</p>"
+    )
+    public ProtectionRequestView checkAndSetProtectionRequestActivation(
+            @PathVariable
+            @ApiParam(value = "The ID of the request to check for activation")
+                    String requestId,
+            @RequestBody
+            @ApiParam(value = "The payload, used for signature")
+                    CheckProtectionActivationView
+                    checkProtectionActivationView
+    ) {
+        var userAddress = new Ss58Address(checkProtectionActivationView.getUserAddress());
+        signature.verify(checkProtectionActivationView.getSignature())
+                .withSs58Address(userAddress)
+                .withResource(RESOURCE)
+                .withOperation("check-activation")
+                .withTimestamp(checkProtectionActivationView.getSignedOn())
+                .withMessageBuiltFrom(requestId);
+        var id = UUID.fromString(requestId);
+        protectionRequestCommands.checkAndSetProtectionRequestActivation(id);
+        return protectionRequestRepository.findById(id)
+                .map(this::toView)
+                .orElseThrow(ProtectionRequestRepository.requestNotFound);
     }
 
     private boolean checkProtection(Ss58Address userAddress, Ss58Address legalOfficerAddress) {
@@ -246,6 +275,7 @@ public class ProtectionRequestController {
                 .createdOn(request.getDescription().getCreatedOn())
                 .isRecovery(request.getDescription().isRecovery())
                 .addressToRecover(request.getDescription().getAddressToRecover().map(Ss58Address::getRawValue).orElse(""))
+                .status(request.getStatus())
                 .build();
     }
 

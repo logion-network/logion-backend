@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import logion.backend.annotation.View;
+import logion.backend.model.protectionrequest.ProtectionRequestStatus;
 import lombok.Builder;
 import lombok.Value;
 
@@ -38,4 +39,7 @@ public class ProtectionRequestView {
 
     @ApiModelProperty("If this request is a recovery request, tells the address to recover")
     String addressToRecover;
+
+    @ApiModelProperty("The status (retrieved from chain)")
+    ProtectionRequestStatus status;
 }

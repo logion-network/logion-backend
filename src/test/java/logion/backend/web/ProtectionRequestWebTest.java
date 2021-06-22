@@ -20,6 +20,7 @@ import logion.backend.model.protectionrequest.ProtectionRequestAggregateRoot;
 import logion.backend.model.protectionrequest.ProtectionRequestDescription;
 import logion.backend.model.protectionrequest.ProtectionRequestFactory;
 import logion.backend.model.protectionrequest.ProtectionRequestRepository;
+import logion.backend.model.protectionrequest.ProtectionRequestStatus;
 import logion.backend.model.protectionrequest.UserIdentity;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -255,7 +256,7 @@ class ProtectionRequestWebTest {
 
     @ParameterizedTest
     @MethodSource("signatureValidityWithStatus")
-    void acceptTokenRequestWithWrongSignature(boolean signatureVerifyResult, ResultMatcher matcher) throws Exception {
+    void acceptProtectionRequestWithWrongSignature(boolean signatureVerifyResult, ResultMatcher matcher) throws Exception {
         var requestId = UUID.randomUUID();
 
         var existingRequest = mock(ProtectionRequestAggregateRoot.class);
@@ -288,7 +289,7 @@ class ProtectionRequestWebTest {
 
     @ParameterizedTest
     @MethodSource("signatureValidityWithStatus")
-    void rejectTokenRequestWithWrongSignature(boolean signatureVerifyResult, ResultMatcher matcher) throws Exception {
+    void rejectProtectionRequestWithWrongSignature(boolean signatureVerifyResult, ResultMatcher matcher) throws Exception {
         var requestId = UUID.randomUUID();
 
         var existingRequest = mock(ProtectionRequestAggregateRoot.class);
@@ -334,6 +335,7 @@ class ProtectionRequestWebTest {
         when(protectionRequest.getDescription()).thenReturn(protectionRequestDescription());
         when(protectionRequest.getLegalOfficerDecisionDescriptions()).thenReturn(legalOfficerDecisionDescriptions());
         when(protectionRequest.getId()).thenReturn(id);
+        when(protectionRequest.getStatus()).thenReturn(ProtectionRequestStatus.PENDING);
 
         when(protectionRequestRepository.findBy(any(FetchProtectionRequestsSpecification.class))).thenReturn(singletonList(protectionRequest));
 
@@ -363,6 +365,7 @@ class ProtectionRequestWebTest {
                 .andExpect(jsonPath("$.requests[0].decisions[1].createdOn").value(TIMESTAMP.toString()))
                 .andExpect(jsonPath("$.requests[0].decisions[1].decisionOn").value(TIMESTAMP.toString()))
                 .andExpect(jsonPath("$.requests[0].createdOn").value(TIMESTAMP.toString()))
+                .andExpect(jsonPath("$.requests[0].status").value(is("PENDING")))
                 ;
 
         var argumentCaptor = ArgumentCaptor.forClass(FetchProtectionRequestsSpecification.class);
@@ -426,5 +429,45 @@ class ProtectionRequestWebTest {
                 Arguments.of(false, REQUESTER_ADDRESS, emptyList(), null, 0),
                 Arguments.of(false, REQUESTER_ADDRESS, null, null, 0)
         );
+    }
+
+    @Test
+    void checkActivation() throws Exception {
+
+        var requestId = UUID.randomUUID();
+
+        var protectionRequest = mock(ProtectionRequestAggregateRoot.class);
+        when(protectionRequest.getDescription()).thenReturn(protectionRequestDescription());
+        when(protectionRequest.getLegalOfficerDecisionDescriptions()).thenReturn(legalOfficerDecisionDescriptions());
+        when(protectionRequest.getId()).thenReturn(requestId);
+        when(protectionRequest.getStatus()).thenReturn(ProtectionRequestStatus.ACTIVATED);
+
+        when(protectionRequestRepository.findById(requestId))
+                .thenReturn(Optional.of(protectionRequest));
+
+        var requestBody = new JSONObject();
+        requestBody.put("signature", SIGNATURE);
+        requestBody.put("signedOn", LocalDateTime.now());
+        requestBody.put("userAddress", DefaultAddresses.BOB.getRawValue());
+
+        var approving = signatureVerifyMock(
+                DefaultAddresses.BOB,
+                "protection-request",
+                "check-activation",
+                true,
+                requestId.toString());
+        when(signature.verify(SIGNATURE)).thenReturn(approving);
+
+        mvc.perform(post("/protection-request/" + requestId + "/check-activation")
+                .accept(APPLICATION_JSON)
+                .contentType(APPLICATION_JSON)
+                .content(requestBody.toString()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(is(requestId.toString())))
+                .andExpect(jsonPath("$.status").value(is("ACTIVATED")));
+
+        verify(protectionRequestCommands).checkAndSetProtectionRequestActivation(requestId);
+
     }
 }
