@@ -1,0 +1,19 @@
+{
+  "at": {
+    "hash": "0xe344edb4b7413835d03d73ae1618be0514cb683a8718325485be9852e0a9410f",
+    "height": "46323"
+  },
+  "pallet": "recovery",
+  "palletIndex": "11",
+  "storageItem": "recoverable",
+  "key1": "5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW",
+  "value": {
+    "delayPeriod": "0",
+    "deposit": "12",
+    "friends": [
+      "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty",
+      "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+    ],
+    "threshold": "1"
+  }
+}
