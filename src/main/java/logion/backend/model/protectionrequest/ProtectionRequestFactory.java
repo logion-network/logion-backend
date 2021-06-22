@@ -23,6 +23,7 @@ public class ProtectionRequestFactory {
         if(description.isRecovery()) {
             request.addressToRecover = description.getAddressToRecover().orElse(null);
         }
+        request.status = ProtectionRequestStatus.PENDING;
         return request;
     }
 }

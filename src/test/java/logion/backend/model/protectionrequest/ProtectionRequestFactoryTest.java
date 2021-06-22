@@ -91,6 +91,7 @@ class ProtectionRequestFactoryTest {
         assertThat(protectionRequest.getDescription(), equalTo(protectionRequestDescription));
         assertThat(protectionRequest.getDescription().getUserIdentity(), equalTo(userIdentity));
         assertThat(protectionRequest.getDescription().getUserPostalAddress(), equalTo(postalAddress));
+        assertThat(protectionRequest.getStatus(), equalTo(ProtectionRequestStatus.PENDING));
         Set<Ss58Address> actualLegalOfficerAddresses = protectionRequest.getLegalOfficerDecisionDescriptions()
                 .stream()
                 .peek(description -> assertThat(description.getStatus(), is(LegalOfficerDecisionStatus.PENDING)))

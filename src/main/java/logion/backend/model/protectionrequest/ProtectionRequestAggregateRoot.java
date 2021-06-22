@@ -13,6 +13,8 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -58,6 +60,10 @@ public class ProtectionRequestAggregateRoot {
 
     public void reject(Ss58Address legalOfficerAddress, String reason, LocalDateTime acceptedOn) {
         decisionByOfficer(legalOfficerAddress).reject(reason, acceptedOn);
+    }
+
+    public void setActivated() {
+        status = ProtectionRequestStatus.ACTIVATED;
     }
 
     private LegalOfficerDecision decisionByOfficer(Ss58Address legalOfficerAddress) {
@@ -148,6 +154,10 @@ public class ProtectionRequestAggregateRoot {
 
     @Convert(converter = Ss58AddressConverter.class)
     Ss58Address addressToRecover;
+
+    @Getter
+    @Enumerated(EnumType.STRING)
+    ProtectionRequestStatus status;
 
     ProtectionRequestAggregateRoot() {
     }
