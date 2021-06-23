@@ -41,16 +41,20 @@ public class ProtectionRequestCommands {
         repository.save(request);
     }
 
-    public void checkAndSetProtectionRequestActivation(UUID requestId) {
+    public ProtectionRequestAggregateRoot checkAndSetProtectionRequestActivation(UUID requestId) {
         var request = repository.findById(requestId)
                 .orElseThrow(ProtectionRequestRepository.requestNotFound);
-        if (request.getStatus() == ProtectionRequestStatus.PENDING) {
-            var requesterAddress = request.getDescription().getRequesterAddress();
-            recoveryService.getRecoveryConfig(requesterAddress).ifPresent(recoveryConfig -> {
-                request.setActivated();
-                repository.save(request);
-            });
+        if (request.getStatus() == ProtectionRequestStatus.ACTIVATED) {
+            return request;
         }
+        var requesterAddress = request.getDescription().getRequesterAddress();
+        var recoveryConfig = recoveryService.getRecoveryConfig(requesterAddress);
+        return recoveryConfig
+                .map(rc -> {
+                    request.setActivated();
+                    return repository.save(request);
+                })
+                .orElse(request);
     }
 
     @Autowired

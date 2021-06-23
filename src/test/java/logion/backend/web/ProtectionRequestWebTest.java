@@ -442,8 +442,8 @@ class ProtectionRequestWebTest {
         when(protectionRequest.getId()).thenReturn(requestId);
         when(protectionRequest.getStatus()).thenReturn(ProtectionRequestStatus.ACTIVATED);
 
-        when(protectionRequestRepository.findById(requestId))
-                .thenReturn(Optional.of(protectionRequest));
+        when(protectionRequestCommands.checkAndSetProtectionRequestActivation(requestId))
+                .thenReturn(protectionRequest);
 
         var requestBody = new JSONObject();
         requestBody.put("signature", SIGNATURE);

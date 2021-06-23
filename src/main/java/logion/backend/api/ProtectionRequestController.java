@@ -219,10 +219,8 @@ public class ProtectionRequestController {
                 .withTimestamp(checkProtectionActivationView.getSignedOn())
                 .withMessageBuiltFrom(requestId);
         var id = UUID.fromString(requestId);
-        protectionRequestCommands.checkAndSetProtectionRequestActivation(id);
-        return protectionRequestRepository.findById(id)
-                .map(this::toView)
-                .orElseThrow(ProtectionRequestRepository.requestNotFound);
+        var request = protectionRequestCommands.checkAndSetProtectionRequestActivation(id);
+        return toView(request);
     }
 
     private boolean checkProtection(Ss58Address userAddress, Ss58Address legalOfficerAddress) {
