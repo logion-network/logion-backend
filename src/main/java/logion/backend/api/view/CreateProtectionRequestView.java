@@ -3,8 +3,11 @@ package logion.backend.api.view;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import logion.backend.annotation.View;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @View
 @Data
@@ -25,7 +28,17 @@ public class CreateProtectionRequestView extends SignedOperationView {
     String[] legalOfficerAddresses;
 
     @ApiModelProperty("True if the the protection request is also a recovery request")
+    @Getter(value=AccessLevel.NONE)
+    @Setter(value=AccessLevel.NONE)
     boolean isRecovery;
+
+    public boolean getIsRecovery() {
+        return isRecovery;
+    }
+
+    public void setIsRecovery(boolean value) {
+        isRecovery = value;
+    }
 
     @ApiModelProperty("If this request is a recovery request, tells the address to recover")
     String addressToRecover;

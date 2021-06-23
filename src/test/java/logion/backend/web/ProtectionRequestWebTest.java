@@ -130,7 +130,8 @@ class ProtectionRequestWebTest {
     @SuppressWarnings("unused")
     private static Stream<Arguments> createProtectionRequest() throws JSONException {
         return Stream.of(
-                Arguments.of(validRequest(), status().isOk(), 1, protectionRequestDescription(), legalOfficerDecisionDescriptions()),
+                Arguments.of(validProtectionRequest(), status().isOk(), 1, protectionRequestDescription(), legalOfficerDecisionDescriptions()),
+                Arguments.of(validRecoveryRequest(), status().isOk(), 1, recoveryRequestDescription(), legalOfficerDecisionDescriptions()),
                 Arguments.of("", status().isBadRequest(), 0, null, null)
         );
     }
@@ -172,7 +173,31 @@ class ProtectionRequestWebTest {
                 .build();
     }
 
-    private static String validRequest() throws JSONException {
+    private static ProtectionRequestDescription recoveryRequestDescription() {
+        var userIdentity = UserIdentity.builder()
+                .email("john.doe@logion.network")
+                .firstName("John")
+                .lastName("Doe")
+                .phoneNumber("+1234")
+                .build();
+        var postalAddress = PostalAddress.builder()
+                .line1("Place de le République Française, 10")
+                .line2("boite 15")
+                .postalCode("4000")
+                .city("Liège")
+                .country("Belgium")
+                .build();
+        return ProtectionRequestDescription.builder()
+                .requesterAddress(new Ss58Address(REQUESTER_ADDRESS))
+                .userIdentity(userIdentity)
+                .userPostalAddress(postalAddress)
+                .createdOn(TIMESTAMP)
+                .isRecovery(true)
+                .addressToRecover(Optional.of(new Ss58Address(ADDRESS_TO_RECOVER)))
+                .build();
+    }
+
+    private static String validProtectionRequest() throws JSONException {
         var validRequest = new JSONObject();
         validRequest.put("legalOfficerAddresses", new String[]{DefaultAddresses.ALICE.getRawValue(), DefaultAddresses.BOB.getRawValue()});
         validRequest.put("requesterAddress", REQUESTER_ADDRESS);
@@ -196,6 +221,34 @@ class ProtectionRequestWebTest {
 
         validRequest.put("isRecovery", false);
         validRequest.put("addressToRecover", "");
+
+        return validRequest.toString(2);
+    }
+
+    private static String validRecoveryRequest() throws JSONException {
+        var validRequest = new JSONObject();
+        validRequest.put("legalOfficerAddresses", new String[]{DefaultAddresses.ALICE.getRawValue(), DefaultAddresses.BOB.getRawValue()});
+        validRequest.put("requesterAddress", REQUESTER_ADDRESS);
+        validRequest.put("signature", "signature");
+        validRequest.put("signedOn", "2021-06-02T16:00:41.542839");
+
+        var userIdentity = new JSONObject();
+        userIdentity.put("firstName", "John");
+        userIdentity.put("lastName", "Doe");
+        userIdentity.put("phoneNumber", "+1234");
+        userIdentity.put("email", "john.doe@logion.network");
+        validRequest.put("userIdentity", userIdentity);
+
+        var userPostalAddress = new JSONObject();
+        userPostalAddress.put("line1", "Place de le République Française, 10");
+        userPostalAddress.put("line2", "boite 15");
+        userPostalAddress.put("postalCode", "4000");
+        userPostalAddress.put("city", "Liège");
+        userPostalAddress.put("country", "Belgium");
+        validRequest.put("userPostalAddress", userPostalAddress);
+
+        validRequest.put("isRecovery", true);
+        validRequest.put("addressToRecover", ADDRESS_TO_RECOVER);
 
         return validRequest.toString(2);
     }
@@ -346,6 +399,7 @@ class ProtectionRequestWebTest {
     private static final String SIGNATURE = "signature";
     private static final String REJECT_REASON = "Illegal";
     private static final String REQUESTER_ADDRESS = "5H4MvAsobfZ6bBCDyj5dsrWYLrA8HrRzaqa9p61UXtxMhSCY";
+    private static final String ADDRESS_TO_RECOVER = "5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW";
     private static final LocalDateTime TIMESTAMP = LocalDateTime.parse("2021-06-10T16:25:23.668294");
 
     @SuppressWarnings("unused")

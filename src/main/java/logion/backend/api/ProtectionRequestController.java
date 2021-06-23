@@ -78,7 +78,7 @@ public class ProtectionRequestController {
                         userPostalAddress.getPostalCode(),
                         userPostalAddress.getCity(),
                         userPostalAddress.getCountry(),
-                        createProtectionRequestView.isRecovery(),
+                        createProtectionRequestView.getIsRecovery(),
                         createProtectionRequestView.getAddressToRecover(),
                         createProtectionRequestView.getLegalOfficerAddresses()
                 );
@@ -87,7 +87,7 @@ public class ProtectionRequestController {
                 .userIdentity(fromView(userIdentity))
                 .userPostalAddress(fromView(userPostalAddress))
                 .createdOn(LocalDateTime.now())
-                .isRecovery(createProtectionRequestView.isRecovery())
+                .isRecovery(createProtectionRequestView.getIsRecovery())
                 .addressToRecover(Optional.ofNullable(createProtectionRequestView.getAddressToRecover()).map(Ss58Address::new))
                 .build();
         var request = protectionRequestFactory.newProtectionRequest(
