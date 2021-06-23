@@ -7,11 +7,19 @@ public class Ss58AddressConverter implements AttributeConverter<Ss58Address, Str
 
     @Override
     public String convertToDatabaseColumn(Ss58Address attribute) {
-        return attribute.getRawValue();
+        if(attribute == null) {
+            return null;
+        } else {
+            return attribute.getRawValue();
+        }
     }
 
     @Override
     public Ss58Address convertToEntityAttribute(String dbData) {
-        return new Ss58Address(dbData);
+        if(dbData == null) {
+            return null;
+        } else {
+            return new Ss58Address(dbData);
+        }
     }
 }
