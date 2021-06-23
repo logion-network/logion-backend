@@ -5,12 +5,23 @@ The Logion off-chain backend handles data which should not (or must not) be stor
 and is implemented using Spring Boot.
 
 ## Quick start
+
+### DB
 First, run a PostgreSQL 12 server:
 
 `docker run --name logion-postgres -e POSTGRES_PASSWORD=secret -p 5432:5432 postgres:12`
 
 (or `docker start -a logion-postgres` if you already executed the above command).
 
+### Connector to chain, a.k.a. Substrate api Sidecar
+in order to start the [REST api](https://paritytech.github.io/substrate-api-sidecar/dist/) connector, run in the project root directory:
+
+`docker run --name substrate-api-sidecar --rm -d -v $PWD/substrate-api-sidecar/logion-types.json:/types.json --env-file $PWD/substrate-api-sidecar/env.docker -p 8081:8080 parity/substrate-api-sidecar:latest
+`
+
+(later on, you can stop it with: `docker stop substrate-api-sidecar`)
+
+### Spring-boot
 Then, if not already done, create your own configuration file by executing
 
 `cp application.properties.sample application.properties`
