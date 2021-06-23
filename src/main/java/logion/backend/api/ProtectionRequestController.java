@@ -112,8 +112,9 @@ public class ProtectionRequestController {
         var specification = FetchProtectionRequestsSpecification.builder()
                 .expectedLegalOfficer(Optional.ofNullable(specificationView.getLegalOfficerAddress()).map(Ss58Address::new))
                 .expectedRequesterAddress(Optional.ofNullable(specificationView.getRequesterAddress()).map(Ss58Address::new))
-                .expectedStatuses(specificationView.getStatuses())
+                .expectedDecisionStatuses(specificationView.getDecisionStatuses())
                 .kind(specificationView.getKind())
+                .expectedProtectionRequestStatus(Optional.ofNullable(specificationView.getProtectionRequestStatus()))
                 .build();
         var requests = protectionRequestRepository.findBy(specification);
         return FetchProtectionRequestsResponseView.builder()
@@ -227,7 +228,7 @@ public class ProtectionRequestController {
     private boolean checkProtection(Ss58Address userAddress, Ss58Address legalOfficerAddress) {
         var querySpecification = FetchProtectionRequestsSpecification.builder()
                 .expectedRequesterAddress(Optional.of(userAddress))
-                .expectedStatuses(Set.of(LegalOfficerDecisionStatus.ACCEPTED))
+                .expectedDecisionStatuses(Set.of(LegalOfficerDecisionStatus.ACCEPTED))
                 .expectedLegalOfficer(Optional.of(legalOfficerAddress))
                 .build();
         var protections = protectionRequestRepository.findBy(querySpecification);

@@ -35,6 +35,8 @@ public interface ProtectionRequestRepository
             whereClause.and(protectionRequestAggregateRoot.isRecovery.eq(expectedKind == ProtectionRequestKind.RECOVERY));
         }
 
+        querySpecification.getExpectedProtectionRequestStatus().ifPresent(status -> whereClause.and(protectionRequestAggregateRoot.status.eq(status)));
+
         var results = new ArrayList<ProtectionRequestAggregateRoot>();
         findAll(whereClause).forEach(results::add);
         return results;
@@ -43,8 +45,8 @@ public interface ProtectionRequestRepository
     private Optional<JPQLQuery<LegalOfficerDecision>> subQueryNeeded(FetchProtectionRequestsSpecification querySpecification) {
         var whereClause = new BooleanBuilder();
 
-        if (!querySpecification.getExpectedStatuses().isEmpty()) {
-            whereClause.and(legalOfficerDecision.status.in(querySpecification.getExpectedStatuses()));
+        if (!querySpecification.getExpectedDecisionStatuses().isEmpty()) {
+            whereClause.and(legalOfficerDecision.status.in(querySpecification.getExpectedDecisionStatuses()));
         }
 
         querySpecification.getExpectedLegalOfficer().ifPresent(legalOfficer -> whereClause.and(legalOfficerDecision.id.legalOfficerAddress.eq(legalOfficer)));

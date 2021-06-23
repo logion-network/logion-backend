@@ -328,7 +328,7 @@ class ProtectionRequestWebTest {
         var requestBody = new JSONObject();
         requestBody.put("requesterAddress", REQUESTER_ADDRESS);
         requestBody.put("legalOfficerAddress", DefaultAddresses.ALICE.getRawValue());
-        requestBody.put("statuses", new String[]{"ACCEPTED", "REJECTED"});
+        requestBody.put("decisionStatuses", new String[]{"ACCEPTED", "REJECTED"});
 
         var id = UUID.randomUUID();
         var protectionRequest = mock(ProtectionRequestAggregateRoot.class);
@@ -374,7 +374,7 @@ class ProtectionRequestWebTest {
 
         assertThat(actualSpecification.getExpectedRequesterAddress(), is(Optional.of(new Ss58Address(REQUESTER_ADDRESS))));
         assertThat(actualSpecification.getExpectedLegalOfficer(), is(Optional.of(DefaultAddresses.ALICE)));
-        assertThat(actualSpecification.getExpectedStatuses(), hasItems(LegalOfficerDecisionStatus.ACCEPTED, LegalOfficerDecisionStatus.REJECTED));
+        assertThat(actualSpecification.getExpectedDecisionStatuses(), hasItems(LegalOfficerDecisionStatus.ACCEPTED, LegalOfficerDecisionStatus.REJECTED));
     }
 
     @ParameterizedTest
