@@ -19,7 +19,10 @@ public class FetchProtectionRequestsSpecification {
     Optional<Ss58Address> expectedLegalOfficer = Optional.empty();
 
     @Builder.Default
-    Set<LegalOfficerDecisionStatus> expectedStatuses = emptySet();
+    Set<LegalOfficerDecisionStatus> expectedDecisionStatuses = emptySet();
+
+    @Builder.Default
+    Optional<ProtectionRequestStatus> expectedProtectionRequestStatus = Optional.empty();
 
     @Builder.Default
     ProtectionRequestKind kind = ProtectionRequestKind.ANY;

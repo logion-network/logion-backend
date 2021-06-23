@@ -3,6 +3,7 @@ package logion.backend.model.protectionrequest;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import logion.backend.model.DefaultAddresses;
 import logion.backend.model.Ss58Address;
@@ -27,12 +28,12 @@ class ProtectionRequestRepositoryTest {
     void findBy() {
         var specification = FetchProtectionRequestsSpecification.builder()
                 .expectedLegalOfficer(Optional.of(DefaultAddresses.ALICE))
-                .expectedStatuses(Set.of(
+                .expectedDecisionStatuses(Set.of(
                         LegalOfficerDecisionStatus.ACCEPTED,
                         LegalOfficerDecisionStatus.REJECTED))
                 .build();
         var results = repository.findBy(specification);
-        assertThat(results.size(), is(3));
+        assertThat(results.size(), is(4));
         assertThatAliceAcceptedOrRejected(results);
     }
 
@@ -75,7 +76,7 @@ class ProtectionRequestRepositoryTest {
     void findRecoveryOnly() {
         var specification = FetchProtectionRequestsSpecification.builder()
                 .expectedLegalOfficer(Optional.of(DefaultAddresses.ALICE))
-                .expectedStatuses(Set.of(
+                .expectedDecisionStatuses(Set.of(
                         LegalOfficerDecisionStatus.ACCEPTED,
                         LegalOfficerDecisionStatus.REJECTED))
                 .kind(ProtectionRequestKind.RECOVERY)
@@ -97,14 +98,42 @@ class ProtectionRequestRepositoryTest {
     void findProtectionOnly() {
         var specification = FetchProtectionRequestsSpecification.builder()
                 .expectedLegalOfficer(Optional.of(DefaultAddresses.ALICE))
-                .expectedStatuses(Set.of(
+                .expectedDecisionStatuses(Set.of(
                         LegalOfficerDecisionStatus.ACCEPTED,
                         LegalOfficerDecisionStatus.REJECTED))
                 .kind(ProtectionRequestKind.PROTECTION_ONLY)
                 .build();
         var results = repository.findBy(specification);
-        assertThat(results.size(), is(2));
+        assertThat(results.size(), is(3));
         assertThatAliceAcceptedOrRejected(results);
         assertThatAllKind(results, ProtectionRequestKind.PROTECTION_ONLY);
     }
+
+    @Test
+    void findActivatedOnly() {
+        var specification = FetchProtectionRequestsSpecification.builder()
+                .expectedLegalOfficer(Optional.of(DefaultAddresses.ALICE))
+                .expectedProtectionRequestStatus(Optional.of(ProtectionRequestStatus.ACTIVATED))
+                .build();
+        var results = repository.findBy(specification);
+        assertThat(results.size(), is(1));
+        assertThatAllStatus(results, ProtectionRequestStatus.ACTIVATED);
+    }
+
+    @Test
+    void findPendingOnly() {
+        var specification = FetchProtectionRequestsSpecification.builder()
+                .expectedLegalOfficer(Optional.of(DefaultAddresses.ALICE))
+                .expectedProtectionRequestStatus(Optional.of(ProtectionRequestStatus.PENDING))
+                .build();
+        var results = repository.findBy(specification);
+        assertThat(results.size(), is(4));
+        assertThatAllStatus(results, ProtectionRequestStatus.PENDING);
+    }
+
+    private void assertThatAllStatus(List<ProtectionRequestAggregateRoot> results, ProtectionRequestStatus status) {
+        results.forEach(result -> assertThat(result.getStatus(), is(status)));
+    }
+
+
 }

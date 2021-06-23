@@ -6,6 +6,7 @@ import java.util.Set;
 import logion.backend.annotation.View;
 import logion.backend.model.protectionrequest.LegalOfficerDecisionStatus;
 import logion.backend.model.protectionrequest.ProtectionRequestKind;
+import logion.backend.model.protectionrequest.ProtectionRequestStatus;
 import lombok.Builder;
 import lombok.Value;
 
@@ -21,9 +22,12 @@ public class FetchProtectionRequestsSpecificationView {
     @ApiModelProperty("The SS58 address of the legal officer in expected Protection Requests")
     String legalOfficerAddress;
 
-    @ApiModelProperty("The statuses of expected Protection Requests")
-    Set<LegalOfficerDecisionStatus> statuses;
+    @ApiModelProperty("The statuses of decisions of expected Protection Requests")
+    Set<LegalOfficerDecisionStatus> decisionStatuses;
 
     @ApiModelProperty("The kind of protection request to be returned")
     ProtectionRequestKind kind;
+
+    @ApiModelProperty("The status of expected Protection Requests")
+    ProtectionRequestStatus protectionRequestStatus;
 }
