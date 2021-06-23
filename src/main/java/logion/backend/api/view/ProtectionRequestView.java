@@ -32,4 +32,10 @@ public class ProtectionRequestView {
 
     @ApiModelProperty("The creation timestamp")
     LocalDateTime createdOn;
+
+    @ApiModelProperty("True if the the protection request is also a recovery request")
+    boolean isRecovery;
+
+    @ApiModelProperty("If this request is a recovery request, tells the address to recover")
+    String addressToRecover;
 }

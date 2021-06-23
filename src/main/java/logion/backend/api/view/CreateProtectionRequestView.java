@@ -23,4 +23,10 @@ public class CreateProtectionRequestView extends SignedOperationView {
 
     @ApiModelProperty("The list of legal officers (SS58 addresses) to whom protection is requested")
     String[] legalOfficerAddresses;
+
+    @ApiModelProperty("True if the the protection request is also a recovery request")
+    boolean isRecovery;
+
+    @ApiModelProperty("If this request is a recovery request, tells the address to recover")
+    String addressToRecover;
 }

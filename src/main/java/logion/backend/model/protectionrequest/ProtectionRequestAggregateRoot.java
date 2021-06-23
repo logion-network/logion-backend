@@ -3,6 +3,7 @@ package logion.backend.model.protectionrequest;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -36,6 +37,8 @@ public class ProtectionRequestAggregateRoot {
                 .userIdentity(userIdentity())
                 .userPostalAddress(userPostalAddress())
                 .createdOn(createdOn)
+                .isRecovery(isRecovery)
+                .addressToRecover(Optional.ofNullable(addressToRecover))
                 .build();
     }
 
@@ -140,6 +143,11 @@ public class ProtectionRequestAggregateRoot {
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "requestId", referencedColumnName = "id")
     Set<LegalOfficerDecision> decisions;
+
+    boolean isRecovery;
+
+    @Convert(converter = Ss58AddressConverter.class)
+    Ss58Address addressToRecover;
 
     ProtectionRequestAggregateRoot() {
     }

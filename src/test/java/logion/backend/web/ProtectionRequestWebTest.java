@@ -111,6 +111,8 @@ class ProtectionRequestWebTest {
                     userPostalAddress.getPostalCode(),
                     userPostalAddress.getCity(),
                     userPostalAddress.getCountry(),
+                    expectedProtectionRequestDescription.isRecovery(),
+                    expectedProtectionRequestDescription.getAddressToRecover().map(Ss58Address::getRawValue).orElse(""),
                     new String[]{DefaultAddresses.ALICE.getRawValue(), DefaultAddresses.BOB.getRawValue()}
             );
             when(signature.verify("signature")).thenReturn(approving);
@@ -191,6 +193,9 @@ class ProtectionRequestWebTest {
         userPostalAddress.put("city", "Liège");
         userPostalAddress.put("country", "Belgium");
         validRequest.put("userPostalAddress", userPostalAddress);
+
+        validRequest.put("isRecovery", false);
+        validRequest.put("addressToRecover", "");
 
         return validRequest.toString(2);
     }

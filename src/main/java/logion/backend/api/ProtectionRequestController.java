@@ -78,6 +78,8 @@ public class ProtectionRequestController {
                         userPostalAddress.getPostalCode(),
                         userPostalAddress.getCity(),
                         userPostalAddress.getCountry(),
+                        createProtectionRequestView.isRecovery(),
+                        createProtectionRequestView.getAddressToRecover(),
                         createProtectionRequestView.getLegalOfficerAddresses()
                 );
         var protectionRequestDescription = ProtectionRequestDescription.builder()
@@ -85,6 +87,8 @@ public class ProtectionRequestController {
                 .userIdentity(fromView(userIdentity))
                 .userPostalAddress(fromView(userPostalAddress))
                 .createdOn(LocalDateTime.now())
+                .isRecovery(createProtectionRequestView.isRecovery())
+                .addressToRecover(Optional.ofNullable(createProtectionRequestView.getAddressToRecover()).map(Ss58Address::new))
                 .build();
         var request = protectionRequestFactory.newProtectionRequest(
                 UUID.randomUUID(),
@@ -108,6 +112,7 @@ public class ProtectionRequestController {
                 .expectedLegalOfficer(Optional.ofNullable(specificationView.getLegalOfficerAddress()).map(Ss58Address::new))
                 .expectedRequesterAddress(Optional.ofNullable(specificationView.getRequesterAddress()).map(Ss58Address::new))
                 .expectedStatuses(specificationView.getStatuses())
+                .kind(specificationView.getKind())
                 .build();
         var requests = protectionRequestRepository.findBy(specification);
         return FetchProtectionRequestsResponseView.builder()
@@ -239,6 +244,8 @@ public class ProtectionRequestController {
                 .requesterAddress(request.getDescription().getRequesterAddress().getRawValue())
                 .decisions(CollectionMapper.mapList(this::toView, request.getLegalOfficerDecisionDescriptions()))
                 .createdOn(request.getDescription().getCreatedOn())
+                .isRecovery(request.getDescription().isRecovery())
+                .addressToRecover(request.getDescription().getAddressToRecover().map(Ss58Address::getRawValue).orElse(""))
                 .build();
     }
 

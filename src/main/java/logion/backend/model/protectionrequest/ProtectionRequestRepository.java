@@ -30,6 +30,11 @@ public interface ProtectionRequestRepository
 
         querySpecification.getExpectedRequesterAddress().ifPresent(requester -> whereClause.and(protectionRequestAggregateRoot.requesterAddress.eq(requester)));
 
+        var expectedKind = querySpecification.getKind();
+        if(expectedKind != ProtectionRequestKind.ANY) {
+            whereClause.and(protectionRequestAggregateRoot.isRecovery.eq(expectedKind == ProtectionRequestKind.RECOVERY));
+        }
+
         var results = new ArrayList<ProtectionRequestAggregateRoot>();
         findAll(whereClause).forEach(results::add);
         return results;

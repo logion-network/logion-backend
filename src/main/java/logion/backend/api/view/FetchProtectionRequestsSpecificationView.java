@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.Set;
 import logion.backend.annotation.View;
 import logion.backend.model.protectionrequest.LegalOfficerDecisionStatus;
+import logion.backend.model.protectionrequest.ProtectionRequestKind;
 import lombok.Builder;
 import lombok.Value;
 
@@ -23,4 +24,6 @@ public class FetchProtectionRequestsSpecificationView {
     @ApiModelProperty("The statuses of expected Protection Requests")
     Set<LegalOfficerDecisionStatus> statuses;
 
+    @ApiModelProperty("The kind of protection request to be returned")
+    ProtectionRequestKind kind;
 }
