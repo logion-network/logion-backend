@@ -21,4 +21,6 @@ public class FetchProtectionRequestsSpecification {
     @Builder.Default
     Set<LegalOfficerDecisionStatus> expectedStatuses = emptySet();
 
+    @Builder.Default
+    ProtectionRequestKind kind = ProtectionRequestKind.ANY;
 }

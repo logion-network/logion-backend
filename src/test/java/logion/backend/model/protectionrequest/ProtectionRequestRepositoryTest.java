@@ -1,5 +1,6 @@
 package logion.backend.model.protectionrequest;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,7 +32,11 @@ class ProtectionRequestRepositoryTest {
                         LegalOfficerDecisionStatus.REJECTED))
                 .build();
         var results = repository.findBy(specification);
-        assertThat(results.size(), is(2));
+        assertThat(results.size(), is(3));
+        assertThatAliceAcceptedOrRejected(results);
+    }
+
+    private void assertThatAliceAcceptedOrRejected(List<ProtectionRequestAggregateRoot> results) {
         results.stream()
                 .flatMap(root -> root.getLegalOfficerDecisionDescriptions().stream())
                 .filter(legalOfficerDecisionDescription -> legalOfficerDecisionDescription.getLegalOfficerAddress().equals(DefaultAddresses.ALICE))
@@ -40,6 +45,9 @@ class ProtectionRequestRepositoryTest {
                         is(LegalOfficerDecisionStatus.ACCEPTED),
                         is(LegalOfficerDecisionStatus.REJECTED))));
     }
+
+    @Autowired
+    private ProtectionRequestRepository repository;
 
     @Test
     void findByRequesterAddress() {
@@ -63,6 +71,40 @@ class ProtectionRequestRepositoryTest {
         assertThat(legalOfficerAddresses, hasItems(DefaultAddresses.ALICE, DefaultAddresses.BOB));
     }
 
-    @Autowired
-    private ProtectionRequestRepository repository;
+    @Test
+    void findRecoveryOnly() {
+        var specification = FetchProtectionRequestsSpecification.builder()
+                .expectedLegalOfficer(Optional.of(DefaultAddresses.ALICE))
+                .expectedStatuses(Set.of(
+                        LegalOfficerDecisionStatus.ACCEPTED,
+                        LegalOfficerDecisionStatus.REJECTED))
+                .kind(ProtectionRequestKind.RECOVERY)
+                .build();
+        var results = repository.findBy(specification);
+        assertThat(results.size(), is(1));
+        assertThatAliceAcceptedOrRejected(results);
+        assertThatAllKind(results, ProtectionRequestKind.RECOVERY);
+    }
+
+    private void assertThatAllKind(List<ProtectionRequestAggregateRoot> results, ProtectionRequestKind kind) {
+        results.stream()
+            .map(ProtectionRequestAggregateRoot::getDescription)
+            .map(ProtectionRequestDescription::isRecovery)
+            .forEach(isRecovery -> assertThat(isRecovery, is(kind == ProtectionRequestKind.RECOVERY)));
+    }
+
+    @Test
+    void findProtectionOnly() {
+        var specification = FetchProtectionRequestsSpecification.builder()
+                .expectedLegalOfficer(Optional.of(DefaultAddresses.ALICE))
+                .expectedStatuses(Set.of(
+                        LegalOfficerDecisionStatus.ACCEPTED,
+                        LegalOfficerDecisionStatus.REJECTED))
+                .kind(ProtectionRequestKind.PROTECTION_ONLY)
+                .build();
+        var results = repository.findBy(specification);
+        assertThat(results.size(), is(2));
+        assertThatAliceAcceptedOrRejected(results);
+        assertThatAllKind(results, ProtectionRequestKind.PROTECTION_ONLY);
+    }
 }

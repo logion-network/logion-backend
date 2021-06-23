@@ -19,6 +19,10 @@ public class ProtectionRequestFactory {
         request.setUserPostalAddress(description.getUserPostalAddress());
         request.setLegalOfficerDecisions(legalOfficerAddresses, description.getCreatedOn());
         request.createdOn = description.getCreatedOn();
+        request.isRecovery = description.isRecovery();
+        if(description.isRecovery()) {
+            request.addressToRecover = description.getAddressToRecover().orElse(null);
+        }
         return request;
     }
 }
