@@ -363,6 +363,8 @@ class ProtectionRequestWebTest {
                 .andExpect(jsonPath("$.requests[0].decisions[1].createdOn").value(TIMESTAMP.toString()))
                 .andExpect(jsonPath("$.requests[0].decisions[1].decisionOn").value(TIMESTAMP.toString()))
                 .andExpect(jsonPath("$.requests[0].createdOn").value(TIMESTAMP.toString()))
+                .andExpect(jsonPath("$.requests[0].isRecovery").exists())
+                .andExpect(jsonPath("$.requests[0].addressToRecover").exists())
                 ;
 
         var argumentCaptor = ArgumentCaptor.forClass(FetchProtectionRequestsSpecification.class);

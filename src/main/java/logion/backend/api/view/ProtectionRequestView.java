@@ -6,7 +6,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import logion.backend.annotation.View;
+import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.Value;
 
 @View
@@ -34,7 +37,13 @@ public class ProtectionRequestView {
     LocalDateTime createdOn;
 
     @ApiModelProperty("True if the the protection request is also a recovery request")
+    @Getter(value=AccessLevel.NONE)
+    @Setter(value=AccessLevel.NONE)
     boolean isRecovery;
+
+    public boolean getIsRecovery() {
+        return isRecovery;
+    }
 
     @ApiModelProperty("If this request is a recovery request, tells the address to recover")
     String addressToRecover;
