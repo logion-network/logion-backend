@@ -44,6 +44,7 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
@@ -149,10 +150,14 @@ class ProtectionRequestWebTest {
         return List.of(
                 decision.apply(DefaultAddresses.ALICE, LegalOfficerDecisionStatus.PENDING),
                 decision.apply(DefaultAddresses.BOB, LegalOfficerDecisionStatus.REJECTED)
-                );
+        );
     }
 
     private static ProtectionRequestDescription protectionRequestDescription() {
+        return protectionRequestDescription(REQUESTER_ADDRESS);
+    }
+
+    private static ProtectionRequestDescription protectionRequestDescription(String requesterAddress) {
         var userIdentity = UserIdentity.builder()
                 .email("john.doe@logion.network")
                 .firstName("John")
@@ -167,7 +172,7 @@ class ProtectionRequestWebTest {
                 .country("Belgium")
                 .build();
         return ProtectionRequestDescription.builder()
-                .requesterAddress(new Ss58Address(REQUESTER_ADDRESS))
+                .requesterAddress(new Ss58Address(requesterAddress))
                 .userIdentity(userIdentity)
                 .userPostalAddress(postalAddress)
                 .createdOn(TIMESTAMP)
@@ -470,6 +475,45 @@ class ProtectionRequestWebTest {
                 .andExpect(jsonPath("$.status").value(is("ACTIVATED")));
 
         verify(protectionRequestCommands).checkAndSetProtectionRequestActivation(requestId);
+
+    }
+
+    @Test
+    void fetchRecoveryInfo() throws Exception {
+        var requestId = UUID.randomUUID();
+
+        var recovery = mock(ProtectionRequestAggregateRoot.class);
+
+        when(recovery.getStatus()).thenReturn(ProtectionRequestStatus.ACTIVATED);
+        when(recovery.getDescription()).thenReturn(recoveryRequestDescription());
+        when(recovery.getId()).thenReturn(requestId);
+        when(protectionRequestRepository.findById(requestId)).thenReturn(Optional.of(recovery));
+
+        var toRecover = mock(ProtectionRequestAggregateRoot.class);
+        when(toRecover.getStatus()).thenReturn(ProtectionRequestStatus.ACTIVATED);
+        when(toRecover.getDescription()).thenReturn(protectionRequestDescription(ADDRESS_TO_RECOVER));
+        when(protectionRequestRepository.findBy(FetchProtectionRequestsSpecification.builder()
+                .expectedRequesterAddress(Optional.of(new Ss58Address(ADDRESS_TO_RECOVER)))
+                .expectedProtectionRequestStatus(Optional.of(ProtectionRequestStatus.ACTIVATED))
+                .build()))
+                .thenReturn(singletonList(toRecover));
+
+        mvc.perform(put("/protection-request/" + requestId + "/recovery-info")
+                .accept(APPLICATION_JSON)
+                .contentType(APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.recoveryAccount.requesterAddress").value(is(REQUESTER_ADDRESS)))
+                .andExpect(jsonPath("$.recoveryAccount.addressToRecover").value(is(ADDRESS_TO_RECOVER)))
+                .andExpect(jsonPath("$.recoveryAccount.isRecovery").value(is(true)))
+                .andExpect(jsonPath("$.recoveryAccount.userIdentity.firstName").value(is("John")))
+                .andExpect(jsonPath("$.recoveryAccount.userPostalAddress.postalCode").value(is("4000")))
+                .andExpect(jsonPath("$.accountToRecover.requesterAddress").value(is(ADDRESS_TO_RECOVER)))
+                .andExpect(jsonPath("$.accountToRecover.addressToRecover").value(is("")))
+                .andExpect(jsonPath("$.accountToRecover.isRecovery").value(is(false)))
+                .andExpect(jsonPath("$.accountToRecover.userIdentity.firstName").value(is("John")))
+                .andExpect(jsonPath("$.accountToRecover.userPostalAddress.postalCode").value(is("4000")))
+        ;
 
     }
 }
