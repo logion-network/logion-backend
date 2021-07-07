@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import logion.backend.model.DefaultAddresses;
 import logion.backend.model.Ss58Address;
@@ -129,6 +130,12 @@ class ProtectionRequestRepositoryTest {
         var results = repository.findBy(specification);
         assertThat(results.size(), is(4));
         assertThatAllStatus(results, ProtectionRequestStatus.PENDING);
+    }
+
+    @Test
+    void protectionRequestNotFound() {
+        var error = ProtectionRequestRepository.protectionRequestNotFound("Some info").get();
+        assertThat(error.getMessage(), is("Some info"));
     }
 
     private void assertThatAllStatus(List<ProtectionRequestAggregateRoot> results, ProtectionRequestStatus status) {

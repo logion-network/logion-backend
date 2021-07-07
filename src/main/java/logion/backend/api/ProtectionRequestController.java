@@ -18,6 +18,7 @@ import logion.backend.api.view.FetchProtectionRequestsSpecificationView;
 import logion.backend.api.view.LegalOfficerDecisionView;
 import logion.backend.api.view.PostalAddressView;
 import logion.backend.api.view.ProtectionRequestView;
+import logion.backend.api.view.RecoveryInfoView;
 import logion.backend.api.view.RejectProtectionRequestView;
 import logion.backend.api.view.UserIdentityView;
 import logion.backend.commands.ProtectionRequestCommands;
@@ -31,6 +32,7 @@ import logion.backend.model.protectionrequest.ProtectionRequestAggregateRoot;
 import logion.backend.model.protectionrequest.ProtectionRequestDescription;
 import logion.backend.model.protectionrequest.ProtectionRequestFactory;
 import logion.backend.model.protectionrequest.ProtectionRequestRepository;
+import logion.backend.model.protectionrequest.ProtectionRequestStatus;
 import logion.backend.model.protectionrequest.UserIdentity;
 import logion.backend.util.CollectionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -231,6 +233,41 @@ public class ProtectionRequestController {
                 .build();
         var protections = protectionRequestRepository.findBy(querySpecification);
         return !protections.isEmpty();
+    }
+
+    @PutMapping(value = "{requestId}/recovery-info")
+    @ApiOperation(
+            value = "Fetch all info necessary for the legal officer to accept or reject recovery.",
+            notes = "No authentication required yet"
+    )
+    public RecoveryInfoView fetchRecoveryInfo(
+            @PathVariable
+            @ApiParam(value = "The ID of the recovery request")
+                    String requestId
+    ) {
+        Optional<ProtectionRequestAggregateRoot> byId = protectionRequestRepository.findById(UUID.fromString(requestId));
+        var recovery = byId
+                .filter(request -> request.getDescription().isRecovery())
+                .filter(request -> request.getStatus() == ProtectionRequestStatus.ACTIVATED)
+                .filter(request -> request.getDescription().getAddressToRecover().isPresent())
+                .orElseThrow(ProtectionRequestRepository.protectionRequestNotFound("Activated recovery request with address to recover not found"));
+
+        var addressToRecover = recovery.getDescription().getAddressToRecover();
+
+        var querySpecification = FetchProtectionRequestsSpecification.builder()
+                .expectedRequesterAddress(addressToRecover)
+                .expectedProtectionRequestStatus(Optional.of(ProtectionRequestStatus.ACTIVATED))
+                .build();
+        var protectionRequests = protectionRequestRepository.findBy(querySpecification);
+
+        if (protectionRequests.isEmpty()) {
+            throw ProtectionRequestRepository.protectionRequestNotFound("Activated protection request to recover not found").get();
+        }
+
+        return RecoveryInfoView.builder()
+                .recoveryAccount(toView(recovery))
+                .accountToRecover(toView(protectionRequests.get(0)))
+                .build();
     }
 
     @Autowired

@@ -20,7 +20,11 @@ public interface ProtectionRequestRepository
         extends CrudRepository<ProtectionRequestAggregateRoot, UUID>,
         QuerydslPredicateExecutor<ProtectionRequestAggregateRoot> {
 
-    Supplier<IllegalArgumentException> requestNotFound = () -> new IllegalArgumentException("Protection request does not exist");
+    Supplier<IllegalArgumentException> requestNotFound = protectionRequestNotFound("Protection request does not exist");
+
+    static Supplier<IllegalArgumentException> protectionRequestNotFound(String message) {
+        return () -> new IllegalArgumentException(message);
+    }
 
     default List<ProtectionRequestAggregateRoot> findBy(FetchProtectionRequestsSpecification querySpecification) {
 
