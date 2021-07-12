@@ -245,12 +245,11 @@ public class ProtectionRequestController {
             @ApiParam(value = "The ID of the recovery request")
                     String requestId
     ) {
-        Optional<ProtectionRequestAggregateRoot> byId = protectionRequestRepository.findById(UUID.fromString(requestId));
-        var recovery = byId
+        var recovery = protectionRequestRepository.findById(UUID.fromString(requestId))
                 .filter(request -> request.getDescription().isRecovery())
-                .filter(request -> request.getStatus() == ProtectionRequestStatus.ACTIVATED)
+                .filter(request -> request.getStatus() == ProtectionRequestStatus.PENDING)
                 .filter(request -> request.getDescription().getAddressToRecover().isPresent())
-                .orElseThrow(ProtectionRequestRepository.protectionRequestNotFound("Activated recovery request with address to recover not found"));
+                .orElseThrow(ProtectionRequestRepository.protectionRequestNotFound("Pending recovery request with address to recover not found"));
 
         var addressToRecover = recovery.getDescription().getAddressToRecover();
 

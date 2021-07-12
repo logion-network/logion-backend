@@ -44,7 +44,6 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
@@ -484,7 +483,7 @@ class ProtectionRequestWebTest {
 
         var recovery = mock(ProtectionRequestAggregateRoot.class);
 
-        when(recovery.getStatus()).thenReturn(ProtectionRequestStatus.ACTIVATED);
+        when(recovery.getStatus()).thenReturn(ProtectionRequestStatus.PENDING);
         when(recovery.getDescription()).thenReturn(recoveryRequestDescription());
         when(recovery.getId()).thenReturn(requestId);
         when(protectionRequestRepository.findById(requestId)).thenReturn(Optional.of(recovery));
