@@ -14,9 +14,11 @@ First, run a PostgreSQL 12 server:
 (or `docker start -a logion-postgres` if you already executed the above command).
 
 ### Connector to chain, a.k.a. Substrate api Sidecar
-in order to start the [REST api](https://paritytech.github.io/substrate-api-sidecar/dist/) connector, run in the project root directory:
+In order to start the [REST api](https://paritytech.github.io/substrate-api-sidecar/dist/) connector
+and connect it to a locally executing node,
+run in the project root directory:
 
-`docker run --name substrate-api-sidecar --rm -v $PWD/substrate-api-sidecar/logion-types.json:/types.json --env-file $PWD/substrate-api-sidecar/env.docker -p 8081:8080 parity/substrate-api-sidecar:latest
+`docker run --name substrate-api-sidecar --rm -v $PWD/substrate-api-sidecar/logion-types.json:/types.json --env-file $PWD/substrate-api-sidecar/env-local.docker --network host parity/substrate-api-sidecar:latest
 `
 
 ### Spring-boot
