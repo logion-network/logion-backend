@@ -3,12 +3,15 @@ package logion.backend.api;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.stream.Collectors;
 import logion.backend.annotation.RestQuery;
 import logion.backend.api.view.FetchTransfersResponseView;
 import logion.backend.api.view.FetchTransfersSpecificationView;
 import logion.backend.api.view.TransferView;
+import logion.backend.model.Ss58Address;
+import logion.backend.model.transfer.Transfer;
+import logion.backend.model.transfer.TransferRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,21 +34,25 @@ public class TransferController {
             @RequestBody
             @ApiParam(value = "The specifications for the expected transfers", name="body")
                     FetchTransfersSpecificationView specificationView) {
+        var transfers = repository.findByAddress(new Ss58Address(specificationView.getAddress()))
+                .stream()
+                .map(this::toView)
+                .collect(Collectors.toList());
         return FetchTransfersResponseView.builder()
-                .transfers(
-                        List.of(
-                                toView(specificationView.getAddress(), "5H4MvAsobfZ6bBCDyj5dsrWYLrA8HrRzaqa9p61UXtxMhSCY"),
-                                toView("5CSbpCKSTvZefZYddesUQ9w6NDye2PHbf12MwBZGBgzGeGoo", specificationView.getAddress())))
+                .transfers(transfers)
                 .build();
-
     }
 
-    private TransferView toView(String from, String to) {
+    private TransferView toView(Transfer transfer) {
+        var description = transfer.getDescription();
         return TransferView.builder()
-                .from(from)
-                .to(to)
-                .createdOn(LocalDateTime.now())
-                .value(Long.toString(45678))
+                .from(description.getFrom().getRawValue())
+                .to(description.getTo().getRawValue())
+                .createdOn(description.getCreatedOn())
+                .value(Long.toString(description.getValue()))
                 .build();
     }
+
+    @Autowired
+    private TransferRepository repository;
 }
