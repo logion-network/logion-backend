@@ -20,7 +20,7 @@ public class TransferView {
     String to;
 
     @ApiModelProperty("The value of the transfer")
-    long value;
+    String value;
 
     @ApiModelProperty("The timestamp of the transfer")
     LocalDateTime createdOn;

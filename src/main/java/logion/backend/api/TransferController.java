@@ -45,7 +45,7 @@ public class TransferController {
                 .from(from)
                 .to(to)
                 .createdOn(LocalDateTime.now())
-                .value(45678)
+                .value(Long.toString(45678))
                 .build();
     }
 }
