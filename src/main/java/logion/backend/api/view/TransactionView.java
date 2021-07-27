@@ -25,16 +25,16 @@ public class TransactionView {
     @ApiModelProperty("The method that created the transaction.")
     String method;
 
-    @ApiModelProperty("The value of the transfer, iff the transaction is a transfer. May be null.")
+    @ApiModelProperty("The value of the transfer, iff the transaction is a transfer.")
     String transferValue;
 
-    @ApiModelProperty("The tip of the transaction. May be null.")
+    @ApiModelProperty("The tip of the transaction.")
     String tip;
 
     @ApiModelProperty("The fee of the transaction.")
     String fee;
 
-    @ApiModelProperty("The reserved amount of the transaction. May be null.")
+    @ApiModelProperty("The reserved amount of the transaction.")
     String reserved;
 
     @ApiModelProperty("The total amount of the transaction.")
