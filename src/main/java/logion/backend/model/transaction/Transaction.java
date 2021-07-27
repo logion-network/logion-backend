@@ -1,4 +1,4 @@
-package logion.backend.model.transfer;
+package logion.backend.model.transaction;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -17,34 +17,51 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @AggregateRoot
-@Entity(name = "transfer")
+@Entity(name = "transaction")
 @Table(indexes = {
-        @Index(name = "idx_transfer_from_address", columnList = "from_address"),
-        @Index(name = "idx_transfer_to_address", columnList = "to_address")
+        @Index(name = "idx_transaction_from_address", columnList = "from_address"),
+        @Index(name = "idx_transaction_to_address", columnList = "to_address")
 })
-public class Transfer {
+public class Transaction {
 
-    public TransferDescription getDescription() {
-        return TransferDescription.builder()
+    public TransactionDescription getDescription() {
+        return TransactionDescription.builder()
                 .from(from)
                 .to(to)
-                .value(value)
+                .transferValue(transferValue)
+                .tip(tip)
+                .fee(fee)
+                .reserved(reserved)
+                .pallet(pallet)
+                .method(method)
                 .createdOn(createdOn)
                 .build();
     }
 
     @EmbeddedId
-    TransferId id;
+    TransactionId id;
 
     @Convert(converter = Ss58AddressConverter.class)
     @Column(name = "from_address", nullable = false)
     Ss58Address from;
 
     @Convert(converter = Ss58AddressConverter.class)
-    @Column(name = "to_address", nullable = false)
+    @Column(name = "to_address")
     Ss58Address to;
 
-    long value;
+    long transferValue;
+
+    long tip;
+
+    long fee;
+
+    long reserved;
+
+    @Column(nullable = false)
+    String pallet;
+
+    @Column(nullable = false)
+    String method;
 
     @Column(nullable = false)
     LocalDateTime createdOn;
@@ -53,7 +70,7 @@ public class Transfer {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    static class TransferId implements Serializable {
+    static class TransactionId implements Serializable {
         long blockId;
         int extrinsicIndex;
     }

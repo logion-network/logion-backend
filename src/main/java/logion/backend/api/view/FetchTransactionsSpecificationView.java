@@ -8,8 +8,8 @@ import lombok.Data;
 @View
 @Data
 @ApiModel(description = "The specification for fetching Tokenization Requests")
-public class FetchTransfersSpecificationView {
+public class FetchTransactionsSpecificationView {
 
-    @ApiModelProperty("The SS58 address of the account from or to which the expected transfer is done")
+    @ApiModelProperty("The SS58 address of the account from or to which the expected transaction is done")
     String address;
 }

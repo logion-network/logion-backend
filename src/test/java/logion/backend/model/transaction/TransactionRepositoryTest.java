@@ -1,4 +1,4 @@
-package logion.backend.model.transfer;
+package logion.backend.model.transaction;
 
 import java.util.stream.Stream;
 import logion.backend.model.Ss58Address;
@@ -16,17 +16,17 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-@Sql("/sql/transfers.sql")
-class TransferRepositoryTest {
+@Sql("/sql/transactions.sql")
+class TransactionRepositoryTest {
 
     @Autowired
-    private TransferRepository transferRepository;
+    private TransactionRepository transactionRepository;
 
     @ParameterizedTest
     @MethodSource
     void findByAddress(String address, int expectedNumberOfResults) {
-        var transfers = transferRepository.findByAddress(new Ss58Address(address));
-        assertThat(transfers.size(), is(expectedNumberOfResults));
+        var transactions = transactionRepository.findByAddress(new Ss58Address(address));
+        assertThat(transactions.size(), is(expectedNumberOfResults));
     }
 
     private static Stream<Arguments> findByAddress() {
