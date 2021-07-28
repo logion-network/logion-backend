@@ -71,7 +71,7 @@ public class Transaction {
     @AllArgsConstructor
     @NoArgsConstructor
     static class TransactionId implements Serializable {
-        long blockId;
+        long blockNumber;
         int extrinsicIndex;
     }
 }

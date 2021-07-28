@@ -23,7 +23,7 @@ class TransactionTest {
     private Transaction transaction() {
         var transaction = new Transaction();
         transaction.id = new TransactionId();
-        transaction.id.blockId = 1;
+        transaction.id.blockNumber = 1;
         transaction.id.extrinsicIndex = 1;
         transaction.from = new Ss58Address("from");
         transaction.to = new Ss58Address("to");

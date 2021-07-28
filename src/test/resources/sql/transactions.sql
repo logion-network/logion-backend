@@ -1,4 +1,4 @@
-INSERT INTO transaction (block_id,
+INSERT INTO transaction (block_number,
                          extrinsic_index,
                          created_on,
                          from_address,
@@ -21,7 +21,7 @@ VALUES (1,
         'balances',
         'transfer');
 
-INSERT INTO transaction (block_id,
+INSERT INTO transaction (block_number,
                          extrinsic_index,
                          created_on,
                          from_address,
