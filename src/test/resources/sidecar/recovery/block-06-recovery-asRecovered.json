@@ -1,0 +1,130 @@
+{
+  "number": "3388",
+  "hash": "0x908901fcb7831a3137c70225c1e926534620c3c11f476f49418766eca0fc6f79",
+  "parentHash": "0xa4075fcaa775a5cf7b19a1b66bda37ce94383003b465202e607cfadc925d12f8",
+  "stateRoot": "0xf3ea6ad9aed39e72fb691ddd9fdd7c24098356aea0497ac646fe102e6147bff9",
+  "extrinsicsRoot": "0x669a26b8ba808083ba5bece27bad12a11de3171edfc1fc209a1a31895dc30a85",
+  "logs": [
+    {
+      "type": "PreRuntime",
+      "index": "6",
+      "value": [
+        "0x61757261",
+        "0x89ed281000000000"
+      ]
+    },
+    {
+      "type": "Seal",
+      "index": "5",
+      "value": [
+        "0x61757261",
+        "0x0a6c340b4f40d3dacf9515ac667e09433814651be3f869fc6604bf5ed7d30362ec9de6cd6b7b5915e17f7bfb482a21299b9e2cb4f43daca7a214b3d7bca89b8e"
+      ]
+    }
+  ],
+  "onInitialize": {
+    "events": []
+  },
+  "extrinsics": [
+    {
+      "method": {
+        "pallet": "timestamp",
+        "method": "set"
+      },
+      "signature": null,
+      "nonce": null,
+      "args": {
+        "now": "1626706230000"
+      },
+      "tip": null,
+      "hash": "0xab3408e97f2e0e944c3348152ad2fcd3a90804fb4e6d6fb156fea60f2d611e00",
+      "info": {},
+      "events": [
+        {
+          "method": {
+            "pallet": "system",
+            "method": "ExtrinsicSuccess"
+          },
+          "data": [
+            {
+              "weight": "161650000",
+              "class": "Mandatory",
+              "paysFee": "Yes"
+            }
+          ]
+        }
+      ],
+      "success": true,
+      "paysFee": false
+    },
+    {
+      "method": {
+        "pallet": "recovery",
+        "method": "asRecovered"
+      },
+      "signature": {
+        "signature": "0x7800ae5b63a6da30224a872964c382ffd5034043e741f91b3d87db59df30e004ab42b93f033a680cf098cd447036f173e572bb09108b66a0ad99b245f5578788",
+        "signer": {
+          "id": "5EBxoSssqNo23FvsDeUxjyQScnfEiGxJaNwuwqBH2Twe35BX"
+        }
+      },
+      "nonce": "6",
+      "args": {
+        "account": "5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW",
+        "call": {
+          "method": {
+            "pallet": "assets",
+            "method": "transfer"
+          },
+          "args": {
+            "id": "1517196953831172556",
+            "target": {
+              "id": "5EBxoSssqNo23FvsDeUxjyQScnfEiGxJaNwuwqBH2Twe35BX"
+            },
+            "amount": "1000000000000000000"
+          }
+        }
+      },
+      "tip": "0",
+      "hash": "0x6e1e9da837a277d7539fb26a8761ce267a5690746404406e0fd6e1fc562744a0",
+      "info": {
+        "weight": "567221000",
+        "class": "Normal",
+        "partialFee": "125000192"
+      },
+      "events": [
+        {
+          "method": {
+            "pallet": "assets",
+            "method": "Transferred"
+          },
+          "data": [
+            "1517196953831172556",
+            "5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW",
+            "5EBxoSssqNo23FvsDeUxjyQScnfEiGxJaNwuwqBH2Twe35BX",
+            "1000000000000000000"
+          ]
+        },
+        {
+          "method": {
+            "pallet": "system",
+            "method": "ExtrinsicSuccess"
+          },
+          "data": [
+            {
+              "weight": "567221000",
+              "class": "Normal",
+              "paysFee": "Yes"
+            }
+          ]
+        }
+      ],
+      "success": true,
+      "paysFee": true
+    }
+  ],
+  "onFinalize": {
+    "events": []
+  },
+  "finalized": true
+}

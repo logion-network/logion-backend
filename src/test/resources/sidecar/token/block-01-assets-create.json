@@ -1,0 +1,131 @@
+{
+  "number": "28552",
+  "hash": "0xd1433021bc644fd8324fea307a7ec11bfe9a204fcd01ff8b67e102d97cf49c51",
+  "parentHash": "0xefc93b6115ed76b59d9b8d5568deb4d37802b64fb1c7d0ea6fdb5dd59641ecdc",
+  "stateRoot": "0xe00276f59aefee3cbf61a32f735f3b3233fdc90b4da22e396f36ae43248d7ea4",
+  "extrinsicsRoot": "0x73dc1fd1326ae16c77073b01bf698c18f3b6c82df39671295ac379818a95f922",
+  "logs": [
+    {
+      "type": "PreRuntime",
+      "index": "6",
+      "value": [
+        "0x61757261",
+        "0xd54f291000000000"
+      ]
+    },
+    {
+      "type": "Seal",
+      "index": "5",
+      "value": [
+        "0x61757261",
+        "0xa63514ee26b49bb3cbfcafe16da51e9bef69a0f8b0033bb2a86a31a20aba5b0955e7d24c82532664c2ef04c871bcc4cd5976ff36de893cd3db0f88c391268b8b"
+      ]
+    }
+  ],
+  "onInitialize": {
+    "events": []
+  },
+  "extrinsics": [
+    {
+      "method": {
+        "pallet": "timestamp",
+        "method": "set"
+      },
+      "signature": null,
+      "nonce": null,
+      "args": {
+        "now": "1626857214000"
+      },
+      "tip": null,
+      "hash": "0x3530efe8a9f27401a4513ab1313434f484e608ffd24f163d5ee49a1442b7f6ab",
+      "info": {},
+      "events": [
+        {
+          "method": {
+            "pallet": "system",
+            "method": "ExtrinsicSuccess"
+          },
+          "data": [
+            {
+              "weight": "161650000",
+              "class": "Mandatory",
+              "paysFee": "Yes"
+            }
+          ]
+        }
+      ],
+      "success": true,
+      "paysFee": false
+    },
+    {
+      "method": {
+        "pallet": "assets",
+        "method": "create"
+      },
+      "signature": {
+        "signature": "0x3c88c13409755d11c9f61870f95735c0cfeec87617912f44b714dd7cd53fa430e5e576b70580c72967796fcf161cc7c454016f9db809992bf73342808a41f98c",
+        "signer": {
+          "id": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+        }
+      },
+      "nonce": "11",
+      "args": {
+        "id": "10042792662410791056",
+        "admin": {
+          "id": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+        },
+        "max_zombies": "10",
+        "min_balance": "1"
+      },
+      "tip": "0",
+      "hash": "0x7b6c8918a7a91d40f3665b2bd3154e80893fef1d16b08e3ecd589f95293318a7",
+      "info": {
+        "weight": "169459000",
+        "class": "Normal",
+        "partialFee": "125000169"
+      },
+      "events": [
+        {
+          "method": {
+            "pallet": "balances",
+            "method": "Reserved"
+          },
+          "data": [
+            "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+            "11"
+          ]
+        },
+        {
+          "method": {
+            "pallet": "assets",
+            "method": "Created"
+          },
+          "data": [
+            "10042792662410791056",
+            "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+            "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+          ]
+        },
+        {
+          "method": {
+            "pallet": "system",
+            "method": "ExtrinsicSuccess"
+          },
+          "data": [
+            {
+              "weight": "169459000",
+              "class": "Normal",
+              "paysFee": "Yes"
+            }
+          ]
+        }
+      ],
+      "success": true,
+      "paysFee": true
+    }
+  ],
+  "onFinalize": {
+    "events": []
+  },
+  "finalized": true
+}

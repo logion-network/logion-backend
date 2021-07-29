@@ -1,6 +1,7 @@
 package logion.backend.model.transaction;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -24,6 +25,8 @@ import lombok.NoArgsConstructor;
 })
 public class Transaction {
 
+    private static final int AMOUNT_PRECISION = 50;
+
     public TransactionDescription getDescription() {
         return TransactionDescription.builder()
                 .from(from)
@@ -37,6 +40,18 @@ public class Transaction {
                 .createdOn(createdOn)
                 .build();
     }
+    
+    void setDescription(TransactionDescription description) {
+        this.from = description.getFrom();
+        this.to = description.getTo();
+        this.transferValue = description.getTransferValue();
+        this.tip = description.getTip();
+        this.fee = description.getFee();
+        this.reserved = description.getReserved();
+        this.pallet = description.getPallet();
+        this.method = description.getMethod();
+        this.createdOn = description.getCreatedOn();
+    }
 
     @EmbeddedId
     TransactionId id;
@@ -49,13 +64,17 @@ public class Transaction {
     @Column(name = "to_address")
     Ss58Address to;
 
-    long transferValue;
+    @Column(nullable = false, precision = AMOUNT_PRECISION)
+    BigInteger transferValue;
 
-    long tip;
+    @Column(nullable = false, precision = AMOUNT_PRECISION)
+    BigInteger tip;
 
-    long fee;
+    @Column(nullable = false, precision = AMOUNT_PRECISION)
+    BigInteger fee;
 
-    long reserved;
+    @Column(nullable = false, precision = AMOUNT_PRECISION)
+    BigInteger reserved;
 
     @Column(nullable = false)
     String pallet;
@@ -71,7 +90,7 @@ public class Transaction {
     @AllArgsConstructor
     @NoArgsConstructor
     static class TransactionId implements Serializable {
-        long blockId;
+        long blockNumber;
         int extrinsicIndex;
     }
 }
