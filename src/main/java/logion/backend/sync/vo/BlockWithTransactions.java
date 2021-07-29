@@ -13,5 +13,5 @@ public class BlockWithTransactions {
 
     long blockNumber;
     LocalDateTime timestamp;
-    List<TransactionVO> transactions;
+    List<Transaction> transactions;
 }

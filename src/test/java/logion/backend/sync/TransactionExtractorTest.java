@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 import logion.backend.chain.view.Block;
-import logion.backend.sync.vo.TransactionVO;
+import logion.backend.sync.vo.Transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -105,7 +105,7 @@ class TransactionExtractorTest {
         var block = givenBlock(fileName);
         var blockWithTransactions = transactionExtractor.extractBlockWithTransaction(block).orElseThrow();
         assertThat(blockWithTransactions.getBlockNumber(), is(blockNumber));
-        TransactionVO transaction = blockWithTransactions.getTransactions().get(0);
+        Transaction transaction = blockWithTransactions.getTransactions().get(0);
         assertThat(transaction.getExtrinsicIndex(), is(1));
         assertThat(transaction.getPallet(), is(pallet));
         assertThat(transaction.getMethod(), is(method));

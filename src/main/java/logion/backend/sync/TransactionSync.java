@@ -8,11 +8,10 @@ import logion.backend.chain.BlockService;
 import logion.backend.commands.TransactionCommands;
 import logion.backend.model.Ss58Address;
 import logion.backend.model.sync.SyncPointRepository;
-import logion.backend.model.transaction.Transaction;
 import logion.backend.model.transaction.TransactionDescription;
 import logion.backend.model.transaction.TransactionFactory;
 import logion.backend.sync.vo.BlockWithTransactions;
-import logion.backend.sync.vo.TransactionVO;
+import logion.backend.sync.vo.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,17 +64,17 @@ public class TransactionSync {
             transactionCommands.updateLastProcessedBlock(blockNumber);
         } else {
             var createdOn = blockWithTransactions.get().getTimestamp();
-            List<Transaction> transactions = blockWithTransactions.stream()
+            List<logion.backend.model.transaction.Transaction> transactions = blockWithTransactions.stream()
                     .map(BlockWithTransactions::getTransactions)
                     .flatMap(List::stream)
-                    .map(transactionVO -> toEntity(blockNumber, createdOn, transactionVO))
+                    .map(transaction -> toEntity(blockNumber, createdOn, transaction))
                     .collect(Collectors.toList());
             transactionCommands.addTransactions(blockNumber, transactions);
         }
 
     }
 
-    private Transaction toEntity(long blockNumber, LocalDateTime createdOn, TransactionVO transaction) {
+    private logion.backend.model.transaction.Transaction toEntity(long blockNumber, LocalDateTime createdOn, Transaction transaction) {
         var description = TransactionDescription.builder()
                 .from(new Ss58Address(transaction.getFrom()))
                 .to(new Ss58Address(transaction.getTo()))

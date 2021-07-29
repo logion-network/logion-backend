@@ -8,7 +8,7 @@ import logion.backend.chain.view.Extrinsic;
 import logion.backend.chain.view.Method;
 import logion.backend.sync.vo.BlockWithTransactions;
 import logion.backend.sync.vo.ExtrinsicType;
-import logion.backend.sync.vo.TransactionVO;
+import logion.backend.sync.vo.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class TransactionExtractor {
         var blockBuilder = BlockWithTransactions.builder()
                 .blockNumber(block.getNumber());
         logger.debug("Looking at block {}", block.getNumber());
-        var transactions = new ArrayList<TransactionVO>();
+        var transactions = new ArrayList<Transaction>();
         for (int index = 0; index < block.getExtrinsics().length; index++) {
             var extrinsic = block.getExtrinsics()[index];
             var type = determineType(extrinsic);
@@ -47,13 +47,13 @@ public class TransactionExtractor {
         return Optional.of(blockBuilder.transactions(transactions).build());
     }
 
-    private Optional<TransactionVO> extractTransaction(Extrinsic extrinsic, ExtrinsicType type, long blockNumber, int index) {
+    private Optional<Transaction> extractTransaction(Extrinsic extrinsic, ExtrinsicType type, long blockNumber, int index) {
         if (!extrinsic.isSuccess()) {
             logger.debug("Block {} - Extrinsic {} is not successful", blockNumber, index);
             return Optional.empty();
         }
 
-        var transactionBuilder = TransactionVO.builder()
+        var transactionBuilder = Transaction.builder()
                 .extrinsicIndex(index)
                 .pallet(pallet(extrinsic))
                 .method(methodName(extrinsic))

@@ -7,7 +7,7 @@ import lombok.Value;
 @ValueObject
 @Value
 @Builder
-public class TransactionVO {
+public class Transaction {
 
     int extrinsicIndex;
     String from;
