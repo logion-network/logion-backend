@@ -11,7 +11,7 @@ import logion.backend.chain.view.ArgTimestampSet;
 import logion.backend.chain.view.Event;
 import logion.backend.chain.view.Extrinsic;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import static java.util.Arrays.stream;
@@ -19,12 +19,9 @@ import static java.util.Arrays.stream;
 @Component
 public class ExtrinsicDataExtractor {
 
-    private final ObjectMapper mapper;
-
     @Autowired
-    public ExtrinsicDataExtractor(Jackson2ObjectMapperBuilder mapperBuilder) {
-        this.mapper = mapperBuilder.build();
-    }
+    @Qualifier("sidecarObjectMapper")
+    private ObjectMapper sidecarObjectMapper;
 
     public LocalDateTime getTimestamp(Extrinsic extrinsic) {
         ArgTimestampSet argTimestampSet = readArgs(extrinsic, ArgTimestampSet.class);
@@ -45,7 +42,7 @@ public class ExtrinsicDataExtractor {
 
     private <T> T readArgs(Extrinsic extrinsic, Class<T> clazz) {
         try {
-            return mapper.reader()
+            return sidecarObjectMapper.reader()
                     .readValue(extrinsic.getArgs(), clazz);
         } catch (Exception e) {
             throw new SidecarException(e);

@@ -7,16 +7,15 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 import logion.backend.chain.view.Block;
 import logion.backend.sync.vo.Transaction;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -28,14 +27,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 class TransactionExtractorTest {
 
     @Autowired
-    private Jackson2ObjectMapperBuilder objectMapperBuilder;
-
-    private ObjectMapper objectMapper;
-
-    @BeforeEach
-    public void init() {
-        objectMapper = objectMapperBuilder.build();
-    }
+    @Qualifier("sidecarObjectMapper")
+    private ObjectMapper sidecarObjectMapper;
 
     @Autowired
     private TransactionExtractor transactionExtractor;
@@ -121,6 +114,6 @@ class TransactionExtractorTest {
         URL resource = getClass().getClassLoader().getResource("sidecar/" + fileName);
         assert resource != null;
         var response = Files.readString(Paths.get(resource.getPath()));
-        return objectMapper.reader().readValue(response, Block.class);
+        return sidecarObjectMapper.reader().readValue(response, Block.class);
     }
 }
