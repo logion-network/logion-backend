@@ -40,6 +40,18 @@ public class Transaction {
                 .createdOn(createdOn)
                 .build();
     }
+    
+    void setDescription(TransactionDescription description) {
+        this.from = description.getFrom();
+        this.to = description.getTo();
+        this.transferValue = description.getTransferValue();
+        this.tip = description.getTip();
+        this.fee = description.getFee();
+        this.reserved = description.getReserved();
+        this.pallet = description.getPallet();
+        this.method = description.getMethod();
+        this.createdOn = description.getCreatedOn();
+    }
 
     @EmbeddedId
     TransactionId id;
