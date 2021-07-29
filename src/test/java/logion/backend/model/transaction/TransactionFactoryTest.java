@@ -1,5 +1,6 @@
 package logion.backend.model.transaction;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import logion.backend.model.Ss58Address;
 import org.junit.jupiter.api.Test;
@@ -27,10 +28,10 @@ class TransactionFactoryTest {
         return TransactionDescription.builder()
                 .from(new Ss58Address("5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW"))
                 .to(new Ss58Address("5H4MvAsobfZ6bBCDyj5dsrWYLrA8HrRzaqa9p61UXtxMhSCY"))
-                .fee(12L)
-                .transferValue(34L)
-                .tip(56L)
-                .reserved(78L)
+                .fee(BigInteger.valueOf(12L))
+                .transferValue(BigInteger.valueOf(34L))
+                .tip(BigInteger.valueOf(56L))
+                .reserved(BigInteger.valueOf(78L))
                 .pallet("recovery")
                 .method("createRecovery")
                 .createdOn(LocalDateTime.now())

@@ -45,22 +45,21 @@ public class TransactionController {
 
     private TransactionView toView(Transaction transaction) {
         var description = transaction.getDescription();
-        var total =
-                description.getTransferValue() +
-                description.getTip() +
-                description.getFee() +
-                description.getReserved();
+        var total = description.getTransferValue()
+                .add(description.getTip())
+                .add(description.getFee())
+                .add(description.getReserved());
         return TransactionView.builder()
                 .from(description.getFrom().getRawValue())
                 .to(description.getTo().getRawValue())
                 .createdOn(description.getCreatedOn())
                 .pallet(description.getPallet())
                 .method(description.getMethod())
-                .transferValue(Long.toString(description.getTransferValue()))
-                .tip(Long.toString(description.getTip()))
-                .fee(Long.toString(description.getFee()))
-                .reserved(Long.toString(description.getReserved()))
-                .total(Long.toString(total))
+                .transferValue(description.getTransferValue().toString())
+                .tip(description.getTip().toString())
+                .fee(description.getFee().toString())
+                .reserved(description.getReserved().toString())
+                .total(total.toString())
                 .build();
     }
 

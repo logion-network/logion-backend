@@ -1,5 +1,6 @@
 package logion.backend.chain.view;
 
+import java.math.BigInteger;
 import logion.backend.annotation.View;
 import lombok.Data;
 
@@ -8,5 +9,5 @@ import lombok.Data;
 public class ArgBalancesTransfer {
 
     Account dest;
-    long value;
+    BigInteger value;
 }

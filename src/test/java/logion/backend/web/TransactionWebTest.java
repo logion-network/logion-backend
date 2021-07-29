@@ -1,5 +1,6 @@
 package logion.backend.web;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
 import logion.backend.api.TransactionController;
@@ -43,14 +44,17 @@ class TransactionWebTest {
         Ss58Address address1 = new Ss58Address("abcd1234");
         Ss58Address address2 = new Ss58Address("efgh5678");
 
-        var transaction0 = transaction(address1, address2, "balances", "transfer", 13245000000L, 0, 125000149, 0);
+        var transaction0 = transaction(address1, address2, "balances", "transfer", 13245000000L, 52L, 125000149, 0);
         var transaction1 = transaction(address2, address1, "assets", "setMetadata", 0, 0, 125000141, 23);
         var transactions = List.of(
                 transaction0,
                 transaction1
         );
-        var total0 = transaction0.getDescription().getTransferValue() + transaction0.getDescription().getFee();
-        var total1 = transaction1.getDescription().getFee() + transaction1.getDescription().getReserved();
+        var total0 = transaction0.getDescription().getTransferValue()
+                .add(transaction0.getDescription().getFee())
+                .add(transaction0.getDescription().getTip());
+        var total1 = transaction1.getDescription().getFee()
+                .add(transaction1.getDescription().getReserved());
 
         when(repository.findByAddress(address1))
                 .thenReturn(transactions);
@@ -87,8 +91,8 @@ class TransactionWebTest {
         ;
     }
     
-    private String expectedString(long value) {
-        return Long.toString(value);
+    private String expectedString(BigInteger value) {
+        return value.toString();
     }
 
     private Transaction transaction(Ss58Address from, Ss58Address to, String pallet, String method, long transferValue, long tip, long fee, long reserved) {
@@ -98,10 +102,10 @@ class TransactionWebTest {
                 .createdOn(TIMESTAMP)
                 .pallet(pallet)
                 .method(method)
-                .transferValue(transferValue)
-                .tip(tip)
-                .fee(fee)
-                .reserved(reserved)
+                .transferValue(BigInteger.valueOf(transferValue))
+                .tip(BigInteger.valueOf(tip))
+                .fee(BigInteger.valueOf(fee))
+                .reserved(BigInteger.valueOf(reserved))
                 .build();
         var transaction = mock(Transaction.class);
         when(transaction.getDescription()).thenReturn(description);

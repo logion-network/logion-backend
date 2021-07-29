@@ -1,5 +1,6 @@
 package logion.backend.sync;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Optional;
 import logion.backend.chain.ExtrinsicDataExtractor;
@@ -79,24 +80,24 @@ public class TransactionExtractor {
         return extrinsic.getMethod().getName();
     }
 
-    private long tip(Extrinsic extrinsic) {
+    private BigInteger tip(Extrinsic extrinsic) {
         return nullTo0(extrinsic.getTip());
     }
 
-    private long fee(Extrinsic extrinsic) {
+    private BigInteger fee(Extrinsic extrinsic) {
         var info = extrinsic.getInfo();
         if (info.getError() == null) {
             return nullTo0(info.getPartialFee());
         } else {
             logger.warn("Error related to fees: {}", info.getError());
-            return 0L;
+            return BigInteger.ZERO;
         }
     }
 
-    private long reserved(Extrinsic extrinsic) {
+    private BigInteger reserved(Extrinsic extrinsic) {
         return findEventData(extrinsic, new Method("balances", "Reserved"))
-                .map(data -> Long.parseLong(data[1]))
-                .orElse(0L);
+                .map(data -> new BigInteger(data[1]))
+                .orElse(BigInteger.ZERO);
     }
 
     private String from(Extrinsic extrinsic) {
@@ -108,7 +109,7 @@ public class TransactionExtractor {
         return argBalancesTransfer.getDest().getId();
     }
 
-    private long transferValue(Extrinsic extrinsic) {
+    private BigInteger transferValue(Extrinsic extrinsic) {
         var argBalancesTransfer = extrinsicDataExtractor.getArgBalancesTransfer(extrinsic);
         return argBalancesTransfer.getValue();
     }
@@ -134,9 +135,9 @@ public class TransactionExtractor {
         }
     }
 
-    private long nullTo0(Long value) {
+    private BigInteger nullTo0(BigInteger value) {
         if (value == null) {
-            return 0L;
+            return BigInteger.ZERO;
         }
         return value;
     }

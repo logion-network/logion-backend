@@ -1,5 +1,6 @@
 package logion.backend.chain.view;
 
+import java.math.BigInteger;
 import logion.backend.annotation.View;
 import lombok.Data;
 
@@ -7,6 +8,6 @@ import lombok.Data;
 @Data
 public class Info {
 
-    Long partialFee;
+    BigInteger partialFee;
     String error;
 }

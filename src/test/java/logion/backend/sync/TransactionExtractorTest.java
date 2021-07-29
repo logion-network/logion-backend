@@ -1,6 +1,7 @@
 package logion.backend.sync;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigInteger;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -102,10 +103,10 @@ class TransactionExtractorTest {
         assertThat(transaction.getExtrinsicIndex(), is(1));
         assertThat(transaction.getPallet(), is(pallet));
         assertThat(transaction.getMethod(), is(method));
-        assertThat(transaction.getFee(), is(fee));
-        assertThat(transaction.getReserved(), is(reserved));
-        assertThat(transaction.getTip(), is(tip));
-        assertThat(transaction.getTransferValue(), is(transferValue));
+        assertThat(transaction.getFee(), is(BigInteger.valueOf(fee)));
+        assertThat(transaction.getReserved(), is(BigInteger.valueOf(reserved)));
+        assertThat(transaction.getTip(), is(BigInteger.valueOf(tip)));
+        assertThat(transaction.getTransferValue(), is(BigInteger.valueOf(transferValue)));
         assertThat(transaction.getFrom(), is(from));
         assertThat(transaction.getTo(), is(to));
     }
