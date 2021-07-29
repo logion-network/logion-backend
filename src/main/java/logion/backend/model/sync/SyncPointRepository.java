@@ -10,7 +10,7 @@ public interface SyncPointRepository extends CrudRepository<SyncPoint, String> {
 
     default long findTransactionSyncPoint() {
         return findById(NAME_TRANSACTION)
-                .map(SyncPoint::getBlockNumber)
+                .map(SyncPoint::getLatestHeadBlockNumber)
                 .orElse(0L);
     }
 

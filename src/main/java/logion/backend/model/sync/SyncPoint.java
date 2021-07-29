@@ -1,5 +1,6 @@
 package logion.backend.model.sync;
 
+import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import logion.backend.annotation.AggregateRoot;
@@ -13,11 +14,14 @@ public class SyncPoint {
     String name;
 
     @Getter
-    long blockNumber;
+    long latestHeadBlockNumber;
 
-    SyncPoint(String name, long blockNumber) {
+    LocalDateTime updatedOn;
+
+    SyncPoint(String name, long latestHeadBlockNumber) {
         this.name = name;
-        this.blockNumber = blockNumber;
+        this.latestHeadBlockNumber = latestHeadBlockNumber;
+        this.updatedOn = LocalDateTime.now();
     }
 
     SyncPoint() {
