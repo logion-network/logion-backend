@@ -2,6 +2,7 @@ package logion.backend.model.transaction;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import logion.backend.annotation.ValueObject;
 import logion.backend.model.Ss58Address;
 import lombok.Builder;
@@ -13,7 +14,7 @@ import lombok.Value;
 public class TransactionDescription {
 
     Ss58Address from;
-    Ss58Address to;
+    Optional<Ss58Address> to;
     BigInteger transferValue;
     BigInteger tip;
     BigInteger fee;

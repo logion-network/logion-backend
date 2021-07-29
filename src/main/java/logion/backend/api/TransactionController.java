@@ -51,7 +51,7 @@ public class TransactionController {
                 .add(description.getReserved());
         return TransactionView.builder()
                 .from(description.getFrom().getRawValue())
-                .to(description.getTo().getRawValue())
+                .to(description.getTo().map(Ss58Address::getRawValue).orElse(null))
                 .createdOn(description.getCreatedOn())
                 .pallet(description.getPallet())
                 .method(description.getMethod())

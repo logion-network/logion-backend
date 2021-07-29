@@ -77,7 +77,7 @@ public class TransactionSync {
     private logion.backend.model.transaction.Transaction toEntity(long blockNumber, LocalDateTime createdOn, Transaction transaction) {
         var description = TransactionDescription.builder()
                 .from(new Ss58Address(transaction.getFrom()))
-                .to(new Ss58Address(transaction.getTo()))
+                .to(Optional.ofNullable(transaction.getTo()).map(Ss58Address::new))
                 .transferValue(transaction.getTransferValue())
                 .tip(transaction.getTip())
                 .fee(transaction.getFee())

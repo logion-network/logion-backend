@@ -16,7 +16,7 @@ class TransactionTest {
         var transaction = transaction();
         var description = transaction.getDescription();
         assertThat(description.getFrom(), is(transaction.from));
-        assertThat(description.getTo(), is(transaction.to));
+        assertThat(description.getTo().orElse(null), is(transaction.to));
         assertThat(description.getCreatedOn(), is(transaction.createdOn));
         assertThat(description.getTransferValue(), is(transaction.transferValue));
     }

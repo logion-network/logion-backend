@@ -3,6 +3,7 @@ package logion.backend.web;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import logion.backend.api.TransactionController;
 import logion.backend.model.Ss58Address;
 import logion.backend.model.transaction.Transaction;
@@ -98,7 +99,7 @@ class TransactionWebTest {
     private Transaction transaction(Ss58Address from, Ss58Address to, String pallet, String method, long transferValue, long tip, long fee, long reserved) {
         var description = TransactionDescription.builder()
                 .from(from)
-                .to(to)
+                .to(Optional.of(to))
                 .createdOn(TIMESTAMP)
                 .pallet(pallet)
                 .method(method)

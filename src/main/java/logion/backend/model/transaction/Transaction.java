@@ -3,6 +3,7 @@ package logion.backend.model.transaction;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embeddable;
@@ -30,7 +31,7 @@ public class Transaction {
     public TransactionDescription getDescription() {
         return TransactionDescription.builder()
                 .from(from)
-                .to(to)
+                .to(Optional.ofNullable(to))
                 .transferValue(transferValue)
                 .tip(tip)
                 .fee(fee)
@@ -43,7 +44,7 @@ public class Transaction {
     
     void setDescription(TransactionDescription description) {
         this.from = description.getFrom();
-        this.to = description.getTo();
+        this.to = description.getTo().orElse(null);
         this.transferValue = description.getTransferValue();
         this.tip = description.getTip();
         this.fee = description.getFee();

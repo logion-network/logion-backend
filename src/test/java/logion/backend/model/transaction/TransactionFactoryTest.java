@@ -2,6 +2,7 @@ package logion.backend.model.transaction;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import logion.backend.model.Ss58Address;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +28,7 @@ class TransactionFactoryTest {
     private TransactionDescription givenDescription() {
         return TransactionDescription.builder()
                 .from(new Ss58Address("5Ew3MyB15VprZrjQVkpQFj8okmc9xLDSEdNhqMMS5cXsqxoW"))
-                .to(new Ss58Address("5H4MvAsobfZ6bBCDyj5dsrWYLrA8HrRzaqa9p61UXtxMhSCY"))
+                .to(Optional.of(new Ss58Address("5H4MvAsobfZ6bBCDyj5dsrWYLrA8HrRzaqa9p61UXtxMhSCY")))
                 .fee(BigInteger.valueOf(12L))
                 .transferValue(BigInteger.valueOf(34L))
                 .tip(BigInteger.valueOf(56L))
