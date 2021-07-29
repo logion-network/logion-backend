@@ -19,6 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -46,7 +47,7 @@ class TransactionWebTest {
         Ss58Address address2 = new Ss58Address("efgh5678");
 
         var transaction0 = transaction(address1, address2, "balances", "transfer", 13245000000L, 52L, 125000149, 0);
-        var transaction1 = transaction(address2, address1, "assets", "setMetadata", 0, 0, 125000141, 23);
+        var transaction1 = transaction(address2, null, "assets", "setMetadata", 0, 0, 125000141, 23);
         var transactions = List.of(
                 transaction0,
                 transaction1
@@ -80,7 +81,7 @@ class TransactionWebTest {
                 .andExpect(jsonPath("$.transactions[0].total").value(is(expectedString(total0))))
                 .andExpect(jsonPath("$.transactions[0].createdOn").value(is(TIMESTAMP.toString())))
                 .andExpect(jsonPath("$.transactions[1].from").value(is(address2.getRawValue())))
-                .andExpect(jsonPath("$.transactions[1].to").value(is(address1.getRawValue())))
+                .andExpect(jsonPath("$.transactions[1].to").value(is(nullValue())))
                 .andExpect(jsonPath("$.transactions[1].pallet").value(is(transaction1.getDescription().getPallet())))
                 .andExpect(jsonPath("$.transactions[1].method").value(is(transaction1.getDescription().getMethod())))
                 .andExpect(jsonPath("$.transactions[1].transferValue").value(is(expectedString(transaction1.getDescription().getTransferValue()))))
@@ -99,7 +100,7 @@ class TransactionWebTest {
     private Transaction transaction(Ss58Address from, Ss58Address to, String pallet, String method, long transferValue, long tip, long fee, long reserved) {
         var description = TransactionDescription.builder()
                 .from(from)
-                .to(Optional.of(to))
+                .to(Optional.ofNullable(to))
                 .createdOn(TIMESTAMP)
                 .pallet(pallet)
                 .method(method)

@@ -28,4 +28,9 @@ public class TransactionCommands {
     public void updateLastProcessedBlock(long blockNumber) {
         syncPointRepository.saveTransactionSyncPoint(blockNumber);
     }
+
+    public void deleteAllTransactions() {
+        transactionRepository.deleteAll();
+        syncPointRepository.saveTransactionSyncPoint(0L);
+    }
 }
