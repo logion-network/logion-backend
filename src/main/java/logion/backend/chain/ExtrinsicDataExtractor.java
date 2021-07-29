@@ -17,12 +17,12 @@ import org.springframework.stereotype.Component;
 import static java.util.Arrays.stream;
 
 @Component
-public class DynamicParser {
+public class ExtrinsicDataExtractor {
 
     private final ObjectMapper mapper;
 
     @Autowired
-    public DynamicParser(Jackson2ObjectMapperBuilder mapperBuilder) {
+    public ExtrinsicDataExtractor(Jackson2ObjectMapperBuilder mapperBuilder) {
         this.mapper = mapperBuilder.build();
     }
 

@@ -60,7 +60,7 @@ public class TransactionSync {
 
     private void processBlock(long blockNumber) {
         var block = blockService.getBlock(blockNumber);
-        Optional<BlockWithTransactions> blockWithTransactions = transactionExtractor.parseBlock(block);
+        Optional<BlockWithTransactions> blockWithTransactions = transactionExtractor.extractBlockWithTransaction(block);
         if (blockWithTransactions.isEmpty()) {
             transactionCommands.updateLastProcessedBlock(blockNumber);
         } else {

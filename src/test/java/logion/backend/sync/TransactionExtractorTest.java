@@ -43,13 +43,13 @@ class TransactionExtractorTest {
     @Test
     void empty() throws Exception {
         var block = givenBlock("block-empty.json");
-        assertThat(transactionExtractor.parseBlock(block).isEmpty(), is(true));
+        assertThat(transactionExtractor.extractBlockWithTransaction(block).isEmpty(), is(true));
     }
 
     @Test
     void failure() throws Exception {
         var block = givenBlock("recovery/block-06-recovery-asRecovered-failed.json");
-        assertThat(transactionExtractor.parseBlock(block).isEmpty(), is(true));
+        assertThat(transactionExtractor.extractBlockWithTransaction(block).isEmpty(), is(true));
     }
 
     @ParameterizedTest
@@ -103,7 +103,7 @@ class TransactionExtractorTest {
 
     private void check(String fileName, String pallet, String method, long blockNumber, long fee, long reserved, long tip, long transferValue, String from, String to) throws Exception {
         var block = givenBlock(fileName);
-        var blockWithTransactions = transactionExtractor.parseBlock(block).orElseThrow();
+        var blockWithTransactions = transactionExtractor.extractBlockWithTransaction(block).orElseThrow();
         assertThat(blockWithTransactions.getBlockNumber(), is(blockNumber));
         TransactionVO transaction = blockWithTransactions.getTransactions().get(0);
         assertThat(transaction.getExtrinsicIndex(), is(1));
