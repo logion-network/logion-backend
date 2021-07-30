@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.Set;
 import logion.backend.model.Ss58Address;
 import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.NonNull;
 import lombok.Value;
 
 import static java.util.Collections.emptySet;
@@ -12,18 +14,23 @@ import static java.util.Collections.emptySet;
 @Builder
 public class FetchProtectionRequestsSpecification {
 
-    @Builder.Default
+    @NonNull
+    @Default
     Optional<Ss58Address> expectedRequesterAddress = Optional.empty();
 
-    @Builder.Default
+    @NonNull
+    @Default
     Optional<Ss58Address> expectedLegalOfficer = Optional.empty();
 
-    @Builder.Default
+    @NonNull
+    @Default
     Set<LegalOfficerDecisionStatus> expectedDecisionStatuses = emptySet();
 
-    @Builder.Default
+    @NonNull
+    @Default
     Optional<ProtectionRequestStatus> expectedProtectionRequestStatus = Optional.empty();
 
-    @Builder.Default
+    @NonNull
+    @Default
     ProtectionRequestKind kind = ProtectionRequestKind.ANY;
 }

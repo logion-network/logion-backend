@@ -333,6 +333,7 @@ class ProtectionRequestWebTest {
         requestBody.put("requesterAddress", REQUESTER_ADDRESS);
         requestBody.put("legalOfficerAddress", DefaultAddresses.ALICE.getRawValue());
         requestBody.put("decisionStatuses", new String[]{"ACCEPTED", "REJECTED"});
+        requestBody.put("kind", "PROTECTION_ONLY");
 
         var id = UUID.randomUUID();
         var protectionRequest = mock(ProtectionRequestAggregateRoot.class);
