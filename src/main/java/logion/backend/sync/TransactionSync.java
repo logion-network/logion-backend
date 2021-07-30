@@ -47,7 +47,9 @@ public class TransactionSync {
             return;
         }
         if (lastSynced > head) {
-            logger.error("out-of-sync error: last synced block number greater than head number");
+            logger.warn("Out-of-sync error: last synced block number greater than head number. Transaction cache will be erased and rebuilt from block #1");
+            transactionCommands.deleteAllTransactions();
+            lastSynced = 0L;
         }
         for (long blockNumber = lastSynced + 1; blockNumber <= head; blockNumber++) {
             if ((blockNumber % 1000L) == 0L  ) {
@@ -64,7 +66,7 @@ public class TransactionSync {
             transactionCommands.updateLastProcessedBlock(blockNumber);
         } else {
             var createdOn = blockWithTransactions.get().getTimestamp();
-            List<logion.backend.model.transaction.Transaction> transactions = blockWithTransactions.stream()
+            var transactions = blockWithTransactions.stream()
                     .map(BlockWithTransactions::getTransactions)
                     .flatMap(List::stream)
                     .map(transaction -> toEntity(blockNumber, createdOn, transaction))
