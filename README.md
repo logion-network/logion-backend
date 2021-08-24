@@ -14,12 +14,9 @@ First, run a PostgreSQL 12 server:
 (or `docker start -a logion-postgres` if you already executed the above command).
 
 ### Connector to chain, a.k.a. Substrate api Sidecar
-In order to start the [REST api](https://paritytech.github.io/substrate-api-sidecar/dist/) connector
-and connect it to a locally executing node,
-run in the project root directory:
-
-`docker run --name substrate-api-sidecar --rm -v $PWD/substrate-api-sidecar/logion-types.json:/types.json --env-file $PWD/substrate-api-sidecar/env-local.docker --network host parity/substrate-api-sidecar:latest
-`
+For some operations (check the existence of recovery config, cache the transactions), access to the chain is required.
+The [Substrate api Sidecar](https://github.com/logion-network/substrate-api-sidecar) is the connector providing
+a REST api to the chain.
 
 ### Spring-boot
 Then, if not already done, create your own configuration file by executing
@@ -37,6 +34,7 @@ The `logion.backend.annotation` package contains annotations used to document pa
 in the code.
 
 ## Authentication
+Authentication is not available yet.
 More details can be found [here](doc/Authentication.md).
 
 ## Domain-Driven Design
@@ -54,3 +52,10 @@ The report is generated under `target/site/jacoco/index.html`
 It is recommended to install the [SonarLint plugin](https://www.sonarlint.org/) in your IDE in order to get
 real-time feedback on potential bugs, security issues, etc. The project should be analyzed on a regular basis
 e.g., before each push.
+
+## Logion Components
+
+* The [Node](https://github.com/logion-network/logion-node) is the implementation of the chain.
+* The [Substrate API Sidecar](https://github.com/logion-network/substrate-api-sidecar) is a REST connector to access the chain.
+* The [Java backend](https://github.com/logion-network/logion-backend) stores data which cannot be exposed publicly, or which wait legal officer's approval.
+* The [Wallet](https://github.com/logion-network/logion-wallet) is the user application.

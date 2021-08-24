@@ -15,8 +15,8 @@ import static org.hamcrest.Matchers.equalTo;
 class JWTTest {
 
     private static final String SECRET = "secret-key-that-no-one-could-possibly-know";
-    private static final String TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkZXYubG9naW9uLm5ldHdvcmsiLCJzdWIiOiI1R3J3dmFFRjV6WGIyNkZ6OXJjUXBEV1M1N0N0RVJIcE5laFhDUGNOb0hHS3V0UVkiLCJpYXQiOjE2MjM2NzQwOTksImV4cCI6MTgyMzY3NDA5OSwibGVnYWxPZmZpY2VyIjp0cnVlfQ.DYfQDAugVG7Sp3IBtwK_1rN_eHlr4-7axU4KTDvVCho";
-    private static final String ISSUER = "dev.logion.network";
+    private static final String TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ3d3cuZXhhbXBsZS5vcmciLCJzdWIiOiI1R3J3dmFFRjV6WGIyNkZ6OXJjUXBEV1M1N0N0RVJIcE5laFhDUGNOb0hHS3V0UVkiLCJpYXQiOjE2MjM2NzQwOTksImV4cCI6MTgyMzY3NDA5OSwibGVnYWxPZmZpY2VyIjp0cnVlfQ.kdBmPNb6VRfTdQgC6FhVAWdPnMH7nZQQmEC2gvnoJeo";
+    private static final String ISSUER = "www.example.org";
     private static final String ROLE_LEGAL_OFFICER = "legalOfficer";
 
     @Test

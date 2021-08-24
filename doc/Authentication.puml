@@ -27,7 +27,7 @@ destroy session
 logion_backend -> roles: check if legal Officer / Black list / ...
 logion_backend -> logion_backend: Generate token (validity 1h) : \n \
 { \n \
-  "iss": "dev.logion.network", \n \
+  "iss": "www.example.org", \n \
   "sub": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY", \n \
   "iat": 1623674099, \n \
   "exp": 1623677699, \n \
