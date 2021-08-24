@@ -13,7 +13,20 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>Logion Backend</name>
     <description>Logion Backend</description>
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <organization>
+        <name>Logion Team</name>
+        <url>https://logion.network/</url>
+    </organization>
+    <inceptionYear>2021</inceptionYear>
     <properties>
+        <license.licenseName>apache_v2</license.licenseName>
         <java.version>11</java.version>
     </properties>
     <dependencies>
