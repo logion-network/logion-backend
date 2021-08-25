@@ -1,5 +1,7 @@
 # Authentication
 
+This document is a proposal of authentication scheme, using Polkadot signature.
+
 The purpose of the authentication is to ensure that the client issuing a call to the REST api is the legitimate owner
 of the Polkadot account. The Polkadot signature is reused, which has several advantages:
 * One unique authentication mechanism, regardless of whether it's an on- or off-chain operation.

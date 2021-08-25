@@ -3,3 +3,4 @@ spring.datasource.username=postgres
 spring.datasource.password=secret
 logion.subkey.command=subkey
 logion.sidecar.uri=http://127.0.0.1:8081
+springfox.documentation.swagger.v2.host=localhost:8080
