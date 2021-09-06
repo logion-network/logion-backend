@@ -1,3 +1,11 @@
+# ⚠️ DEPRECATED
+
+---
+This Java backend is no more used nor maintained by logion-network. Please consider using
+the [Typescript backend](https://github.com/logion-network/logion-backend-ts) instead.  
+
+---
+
 [![Test](https://github.com/logion-network/logion-backend/actions/workflows/maven.yml/badge.svg)](https://github.com/logion-network/logion-backend/actions/workflows/maven.yml)
 
 # logion-backend
@@ -57,5 +65,5 @@ e.g., before each push.
 
 * The [Node](https://github.com/logion-network/logion-node) is the implementation of the chain.
 * The [Substrate API Sidecar](https://github.com/logion-network/substrate-api-sidecar) is a REST connector to access the chain.
-* The [Java backend](https://github.com/logion-network/logion-backend) stores data which cannot be exposed publicly, or which wait legal officer's approval.
+* The [Java backend](https://github.com/logion-network/logion-backend-java) stores data which cannot be exposed publicly, or which wait legal officer's approval.
 * The [Wallet](https://github.com/logion-network/logion-wallet) is the user application.
